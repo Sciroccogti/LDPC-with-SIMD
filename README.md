@@ -27,6 +27,8 @@ make
 python3 script/tanner.py --dec-h-path example/H.alist
 ```
 
+![](assets/tanner.png)
+
 #### Type in Alist
 
 ```Bash
