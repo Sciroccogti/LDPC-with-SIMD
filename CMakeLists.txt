@@ -3,6 +3,11 @@ project(LDPC-with-SIMD VERSION 0.1.0)
 
 include(CTest)
 enable_testing()
+
+# Eigen3
+find_package(Eigen3 REQUIRED)
+include_directories(${EIGEN3_INCLUDE_DIRS})
+
 set(SOURCES src/main.cpp src/alist/alist_matrix.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
