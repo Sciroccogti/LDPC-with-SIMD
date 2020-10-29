@@ -2,7 +2,7 @@
  * File: alist_matrix.h
  * File Created: Thursday, 29th October 2020 13:00:39
  * Author: Yifan Zhang (scirocco_gti@yeah.net)
- * Last Modified: Thursday, 29th October 2020 19:41:32
+ * Last Modified: Thursday, 29th October 2020 21:48:57
  */
 
 #ifndef ALIST_MATRIX_H
@@ -16,6 +16,7 @@
 
 #include <malloc.h>
 
+// a struct to store spare matrix
 typedef struct {
     int N, M;       /* size of the matrix */
     int **mlist;    /* list of integer coordinates in the m direction where the
@@ -39,5 +40,4 @@ typedef struct {
 void write_alist(FILE *, alist_matrix *);
 int read_alist(FILE *, alist_matrix *);
 
-// void init_alist(alist_matrix *);
 #endif

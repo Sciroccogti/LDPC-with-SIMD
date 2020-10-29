@@ -9,7 +9,7 @@ LPDC with SIMD aimed at AMD CPUs.
 
 ## How to use
 
-### Simulation
+### 1 Simulation
 
 ```Bash
 mkdir build
@@ -19,9 +19,9 @@ make
 ../bin/LDPC-with-SIMD --dec-h-path ../example/H.alist
 ```
 
-### Tools
+### 2 Tools
 
-#### Draw Tanner
+#### 2-1 Draw Tanner
 
 ```Bash
 python3 script/tanner.py --dec-h-path example/H.alist
@@ -29,7 +29,7 @@ python3 script/tanner.py --dec-h-path example/H.alist
 
 ![](assets/tanner.png)
 
-#### Type in Alist
+#### 2-1 Type in Alist
 
 ```Bash
 python3 script/makeAlist.py
