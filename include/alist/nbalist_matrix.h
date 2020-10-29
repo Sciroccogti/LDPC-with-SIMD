@@ -1,8 +1,8 @@
 /*
- * @Author: Yifan Zhang
- * @Date: 2020-10-29 15:04:15
- * @Last Modified by: Yifan Zhang
- * @Last Modified time: 2020-10-29 16:11:35
+ * File: nbalist_matrix.h
+ * File Created: Thursday, 29th October 2020 14:45:40
+ * Author: Yifan Zhang (scirocco_gti@yeah.net)
+ * Last Modified: Thursday, 29th October 2020 19:43:57
  */
 
 #ifndef NBALIST_MATRIX_H

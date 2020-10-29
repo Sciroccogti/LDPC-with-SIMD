@@ -15,6 +15,25 @@
 			"string_view": "cpp"
 		},
 		"fileheader.Author": "Yifan Zhang",
-		"fileheader.LastModifiedBy": "Yifan Zhang"
+		"fileheader.LastModifiedBy": "Yifan Zhang",
+		"psi-header.config": {
+			"author": "Yifan Zhang",
+			"authorEmail": "scirocco_gti@yeah.net",
+			"forceToTop": true
+		},
+		"psi-header.templates": [
+			{
+				"language": "*",
+				"template": [
+					"File: <<filename>>",
+					"File Created: <<filecreated('dddd, Do MMMM YYYY HH:mm:ss')>>",
+					"Author: <<author>> (<<authoremail>>)",
+					"Last Modified: <<dateformat('dddd, Do MMMM YYYY HH:mm:ss')>>",
+				]
+			}
+		],
+		"psi-header.changes-tracking": {
+			"isActive": true
+		}
 	}
 }

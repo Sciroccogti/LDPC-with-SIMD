@@ -9,12 +9,35 @@ LPDC with SIMD aimed at AMD CPUs.
 
 ## How to use
 
+### Simulation
+
 ```Bash
 mkdir build
 cd build
 cmake ..
 make
-./LDPC-with-SIMD --dec-h-path ../example/H.alist
+../bin/LDPC-with-SIMD --dec-h-path ../example/H.alist
+```
+
+### Tools
+
+#### Draw Tanner
+
+```Bash
+python3 script/tanner.py --dec-h-path example/H.alist
+```
+
+#### Type in Alist
+
+```Bash
+python3 script/makeAlist.py
+# nRow is: 4
+# nCol is: 6
+# 1 1 0 1 0 0 
+# 0 1 1 0 1 0
+# 1 0 0 0 1 1
+# 0 0 1 1 0 1
+# filename is: aaa.alist
 ```
 
 ## References

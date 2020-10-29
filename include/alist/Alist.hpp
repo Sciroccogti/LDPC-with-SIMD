@@ -1,9 +1,10 @@
 /*
- * @Author: Yifan Zhang
- * @Date: 2020-10-29 15:30:45
- * @Last Modified by: Yifan Zhang
- * @Last Modified time: 2020-10-29 19:08:25
+ * File: Alist.hpp
+ * File Created: Thursday, 29th October 2020 15:11:30
+ * Author: Yifan Zhang (scirocco_gti@yeah.net)
+ * Last Modified: Thursday, 29th October 2020 19:43:47
  */
+
 #ifndef ALIST_H
 #define ALIST_H
 

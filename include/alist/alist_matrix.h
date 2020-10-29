@@ -1,8 +1,8 @@
 /*
- * @Author: Yifan Zhang
- * @Date: 2020-10-29 15:02:21
- * @Last Modified by: Yifan Zhang
- * @Last Modified time: 2020-10-29 18:19:27
+ * File: alist_matrix.h
+ * File Created: Thursday, 29th October 2020 13:00:39
+ * Author: Yifan Zhang (scirocco_gti@yeah.net)
+ * Last Modified: Thursday, 29th October 2020 19:41:32
  */
 
 #ifndef ALIST_MATRIX_H
