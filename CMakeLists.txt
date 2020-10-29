@@ -4,7 +4,8 @@ project(LDPC-with-SIMD VERSION 0.1.0)
 include(CTest)
 enable_testing()
 
-add_executable(LDPC-with-SIMD src/main.cpp)
+add_executable(LDPC-with-SIMD src/main.cpp src/ldpc/ldpc.cpp
+                              src/alist/alist_matrix.cpp src/alist/Alist.cpp)
 
 set(CPACK_PROJECT_NAME ${PROJECT_NAME})
 set(CPACK_PROJECT_VERSION ${PROJECT_VERSION})
