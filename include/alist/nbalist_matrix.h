@@ -1,27 +1,32 @@
 /*
  * @Author: Yifan Zhang
- * @Date: 2020-10-29 15:02:21
+ * @Date: 2020-10-29 15:04:15
  * @Last Modified by: Yifan Zhang
- * @Last Modified time: 2020-10-29 15:03:34
+ * @Last Modified time: 2020-10-29 16:11:35
  */
 
-#ifndef ALIST_H
-#define ALIST_H
+#ifndef NBALIST_MATRIX_H
+#define NBALIST_MATRIX_H
 
-// http://www.inference.org.uk/mackay/codes/alist.html
+// Non-Binary Alist
+//
 // N: number of rows
 // M: number of cols
+//
 // num_n: weight of a row
 // num_m: weight of a col
+//
+// m/nlist contains pairs of position and values for each non-zero element
 
 #include <fstream>
 
 typedef struct {
     int N, M;       /* size of the matrix */
+    int GF;         /* GF of the matrix */
     int **mlist;    /* list of integer coordinates in the m direction where the
-                       non-zero entries are */
+                       non-zero entries are and what values they take */
     int **nlist;    /* list of integer coordinates in the n direction where the
-                       non-zero entries are */
+                       non-zero entries are and what values they take */
     int *num_mlist; /* weight of each row, m */
     int *num_nlist; /* weight of each column n */
     int *l_up_to;   // todo
@@ -34,8 +39,8 @@ typedef struct {
     int tot;         // todo
     int same_length; /* whether all vectors in mlist and nlist have same length
                       */
-} alist_matrix;
+} nbalist_matrix;
 
-void write_alist(FILE *, alist_matrix *);
-int read_alist(const FILE *, alist_matrix *);
+// void write_nbalist(FILE *, nbalist_matrix *);
+// int read_nbalist(const FILE *, nbalist_matrix *);
 #endif

@@ -8,7 +8,11 @@
 		"files.associations": {
 			"*.mcfunction": "mcfunction",
 			"iostream": "cpp",
-			"fstream": "cpp"
+			"fstream": "cpp",
+			"vector": "cpp",
+			"array": "cpp",
+			"string": "cpp",
+			"string_view": "cpp"
 		},
 		"fileheader.Author": "Yifan Zhang",
 		"fileheader.LastModifiedBy": "Yifan Zhang"
