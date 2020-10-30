@@ -6,7 +6,7 @@ LPDC with SIMD aimed at AMD CPUs.
 
 - OS: Ubuntu 20.04.1
 - CPU: AMD 3700X
-- Dependency: Eigen3
+- Dependency: [Eigen3](http://eigen.tuxfamily.org)
 
 ### Install Eigen
 

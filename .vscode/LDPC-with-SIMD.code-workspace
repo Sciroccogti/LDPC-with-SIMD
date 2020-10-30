@@ -12,7 +12,9 @@
 			"vector": "cpp",
 			"array": "cpp",
 			"string": "cpp",
-			"string_view": "cpp"
+			"string_view": "cpp",
+			"eigen": "cpp",
+			"sparse": "cpp"
 		},
 		"fileheader.Author": "Yifan Zhang",
 		"fileheader.LastModifiedBy": "Yifan Zhang",

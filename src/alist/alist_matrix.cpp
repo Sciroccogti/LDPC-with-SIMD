@@ -13,11 +13,11 @@ int read_ivector(FILE *fp, int *num_list, int unk, const int length) {
 
 // return 0 if ok
 int read_imatrix(FILE *fp, int **list, int unk1, const int length, int unk2,
-                 const int biggest_num) {
+                 const int *num_list) {
     int i, j;
     for (i = 0; i < length; i++) {
-        list[i] = (int *)malloc(biggest_num * sizeof(int));
-        for (j = 0; j < biggest_num; j++) {
+        list[i] = (int *)malloc(num_list[i] * sizeof(int));
+        for (j = 0; j < num_list[i]; j++) {
             if (fscanf(fp, "%d ", &list[i][j]) == EOF) {
                 return EOF;
             }
@@ -50,10 +50,10 @@ int read_alist(FILE *fp, alist_matrix *a) {
     if (read_ivector(fp, a->num_mlist, 1, a->M) == EOF) {
         return EOF;
     }
-    if (read_imatrix(fp, a->nlist, 1, a->N, 1, a->biggest_num_n) == EOF) {
+    if (read_imatrix(fp, a->nlist, 1, a->N, 1, a->num_nlist) == EOF) {
         return EOF;
     }
-    if (read_imatrix(fp, a->mlist, 1, a->M, 1, a->biggest_num_m) == EOF) {
+    if (read_imatrix(fp, a->mlist, 1, a->M, 1, a->num_mlist) == EOF) {
         return EOF;
     }
 
@@ -69,10 +69,10 @@ void write_ivector(FILE *fp, const int *num_list, int unk, const int length) {
 }
 
 void write_imatrix(FILE *fp, int *const *list, int unk1, const int length,
-                   int unk2, const int biggest_num) {
+                   int unk2, const int *num_list) {
     int i, j;
     for (i = 0; i < length; i++) {
-        for (j = 0; j < biggest_num; j++) {
+        for (j = 0; j < num_list[i]; j++) {
             fprintf(fp, "%d ", list[i][j]);
         }
         fprintf(fp, "\n");
@@ -91,6 +91,6 @@ void write_alist(FILE *fp, alist_matrix *a) {
     fprintf(fp, "%d %d\n", a->biggest_num_n, a->biggest_num_m);
     write_ivector(fp, a->num_nlist, 1, N);
     write_ivector(fp, a->num_mlist, 1, M);
-    write_imatrix(fp, a->nlist, 1, N, 1, a->biggest_num_n);
-    write_imatrix(fp, a->mlist, 1, M, 1, a->biggest_num_m);
+    write_imatrix(fp, a->nlist, 1, N, 1, a->num_nlist);
+    write_imatrix(fp, a->mlist, 1, M, 1, a->num_mlist);
 }

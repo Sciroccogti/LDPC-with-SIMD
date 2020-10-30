@@ -2,11 +2,13 @@
  * File: Alist.hpp
  * File Created: Thursday, 29th October 2020 15:11:30
  * Author: Yifan Zhang (scirocco_gti@yeah.net)
- * Last Modified: Thursday, 29th October 2020 22:28:02
+ * Last Modified: Friday, 30th October 2020 18:02:46
  */
 
 #ifndef ALIST_HPP
 #define ALIST_HPP
+
+#include <Eigen/Eigen>
 
 #include "alist/alist_matrix.h"
 
@@ -25,6 +27,7 @@ class Alist {
     int load(const char* filename);
     void save(const char* filename);
     T getData();
+    Eigen::SparseMatrix<int> getMat();
 };
 
 template <class T>
@@ -82,6 +85,20 @@ void Alist<T>::save(const char* filename) {
 template <class T>
 T Alist<T>::getData() {
     return data;
+}
+
+template <class T>
+Eigen::SparseMatrix<int> Alist<T>::getMat() {
+    Eigen::SparseMatrix<int> ret(data.N, data.M);
+    ret.reserve(Eigen::VectorXi::Constant(data.M, data.biggest_num_m));
+    int i, j;
+    for (i = 0; i < data.M; i++) {
+        for (j = 0; j < data.num_mlist[i]; j++) {
+            ret.insert(data.mlist[i][j] - 1, i) = 1;
+        }
+    }
+    ret.makeCompressed();
+    return ret;
 }
 
 #endif
