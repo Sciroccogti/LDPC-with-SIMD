@@ -14,7 +14,9 @@
 			"string": "cpp",
 			"string_view": "cpp",
 			"eigen": "cpp",
-			"sparse": "cpp"
+			"sparse": "cpp",
+			"sparsecholesky": "cpp",
+			"sparseqr": "cpp"
 		},
 		"fileheader.Author": "Yifan Zhang",
 		"fileheader.LastModifiedBy": "Yifan Zhang",

@@ -2,17 +2,20 @@
  * File: LDPC.hpp
  * File Created: Thursday, 29th October 2020 11:45:19
  * Author: Yifan Zhang (scirocco_gti@yeah.net)
- * Last Modified: Friday, 30th October 2020 18:55:56
+ * Last Modified: Friday, 30th October 2020 22:01:04
  */
 
 #ifndef LDPC_HPP
 #define LDPC_HPP
+
+#include <Eigen/SparseQR>
 
 #include "alist/Alist.hpp"
 
 class LDPC {
   private:
     Eigen::SparseMatrix<int> H_mat;
+    Eigen::SparseMatrix<int> G_mat;
     int K;  // length of message
 
   public:
@@ -20,11 +23,12 @@ class LDPC {
     LDPC(Alist<alist_matrix>);
     LDPC(const char* filename);
     ~LDPC();
-    Eigen::RowVectorX<int> Encoder(Eigen::RowVectorX<int> m);
+    Eigen::RowVectorX<int>& Encoder(Eigen::RowVectorX<int>& m);
     Alist<alist_matrix> Decoder();
     Eigen::SparseMatrix<int> getG();
     Eigen::SparseMatrix<int> getH();
     int getK();
+    Eigen::SparseMatrix<int> H2G(const Eigen::SparseMatrix<int>& H);
 };
 
 LDPC::LDPC() {
@@ -60,5 +64,26 @@ Eigen::SparseMatrix<int> LDPC::getH() {
 int LDPC::getK() {
     return K;
 }
+/*
+Eigen::SparseMatrix<int> LDPC::H2G(const Eigen::SparseMatrix<int>& H) {
+    // G * H^T = 0, H * G^T = 0
+    Eigen::SparseMatrix<int> G(H.rows(), H.cols());
+    Eigen::SparseMatrix<int> O(H.rows(), H.rows());
+    Eigen::SparseQR<Eigen::SparseMatrix<int>, > solver;
 
+    solver.compute(H);
+    if (solver.info() != Eigen::Success) {
+        // decomposition failed
+        return H;
+    }
+
+    G = solver.solve(O);
+    if (solver.info() != Eigen::Success) {
+        // solving failed
+        return H;
+    }
+
+    return G;
+}
+*/
 #endif

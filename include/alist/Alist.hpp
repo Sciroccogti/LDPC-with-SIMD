@@ -2,7 +2,7 @@
  * File: Alist.hpp
  * File Created: Thursday, 29th October 2020 15:11:30
  * Author: Yifan Zhang (scirocco_gti@yeah.net)
- * Last Modified: Friday, 30th October 2020 19:12:15
+ * Last Modified: Friday, 30th October 2020 20:14:28
  */
 
 #ifndef ALIST_HPP
@@ -107,7 +107,6 @@ Eigen::SparseMatrix<int> Alist<T>::getMat() {
     ret.reserve(Eigen::VectorXi::Constant(data.N, data.biggest_num_n));
     int i, j;
     for (i = 0; i < data.N; i++) {
-        printf("%d\n", i);
         for (j = 0; j < data.num_nlist[i]; j++) {
             ret.insert(data.nlist[i][j] - 1, i) = 1;
         }

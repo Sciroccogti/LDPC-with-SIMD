@@ -62,6 +62,7 @@ python3 script/makeAlist.py
 - [pyldpc](https://github.com/hichamjanati/pyldpc.git)
 - [5G-SIMD-LDPC](https://github.com/SherlockHsu/5G-SIMD-LDPC)
 - [Python处理alist文件](https://www.cnblogs.com/lingr7/p/13038410.html)
+- [aff3ct](https://github.com/aff3ct/aff3ct)
 
 ### Nonbinary LDPC
 
