@@ -21,6 +21,10 @@ int read_imatrix(FILE *fp, int **list, int unk1, const int length, int unk2,
             if (fscanf(fp, "%d ", &list[i][j]) == EOF) {
                 return EOF;
             }
+            // some alist contains 0
+            if (!list[i][j]) {
+                j--;
+            }
         }
     }
     return 0;

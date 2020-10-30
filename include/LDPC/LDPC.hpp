@@ -2,7 +2,7 @@
  * File: LDPC.hpp
  * File Created: Thursday, 29th October 2020 11:45:19
  * Author: Yifan Zhang (scirocco_gti@yeah.net)
- * Last Modified: Thursday, 29th October 2020 22:38:43
+ * Last Modified: Friday, 30th October 2020 18:55:56
  */
 
 #ifndef LDPC_HPP
@@ -12,7 +12,7 @@
 
 class LDPC {
   private:
-    alist_matrix H_mat;
+    Eigen::SparseMatrix<int> H_mat;
     int K;  // length of message
 
   public:
@@ -20,32 +20,40 @@ class LDPC {
     LDPC(Alist<alist_matrix>);
     LDPC(const char* filename);
     ~LDPC();
-    Alist<alist_matrix> Encoder();
+    Eigen::RowVectorX<int> Encoder(Eigen::RowVectorX<int> m);
     Alist<alist_matrix> Decoder();
-    Alist<alist_matrix> getH();
+    Eigen::SparseMatrix<int> getG();
+    Eigen::SparseMatrix<int> getH();
     int getK();
 };
 
 LDPC::LDPC() {
-    H_mat = Alist<alist_matrix>().getData();
+    H_mat = Eigen::SparseMatrix<int>();
     K = 0;
 }
 
-LDPC::LDPC(Alist<alist_matrix> d) {
-    H_mat = d.getData();
+LDPC::LDPC(Alist<alist_matrix> A) {
     // G.nRow = N - M, G.nCol = N
     // N = n, M = n - k
-    K = H_mat.N - H_mat.M;
+    K = A.getnCol() - A.getnRow();
+    H_mat = A.getMat();
 }
 
 LDPC::LDPC(const char* filename) {
-    H_mat = Alist<alist_matrix>(filename).getData();
-    K = H_mat.N - H_mat.M;
+    Alist<alist_matrix> A = Alist<alist_matrix>(filename);
+    K = A.getnCol() - A.getnRow();
+    H_mat = A.getMat();
 }
 
 LDPC::~LDPC() {}
 
-Alist<alist_matrix> LDPC::getH() {
+// Eigen::RowVectorX<int> LDPC::Encoder(Eigen::RowVectorX<int> m) {}
+
+Eigen::SparseMatrix<int> LDPC::getG() {
+    return H_mat;
+}
+
+Eigen::SparseMatrix<int> LDPC::getH() {
     return H_mat;
 }
 

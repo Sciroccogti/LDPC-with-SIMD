@@ -2,7 +2,7 @@
  * File: Alist.hpp
  * File Created: Thursday, 29th October 2020 15:11:30
  * Author: Yifan Zhang (scirocco_gti@yeah.net)
- * Last Modified: Friday, 30th October 2020 18:02:46
+ * Last Modified: Friday, 30th October 2020 19:12:15
  */
 
 #ifndef ALIST_HPP
@@ -27,6 +27,8 @@ class Alist {
     int load(const char* filename);
     void save(const char* filename);
     T getData();
+    int getnRow();  // M
+    int getnCol();  // N
     Eigen::SparseMatrix<int> getMat();
 };
 
@@ -87,14 +89,27 @@ T Alist<T>::getData() {
     return data;
 }
 
+// M
+template <class T>
+int Alist<T>::getnRow() {
+    return data.M;
+}
+
+// N
+template <class T>
+int Alist<T>::getnCol() {
+    return data.N;
+}
+
 template <class T>
 Eigen::SparseMatrix<int> Alist<T>::getMat() {
-    Eigen::SparseMatrix<int> ret(data.N, data.M);
-    ret.reserve(Eigen::VectorXi::Constant(data.M, data.biggest_num_m));
+    Eigen::SparseMatrix<int> ret(data.M, data.N);
+    ret.reserve(Eigen::VectorXi::Constant(data.N, data.biggest_num_n));
     int i, j;
-    for (i = 0; i < data.M; i++) {
-        for (j = 0; j < data.num_mlist[i]; j++) {
-            ret.insert(data.mlist[i][j] - 1, i) = 1;
+    for (i = 0; i < data.N; i++) {
+        printf("%d\n", i);
+        for (j = 0; j < data.num_nlist[i]; j++) {
+            ret.insert(data.nlist[i][j] - 1, i) = 1;
         }
     }
     ret.makeCompressed();
