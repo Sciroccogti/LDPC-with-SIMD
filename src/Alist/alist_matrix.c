@@ -1,4 +1,4 @@
-#include "alist/alist_matrix.h"
+#include "Alist/alist_matrix.h"
 
 // return 0 if ok
 int read_ivector(FILE *fp, int *num_list, int unk, const int length) {

@@ -1,8 +1,9 @@
-/*
- * File: Alist.hpp
- * File Created: Thursday, 29th October 2020 15:11:30
- * Author: Yifan Zhang (scirocco_gti@yeah.net)
- * Last Modified: Friday, 30th October 2020 20:14:28
+/**
+ * @file Alist.hpp
+ * @author Yifan Zhang (scirocco_gti@yeah.net)
+ * @brief
+ * @date 2020-10-29 15:11:30
+ * @modified: 2020-10-31 12:04:02
  */
 
 #ifndef ALIST_HPP
@@ -10,7 +11,7 @@
 
 #include <Eigen/Eigen>
 
-#include "alist/alist_matrix.h"
+#include "Alist/alist_matrix.h"
 
 // a class for .alist IO
 template <class T>

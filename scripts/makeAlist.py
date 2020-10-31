@@ -1,8 +1,9 @@
 '''
-File: makeAlist.py
-File Created: Thursday, 29th October 2020 20:30:07
-Author: Yifan Zhang (scirocco_gti@yeah.net)
-Last Modified: Thursday, 29th October 2020 20:41:11
+@file makeAlist.py
+@author Yifan Zhang (scirocco_gti@yeah.net)
+@brief 
+@date 2020-10-29 20:30:07
+@modified: 2020-10-31 12:37:58
 '''
 
 import numpy as np

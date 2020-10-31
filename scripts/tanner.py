@@ -1,8 +1,9 @@
 '''
-File: tanner.py
-File Created: Thursday, 29th October 2020 19:31:34
-Author: Yifan Zhang (scirocco_gti@yeah.net)
-Last Modified: Thursday, 29th October 2020 20:51:01
+@file tanner.py
+@author Yifan Zhang (scirocco_gti@yeah.net)
+@brief 
+@date 2020-10-29 21:29:24
+@modified: 2020-10-31 12:38:14
 '''
 
 # Draw tanner from a H matrix
