@@ -17,7 +17,10 @@ using Container = std::vector<std::vector<int>>;
 
 Eigen::MatrixXi transform_H_to_G(const Eigen::MatrixXi& H);
 Eigen::MatrixXi transform_H_to_G(const Eigen::SparseMatrix<int>& H);
-Positions_pair_vector form_diagonal(Eigen::MatrixXi, int);
+Eigen::MatrixXi transform_H_to_G_LU(const Eigen::MatrixXi& H);
+Eigen::MatrixXi transform_H_to_G_LU(const Eigen::SparseMatrix<int>& H);
+Positions_pair_vector form_diagonal(Eigen::MatrixXi&, int, int);
 void form_identity(Eigen::MatrixXi&);
+Eigen::MatrixXi bgemmt(const Eigen::MatrixXi& A, const Eigen::MatrixXi& tB);
 
 #endif

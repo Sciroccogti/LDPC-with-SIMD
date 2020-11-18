@@ -5,17 +5,14 @@
 // #include <Eigen/Eigen>
 
 int main(int, char**) {
-    LDPC ldpc("example/73.alist");
+    LDPC ldpc("example/simon.alist");
 
     // LDPC ldpc("example/CCSDS_ldpc_n128_k64.alist");
-    std::cout << ldpc.getH() << std::endl;
-    Eigen::SparseMatrix<int> mat = ldpc.getG();
-    // Eigen::MatrixXf m(3, 4);
-    // m << 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12;
-    // std::cout << m << std::endl;
-    // // m.resize(4, 3);
-    // std::cout << m.reshaped(4, 3) << std::endl;
-    std::cout << mat << std::endl;
+
+    Eigen::SparseMatrix<int> H = ldpc.getH(), G = ldpc.getG();
+    std::cout << G << H << std::endl;
+    std::cout << G * H.transpose() << std::endl;
+    // std::cout << mat << std::endl;
 }
 
 // int main() {

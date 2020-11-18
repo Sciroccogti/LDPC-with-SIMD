@@ -32,38 +32,50 @@ void removeRow(Eigen::MatrixXi& matrix, unsigned int rowToRemove) {
 }
 
 /**
- * @brief resize while keep the top right still A|B -> B/0
+ * @brief resize while keep the TOP RIGHT still A|B -> B/0
  *
- * @param mat
+ * @param src
  * @param n_rows
  * @param n_cols
+ * @return Eigen::MatrixXi
  */
-void self_resize(Eigen::MatrixXi& mat, const size_t n_rows,
-                 const size_t n_cols) {
-    // Container::resize(n_rows, std::vector<int>(n_cols, 0));
-    //     auto n_erase = get_n_cols() - n_cols;
-    //     for (size_t r = 0; r < n_rows; r++)
-    //         (*this)[r].erase((*this)[r].begin(), (*this)[r].begin() +
-    //         n_erase);
-    auto diff = mat.cols() - n_cols;
-    Eigen::MatrixXi src(mat);
-    mat.resize(n_rows, n_cols);
-    mat.block(0, 0, src.rows(), n_cols) =
-        src.block(0, diff, src.rows(), n_cols);
-    mat.block(src.rows(), 0, n_cols, n_cols).fill(0);
+Eigen::MatrixXi resize_topright(const Eigen::MatrixXi& src, const size_t n_rows,
+                                const size_t n_cols) {
+    Eigen::MatrixXi mat(n_rows, n_cols);
+    mat.fill(0);
+
+    int diff = n_cols - src.cols();
+    size_t min_rows = n_rows <= src.rows() ? n_rows : src.rows();
+    size_t min_cols = n_cols <= src.cols() ? n_cols : src.cols();
+
+    if (diff > 0) {
+        mat.block(0, diff, min_rows, min_cols) =
+            src.block(0, 0, min_rows, min_cols);
+    } else {
+        mat.block(0, 0, min_rows, min_cols) =
+            src.block(0, -diff, min_rows, min_cols);
+    }
+
+    return mat;
 }
 
+/**
+ * @brief for systematic code
+ *
+ * @param H
+ * @return Eigen::MatrixXi
+ */
 Eigen::MatrixXi transform_H_to_G(const Eigen::MatrixXi& H) {
     Eigen::MatrixXi G = H;
     int M = H.rows();
     int N = H.cols();
     int K = N - M;
-    Positions_pair_vector swapped_cols = form_diagonal(G, 2);
+    Positions_pair_vector swapped_cols = form_diagonal(G, 0, 2);
     form_identity(G);
 
     // erase the just created M*M identity in the left part of H and add the K*K
     // G.block(0, N - )
-    self_resize(G, N, K);
+    G = resize_topright(G, N, K);
     // identity below
     for (auto i = M; i < N; i++) {  // Add rising diagonal identity at the end
         G(i, i - M) = 1;
@@ -81,6 +93,39 @@ Eigen::MatrixXi transform_H_to_G(const Eigen::MatrixXi& H) {
     return G;
 }
 
+/**
+ * @brief LU decomp
+ *
+ * @param H
+ * @return Eigen::MatrixXi
+ */
+Eigen::MatrixXi transform_H_to_G_LU(const Eigen::MatrixXi& H) {
+    int M = H.rows();
+    int N = H.cols();
+    int K = N - M;
+    Eigen::MatrixXi Hp = resize_topright(H.transpose(), M, M);
+    // form_diagonal(Hp, 1, 2);
+    Eigen::MatrixXf Hpinvf = Hp.cast<float>().inverse();
+    Eigen::MatrixXf Hpinv2 = Hpinvf / -Hpinvf.minCoeff();
+
+    Eigen::MatrixXi Hpinv =
+        Hpinv2.unaryExpr([](const float x) { return (int)(abs(x) + 0.5) % 2; });
+
+    Eigen::MatrixXi Hs = resize_topright(H, M, K).transpose();
+    Eigen::MatrixXi GH =
+        resize_topright((Hs * Hpinv.cast<int>()).transpose(), N, K);
+    for (size_t r = 0; r < K; r++) {
+        GH(r + M, r) = 1;
+    }
+
+    return GH.transpose();
+}
+
+Eigen::MatrixXi transform_H_to_G_LU(const Eigen::SparseMatrix<int>& H) {
+    Eigen::MatrixXi Hdense(H);
+    return transform_H_to_G_LU(Hdense);
+}
+
 Eigen::MatrixXi transform_H_to_G(const Eigen::SparseMatrix<int>& H) {
     Eigen::MatrixXi Hdense(H);
     return transform_H_to_G(Hdense);
@@ -90,61 +135,135 @@ Eigen::MatrixXi transform_H_to_G(const Eigen::SparseMatrix<int>& H) {
  * @brief turn a matrix to Top Left diagonal
  *
  * @param mat input matrix
+ * @param direction 0: TOP LEFT; 1: BOTTOM LEFT
  * @param GFq the Galois field the mat takes, default to be 2: "1" = 0 or 1
  * @return Positions_pair_vector swapped_cols
  */
-Positions_pair_vector form_diagonal(Eigen::MatrixXi mat, int GFq = 2) {
+Positions_pair_vector form_diagonal(Eigen::MatrixXi& mat, int direction = 0,
+                                    int GFq = 2) {
     int n_row = mat.rows();
     int n_col = mat.cols();
 
     Positions_pair_vector swapped_cols;
 
-    for (size_t i = 0; i < n_row; i++) {
-        bool found = mat(i, i);
+    switch (direction) {
+        case 0:
+            for (size_t i = 0; i < n_row; i++) {
+                bool found = mat(i, i);
 
-        if (!found) {
-            // try to find an other row which as a 1 in column i
-            for (size_t j = i + 1; j < n_row; j++)
-                if (mat(j, i)) {
-                    // std::swap(mat.row(i), mat.row(j));
-                    swap_rows(mat, i, j);
-                    found = true;
-                    break;
-                }
+                if (!found) {
+                    // try to find an other row which as a 1 in column i
+                    for (size_t j = i + 1; j < n_row; j++)
+                        if (mat(j, i)) {
+                            // std::swap(mat.row(i), mat.row(j));
+                            swap_rows(mat, i, j);
+                            found = true;
+                            break;
+                        }
+                    // no other row after (i+1) of the same column i with a 1
+                    if (!found) {
+                        // find an other column which is good on row i
+                        for (auto j = i + 1; j < n_col; j++) {
+                            if (mat(i, j)) {
+                                swapped_cols.push_back(std::make_pair(i, j));
 
-            if (!found)  // no other row after (i+1) of the same column i with a
-                         // 1
-            {
-                for (auto j = i + 1; j < n_col;
-                     j++)  // find an other column which is good on row i
-                {
-                    if (mat(i, j)) {
-                        swapped_cols.push_back(std::make_pair(i, j));
+                                swap_columns(mat, i, j);
 
-                        swap_columns(mat, i, j);
-
-                        found = true;
-                        break;
+                                found = true;
+                                break;
+                            }
+                        }
                     }
                 }
-            }
-        }
 
-        if (found) {
-            // there is a 1 on row i of the column i
-            // then remove any 1 of the column i from the row (i+1)
-            for (auto j = i + 1; j < n_row; j++)
-                if (mat(j, i))
-                    std::transform(
-                        mat.row(i).begin() + i, mat.row(i).end(),  // ref
-                        mat.row(j).begin() + i, mat.row(j).begin() + i,
-                        std::not_equal_to<int>());
-        } else {
-            // the row is the null vector then delete it
-            removeRow(mat, i);
-            i--;
-            n_row--;
-        }
+                if (found) {
+                    // there is a 1 on row i of the column i
+                    // then remove any 1 of the column i from the row (i+1)
+                    for (auto j = i + 1; j < n_row; j++)
+                        if (mat(j, i))
+                            std::transform(mat.row(i).begin() + i,
+                                           mat.row(i).end(),  // ref
+                                           mat.row(j).begin() + i,
+                                           mat.row(j).begin() + i,
+                                           std::not_equal_to<int>());
+                } else {
+                    // the row is the null vector then delete it
+                    removeRow(mat, i);
+                    i--;
+                    n_row--;
+                }
+            }
+            break;
+        case 1:
+
+            // for (size_t i = 0; i < n_col / 2; i++) {
+            //     swap_columns(mat, i, n_col - i - 1);
+            // }
+            for (size_t i = n_row; i > 0; i--) {
+                auto ref_row = i - 1;
+                auto ref_col = n_row - ref_row - 1;
+                bool found = mat(ref_row, ref_col);
+                // std::cout << mat << "\n\n";
+                if (!found) {
+                    // try to find an other row which as a 1 in column ref_col
+                    for (auto j = ref_row; j > 0; j--) {
+                        auto tested_row = j - 1;
+                        if (mat(tested_row, ref_col)) {
+                            // std::swap(mat.row(ref_row), mat.row(tested_row));
+                            swap_rows(mat, ref_row, tested_row);
+                            found = true;
+                            break;
+                        }
+                    }
+
+                    if (!found)  // no other row before (ref_row-1) of the same
+                                 // column ref_col with a 1
+                    {
+                        for (auto j = ref_col + 1; j < n_col;
+                             j++)  // find an other column which is good on row
+                                   // ref_row
+                        {
+                            if (mat(ref_row, j)) {
+                                swapped_cols.push_back(
+                                    std::make_pair(ref_col, j));
+
+                                swap_columns(mat, ref_col, j);
+
+                                found = true;
+                                break;
+                            }
+                        }
+                    }
+                }
+
+                if (found) {
+                    // there is a 1 on row ref_row of the column ref_col
+                    // then remove any 1 of the column ref_col from the row
+                    // (ref_row-1)
+                    for (auto j = ref_row; j > 0; j--) {
+                        auto tested_row = j - 1;
+                        if (mat(tested_row, ref_col))
+                            std::transform(
+                                mat.row(ref_row).begin() + ref_col,
+                                mat.row(ref_row).end(),  // ref
+                                mat.row(tested_row).begin() + ref_col,
+                                mat.row(tested_row).begin() + ref_col,
+                                std::not_equal_to<int>());
+                    }
+                } else {
+                    // the row is the null vector then delete it
+                    // mat.erase_row(ref_row);
+                    removeRow(mat, ref_row);
+                    n_row--;
+                }
+            }
+            for (size_t i = 0; i < n_col / 2; i++) {
+                swap_columns(mat, i, n_col - i - 1);
+            }
+
+            // std::cout << mat << "\n\n";
+
+            break;
     }
     return swapped_cols;
 }
