@@ -8,6 +8,16 @@ LPDC with SIMD aimed at AMD CPUs.
 - CPU: AMD 3700X
 - Dependency: [Eigen3](http://eigen.tuxfamily.org)
 
+## Functions
+
+- [ ] Encode
+- [ ] Decode
+
+### Tools
+
+- [x] Draw Tanner
+- [x] Type in Alist 
+
 ### Install Eigen
 
 ```Bash

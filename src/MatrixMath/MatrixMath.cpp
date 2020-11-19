@@ -90,7 +90,7 @@ Eigen::MatrixXi transform_H_to_G(const Eigen::MatrixXi& H) {
         swap_rows(G, swapped_cols[l - 1].first, swapped_cols[l - 1].second);
     }
 
-    return G;
+    return G.transpose();
 }
 
 /**
