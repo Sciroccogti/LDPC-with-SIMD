@@ -1,0 +1,19 @@
+{
+    "configurations": [
+        {
+            "name": "config",
+            "configurationProvider": "ms-vscode.cmake-tools",
+            "includePath": [
+                "${workspaceFolder}/include",
+                "/home/zyf/github/LDPC-with-SIMD/include"
+            ],
+            "browse": {
+                "path": [
+                    "${workspaceFolder}/include",
+                    "${workspaceFolder}/src"
+                ]
+            }
+        }
+    ],
+    "version": 4
+}

@@ -1,9 +1,14 @@
 #include <getopt.h>
 
 #include <iostream>
-
-#include "LDPC/LDPC.hpp"
+#define EIGEN_FAST_MATH 0
+#include "Alist/Alist.hpp"
+// #include "LDPC/LDPC.hpp"
+using namespace std;
 int main(int argc, char* argv[]) {
+#ifdef __AVX512__
+    printf("AVX!\n");
+#endif
     int opt;
     static struct option long_options[] = {
         {"help", no_argument, NULL, 'h'},
@@ -46,9 +51,19 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    LDPC ldpc(alist_path);
+    // LDPC ldpc(alist_path);
 
-    Eigen::SparseMatrix<int> H = ldpc.getH(), G = ldpc.getG();
-    std::cout << G << H << std::endl;
-    std::cout << G * H.transpose() << std::endl;
+    // Eigen::SparseMatrix<int> H = ldpc.getH(), G = ldpc.getG();
+    // std::cout << G << H << std::endl;
+    // std::cout << G * H.transpose() << std::endl;
+    clock_t start, end;
+    Alist<alist_matrix> G_alist(alist_path);
+    Eigen::SparseMatrix<int> G = G_alist.getMat();
+    start = clock();
+    for (size_t i = 0; i < 10000000; i++) {
+        G* G.transpose();
+    }
+    end = clock();
+
+    printf("hhUse Time:%f\n", ((double)(end - start) / CLOCKS_PER_SEC));
 }

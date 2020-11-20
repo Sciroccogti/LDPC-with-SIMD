@@ -16,7 +16,7 @@ LPDC with SIMD aimed at AMD CPUs.
 ### Tools
 
 - [x] Draw Tanner
-- [x] Type in Alist 
+- [x] Type in Alist
 
 ### Install Eigen
 

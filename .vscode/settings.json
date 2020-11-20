@@ -5,5 +5,9 @@
         "*.mcfunction": "mcfunction",
         "iostream": "cpp",
         "fstream": "cpp"
-    }
+    },
+    "cmake.configureArgs": [
+        "-DEIGEN_ENABLE_AVX512=ON",
+        "-Dmatch=native",
+    ]
 }
