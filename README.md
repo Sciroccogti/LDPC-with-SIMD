@@ -21,6 +21,8 @@ LPDC with SIMD aimed at AMD CPUs.
 ### Install Eigen
 
 ```Bash
+sudo apt install git
+# sudo snap install cmake --classic
 git clone https://gitlab.com/libeigen/eigen.git
 cd eigen
 mkdir build
@@ -38,7 +40,7 @@ sudo make install
 mkdir build
 cd build
 cmake ..
-make
+cmake --build .
 ../bin/LDPC-with-SIMD --dec-h-path ../example/H.alist
 ```
 

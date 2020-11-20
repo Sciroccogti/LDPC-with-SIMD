@@ -6,14 +6,15 @@ project(LDPC-with-SIMD VERSION 0.1.0)
 
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag("-march=native" COMPILER_OPT_ARCH_NATIVE_SUPPORTED)
-# if(COMPILER_OPT_ARCH_NATIVE_SUPPORTED)
+
+if(COMPILER_OPT_ARCH_NATIVE_SUPPORTED)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
 # else()
 #   check_cxx_compiler_flag("/arch:AVX" COMPILER_OPT_ARCH_AVX_SUPPORTED)
 #   if(COMPILER_OPT_ARCH_AVX_SUPPORTED)
 #     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:AVX")
 #   endif()
-# endif()
+endif()
 
 include(CTest)
 enable_testing()

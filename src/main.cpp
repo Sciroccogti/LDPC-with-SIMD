@@ -6,7 +6,7 @@
 // #include "LDPC/LDPC.hpp"
 using namespace std;
 int main(int argc, char* argv[]) {
-#ifdef __AVX512__
+#ifdef __AVX2__
     printf("AVX!\n");
 #endif
     int opt;
