@@ -21,7 +21,7 @@ LPDC with SIMD aimed at AMD CPUs.
 ### Install Eigen
 
 ```Bash
-sudo apt install git
+sudo apt install git libboost-all-dev
 # sudo snap install cmake --classic
 git clone https://gitlab.com/libeigen/eigen.git
 cd eigen

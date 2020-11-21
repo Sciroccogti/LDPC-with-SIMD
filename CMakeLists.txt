@@ -4,16 +4,25 @@ project(LDPC-with-SIMD VERSION 0.1.0)
 # set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11") set (CMAKE_CXX_FLAGS
 # "${CMAKE_CXX_FLAGS} -std=c++11")
 
+# OPENMP
+find_package(OpenMP REQUIRED)
+if(OPENMP_FOUND)
+  message("OPENMP FOUND")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+  set(CMAKE_EXE_LINKER_FLAGS
+      "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+endif()
+
+
+# SIMD
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag("-march=native" COMPILER_OPT_ARCH_NATIVE_SUPPORTED)
-
 if(COMPILER_OPT_ARCH_NATIVE_SUPPORTED)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
-# else()
-#   check_cxx_compiler_flag("/arch:AVX" COMPILER_OPT_ARCH_AVX_SUPPORTED)
-#   if(COMPILER_OPT_ARCH_AVX_SUPPORTED)
-#     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /arch:AVX")
-#   endif()
+  # else() check_cxx_compiler_flag("/arch:AVX" COMPILER_OPT_ARCH_AVX_SUPPORTED)
+  # if(COMPILER_OPT_ARCH_AVX_SUPPORTED) set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}
+  # /arch:AVX") endif()
 endif()
 
 include(CTest)

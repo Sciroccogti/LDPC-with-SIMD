@@ -1,12 +1,14 @@
 #include <getopt.h>
+#include <omp.h>
 
 #include <iostream>
-#define EIGEN_FAST_MATH 0
+
 #include "Alist/Alist.hpp"
 // #include "LDPC/LDPC.hpp"
 using namespace std;
 int main(int argc, char* argv[]) {
-#ifdef __AVX2__
+    // Eigen::initParallel();
+#ifdef __AVX512F__
     printf("AVX!\n");
 #endif
     int opt;
@@ -56,14 +58,15 @@ int main(int argc, char* argv[]) {
     // Eigen::SparseMatrix<int> H = ldpc.getH(), G = ldpc.getG();
     // std::cout << G << H << std::endl;
     // std::cout << G * H.transpose() << std::endl;
-    clock_t start, end;
     Alist<alist_matrix> G_alist(alist_path);
     Eigen::SparseMatrix<int> G = G_alist.getMat();
-    start = clock();
-    for (size_t i = 0; i < 10000000; i++) {
+    double start = omp_get_wtime();
+#pragma omp parallel for
+    for (size_t i = 0; i < 1000000000; i++) {
         G* G.transpose();
     }
-    end = clock();
+    double end = omp_get_wtime();
 
-    printf("hhUse Time:%f\n", ((double)(end - start) / CLOCKS_PER_SEC));
+    printf("hhUse Time:%f\n", end - start);
+    printf("%d\n", Eigen::nbThreads());
 }
