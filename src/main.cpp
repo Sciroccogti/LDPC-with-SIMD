@@ -1,6 +1,7 @@
 #include <getopt.h>
 #include <omp.h>
 
+#include <bitset>
 #include <iostream>
 
 #include "Alist/Alist.hpp"
@@ -59,14 +60,23 @@ int main(int argc, char* argv[]) {
     // std::cout << G << H << std::endl;
     // std::cout << G * H.transpose() << std::endl;
     Alist<alist_matrix> G_alist(alist_path);
+    const size_t M = 64;
     Eigen::SparseMatrix<int> G = G_alist.getMat();
+    Eigen::Vector<bool, M> I();
     double start = omp_get_wtime();
-#pragma omp parallel for
-    for (size_t i = 0; i < 1000000000; i++) {
-        G* G.transpose();
-    }
-    double end = omp_get_wtime();
+    u_long I_ulong = 1001;
+    printf("%ld\n", I_ulong);
+    std::bitset<M> I(I_ulong);
+    printf("%s\n", I.to_string().c_str());
 
-    printf("hhUse Time:%f\n", end - start);
-    printf("%d\n", Eigen::nbThreads());
+    // #pragma omp parallel for
+    //     for (size_t i = 0; i < M; i++) {
+    //         for (size_t j = 0; i < 2; i++) {
+    //             ;
+    //         }
+    //     }
+    //     double end = omp_get_wtime();
+
+    //     printf("Use Time:%f\n", end - start);
+    //     printf("Threads: %d\n", Eigen::nbThreads());
 }
