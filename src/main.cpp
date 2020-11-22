@@ -7,6 +7,14 @@
 #include "Alist/Alist.hpp"
 // #include "LDPC/LDPC.hpp"
 using namespace std;
+
+// https://stackoverflow.com/q/18838959
+struct logical_xor {
+    bool operator()(bool a, bool b) const {
+        return a != b;
+    }
+};
+
 int main(int argc, char* argv[]) {
     // Eigen::initParallel();
 #ifdef __AVX512F__
@@ -61,13 +69,26 @@ int main(int argc, char* argv[]) {
     // std::cout << G * H.transpose() << std::endl;
     Alist<alist_matrix> G_alist(alist_path);
     const size_t M = 64;
-    Eigen::SparseMatrix<int> G = G_alist.getMat();
-    Eigen::Vector<bool, M> I();
+    Eigen::Array<bool, M, 128> G = G_alist.getMat().cast<bool>();
+    Eigen::Array<bool, M, 1> I;
+    std::cout << I.transpose() << std::endl;
+
     double start = omp_get_wtime();
-    u_long I_ulong = 1001;
-    printf("%ld\n", I_ulong);
-    std::bitset<M> I(I_ulong);
-    printf("%s\n", I.to_string().c_str());
+    int count[129] = {0};
+#pragma omp parallel for
+    for (size_t i = 0; i < 4096000; i++) {
+        I.setRandom(M);
+        // I.Zero(M);
+        int weight = (G.colwise() * I).colwise().redux(logical_xor()).count();
+        count[weight]++;
+        if (weight < 22) {
+            std::cout << I.transpose() << std::endl;
+        }
+    }
+
+    for (size_t i = 0; i < 129; i++) {
+        printf("%ld:\t\t%d\n", i, count[i]);
+    }
 
     // #pragma omp parallel for
     //     for (size_t i = 0; i < M; i++) {
@@ -75,8 +96,8 @@ int main(int argc, char* argv[]) {
     //             ;
     //         }
     //     }
-    //     double end = omp_get_wtime();
+    double end = omp_get_wtime();
 
-    //     printf("Use Time:%f\n", end - start);
+    printf("Use Time:%f\n", end - start);
     //     printf("Threads: %d\n", Eigen::nbThreads());
 }
