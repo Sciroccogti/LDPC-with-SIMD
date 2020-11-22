@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "Alist/Alist.hpp"
+#include "xsimd/xsimd.hpp"
 // #include "LDPC/LDPC.hpp"
 using namespace std;
 int main(int argc, char* argv[]) {
@@ -62,12 +63,16 @@ int main(int argc, char* argv[]) {
     Alist<alist_matrix> G_alist(alist_path);
     const size_t M = 64;
     Eigen::SparseMatrix<int> G = G_alist.getMat();
-    Eigen::Vector<bool, M> I();
+    // Eigen::Vector<bool, M> I();
+    xsimd::batch<double, 4> a(1.5, 2.5, 3.5, 4.5);
+    xsimd::batch<double, 4> b(2.5, 3.5, 4.5, 5.5);
+    auto mean = (a + b) / 2;
+    std::cout << mean << std::endl;
     double start = omp_get_wtime();
-    u_long I_ulong = 1001;
-    printf("%ld\n", I_ulong);
-    std::bitset<M> I(I_ulong);
-    printf("%s\n", I.to_string().c_str());
+    // u_long I_ulong = 1001;
+    // printf("%ld\n", I_ulong);
+    // std::bitset<M> I(I_ulong);
+    // printf("%s\n", I.to_string().c_str());
 
     // #pragma omp parallel for
     //     for (size_t i = 0; i < M; i++) {
