@@ -6,7 +6,9 @@ LPDC with SIMD aimed at AMD CPUs.
 
 - OS: Ubuntu 20.04.1
 - CPU: AMD 3700X
-- Dependency: [Eigen3](http://eigen.tuxfamily.org)
+- Dependency: 
+  - [Eigen3](http://eigen.tuxfamily.org)
+  - [xsimd](https://github.com/xtensor-stack/xsimd)
 
 ## Functions
 
@@ -29,6 +31,17 @@ mkdir build
 cd build
 cmake ..
 cmake -DEIGEN_TEST_AVX=ON -DEIGEN_TEST_AVX2=ON .
+sudo make install
+```
+
+### Install xsimd
+
+```Bash
+git clone https://github.com/xtensor-stack/xsimd.git
+cd xsimd
+mkdir build
+cd build
+cmake ..
 sudo make install
 ```
 

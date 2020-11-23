@@ -16,7 +16,10 @@
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/bin/LDPC-with-SIMD",
-            "args": [],
+            "args": [
+                "-H",
+                "example/G_PAC.alist"
+            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
