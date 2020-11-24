@@ -29,35 +29,33 @@ int main(int argc, char* argv[]) {
     Eigen::SparseMatrix<int> G = G_alist.getMat();
 
     int count[129] = {0};
+
+    // store a 64 bit with int64
+    u_int64_t G_int[N];
+#pragma omp parallel for
+    for (size_t i = 0; i < N; i++) {
+        std::bitset<M> col(0);
+        for (Eigen::SparseMatrix<int>::InnerIterator it(G, i); it; ++it) {
+            col[it.row()] = it.value();
+        }
+        G_int[i] = col.to_ullong();
+    }
+
     double start = omp_get_wtime();
     if (enable_SIMD) {
-        // store a 64 bit with int64
-        std::vector<u_int64_t> G_int;
         size_t inc = b_type::size;
         // size for which the vectorization is possible
         size_t vec_size = N - N % inc;
 
-        // store a row as a uint64, and every 4 uint64 as a batch
-        // outerSize: M
-        // https://eigen.tuxfamily.org/dox/group__TutorialSparse.html
-        for (int k = 0; k < G.outerSize(); k++) {
-            // bitset to turn bits into uint64
-            // https://www.cplusplus.com/reference/bitset/bitset/
-            std::bitset<M> col(0);
-            for (Eigen::SparseMatrix<int>::InnerIterator it(G, k); it; ++it) {
-                col[it.row()] = it.value();
-            }
-            G_int.push_back(col.to_ullong());
-        }
-
         u_int64_t two[8] = {2, 2, 2, 2, 2, 2, 2, 2};
         b_type two_vec = xsimd::load_unaligned(two);
 
-#pragma omp parallel for
+#pragma omp parallel for reduction(+ : count[:129])
         for (size_t i = 0; i < 4096000; i++) {
             int weight = 0;
             u_int64_t I[8] = {i, i, i, i, i, i, i, i};
 
+#pragma omp parallel for
             for (int j = 0; j < vec_size; j += inc) {
                 b_type G_vec = xsimd::load_unaligned(&G_int[j]);
                 b_type I_vec = xsimd::load_unaligned(I);
@@ -72,20 +70,9 @@ int main(int argc, char* argv[]) {
             }
             count[weight]++;
         }
+
     } else {  // Non SIMD
-        // store a 64 bit with int64
-        u_int64_t G_int[N];
-
-#pragma omp parallel for
-        for (size_t i = 0; i < N; i++) {
-            std::bitset<M> col(0);
-            for (Eigen::SparseMatrix<int>::InnerIterator it(G, i); it; ++it) {
-                col[it.row()] = it.value();
-            }
-            G_int[i] = col.to_ullong();
-        }
-
-#pragma omp parallel for
+#pragma omp parallel for reduction(+ : count[:129])
         for (size_t i = 0; i < 4096000; i++) {
             int weight = 0;
 #pragma omp parallel for

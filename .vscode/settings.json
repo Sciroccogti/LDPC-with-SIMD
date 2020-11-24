@@ -5,6 +5,9 @@
     "files.associations": {
         "*.mcfunction": "mcfunction",
         "iostream": "cpp",
-        "fstream": "cpp"
+        "fstream": "cpp",
+        "bitset": "cpp",
+        "chrono": "cpp",
+        "algorithm": "cpp"
     },
 }
