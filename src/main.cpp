@@ -45,7 +45,6 @@ int main(int argc, char* argv[]) {
                 std::bitset<M> col(0);
                 for (Eigen::SparseMatrix<int>::InnerIterator it(G, k + i); it;
                      ++it) {
-                    // sequence of bitset and Matrix is different
                     col[M - it.row()] = it.value();
                 }
                 col_int[i] = col.to_ullong();
@@ -80,8 +79,7 @@ int main(int argc, char* argv[]) {
         for (size_t i = 0; i < N; i++) {
             std::bitset<M> col(0);
             for (Eigen::SparseMatrix<int>::InnerIterator it(G, i); it; ++it) {
-                // sequence of bitset and Matrix is different
-                col[M - it.row()] = it.value();
+                col[it.row()] = it.value();
             }
             G_int[i] = col.to_ullong();
         }
