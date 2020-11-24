@@ -18,7 +18,9 @@
             "program": "${workspaceFolder}/bin/LDPC-with-SIMD",
             "args": [
                 "-H",
-                "example/G_PAC.alist"
+                "example/G_PAC.alist",
+                "-s",
+                "off",
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
