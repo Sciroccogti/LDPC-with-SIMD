@@ -10,7 +10,9 @@
 #define SIMDMATH_HPP
 #include "xsimd/xsimd.hpp"
 
-xsimd::batch<u_int64_t, 4> hamming(xsimd::batch<u_int64_t, 4> n) {
+using b_type = xsimd::simd_type<u_int64_t>;
+
+b_type hamming(b_type n) {
     n = (n & 0x5555555555555555) + ((n >> 1) & 0x5555555555555555);
     n = (n & 0x3333333333333333) + ((n >> 2) & 0x3333333333333333);
     n = (n & 0x0f0f0f0f0f0f0f0f) + ((n >> 4) & 0x0f0f0f0f0f0f0f0f);

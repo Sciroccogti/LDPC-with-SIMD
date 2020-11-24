@@ -19,8 +19,8 @@
             "args": [
                 "-H",
                 "example/G_PAC.alist",
-                "-s",
-                "off",
+                // "-s",
+                // "off",
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
