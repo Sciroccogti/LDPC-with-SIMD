@@ -29,6 +29,7 @@ int main(int argc, char* argv[]) {
     Eigen::SparseMatrix<int> G = G_alist.getMat();
 
     int count[129] = {0};
+
     double start = omp_get_wtime();
     if (enable_SIMD) {
         // store a 64 bit with int64
@@ -66,6 +67,7 @@ int main(int argc, char* argv[]) {
 
             // u_int64_t I[8] = {i, i, i, i, i, i, i, i};
 
+#pragma omp parallel for
             for (int j = 0; j < vec_size; j += inc) {
                 b_type G_vec = xsimd::load_aligned(&G_int[j]);
                 b_type I_vec = xsimd::load_aligned(&I[0]);
@@ -80,10 +82,11 @@ int main(int argc, char* argv[]) {
             }
             count[weight]++;
         }
+
     } else {  // Non SIMD
+
         // store a 64 bit with int64
         u_int64_t G_int[N];
-
 #pragma omp parallel for
         for (size_t i = 0; i < N; i++) {
             std::bitset<M> col(0);
@@ -92,7 +95,6 @@ int main(int argc, char* argv[]) {
             }
             G_int[i] = col.to_ullong();
         }
-
 #pragma omp parallel for reduction(+ : count[:129])
         for (size_t i = 0; i < 4096000; i++) {
             int weight = 0;
