@@ -50,22 +50,14 @@ int main(int argc, char* argv[]) {
             G_int.push_back(col.to_ullong());
         }
 
-        // u_int64_t two[8] = {2, 2, 2, 2, 2, 2, 2, 2};
-        vector_type two;
-        for (size_t j = 0; j < inc; j++) {
-            two.push_back(2);
-        }
+        vector_type two(inc, 2);
         b_type two_vec = xsimd::load_aligned(&two[0]);
 
+        start = omp_get_wtime();
 #pragma omp parallel for reduction(+ : count[:129])
         for (size_t i = 0; i < 4096000; i++) {
             int weight = 0;
-            vector_type I;
-            for (size_t j = 0; j < inc; j++) {
-                I.push_back(i);
-            }
-
-            // u_int64_t I[8] = {i, i, i, i, i, i, i, i};
+            vector_type I(inc, i);
 
 #pragma omp parallel for
             for (int j = 0; j < vec_size; j += inc) {
