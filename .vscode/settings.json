@@ -1,9 +1,13 @@
 {
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "C_Cpp.clang_format_fallbackStyle": "{BasedOnStyle: Google, IndentWidth: 4, TabWidth: 4, AccessModifierOffset: -2, AllowShortFunctionsOnASingleLine: Empty}",
     "cmake.configureOnOpen": true,
     "files.associations": {
         "*.mcfunction": "mcfunction",
         "iostream": "cpp",
-        "fstream": "cpp"
+        "fstream": "cpp",
+        "bitset": "cpp",
+        "chrono": "cpp",
+        "algorithm": "cpp"
     },
 }

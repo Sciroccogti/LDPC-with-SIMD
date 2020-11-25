@@ -9,14 +9,23 @@
             "type": "python",
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "args": [
+                "-H",
+                "example/G_PAC.alist",
+            ]
         },
         {
             "name": "(gdb) 启动",
             "type": "cppdbg",
             "request": "launch",
             "program": "${workspaceFolder}/bin/LDPC-with-SIMD",
-            "args": [],
+            "args": [
+                "-H",
+                "example/G_PAC.alist",
+                // "-s",
+                // "off",
+            ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
