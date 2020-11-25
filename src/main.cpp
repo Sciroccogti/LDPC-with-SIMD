@@ -108,5 +108,6 @@ int main(int argc, char* argv[]) {
         printf("%d: %d\n", i, count[i]);
     }
 
+
     //     printf("Threads: %d\n", Eigen::nbThreads());
 }
