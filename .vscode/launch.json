@@ -9,7 +9,11 @@
             "type": "python",
             "request": "launch",
             "program": "${file}",
-            "console": "integratedTerminal"
+            "console": "integratedTerminal",
+            "args": [
+                "-H",
+                "example/G_PAC.alist",
+            ]
         },
         {
             "name": "(gdb) 启动",
