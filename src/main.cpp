@@ -19,6 +19,9 @@ int main(int argc, char* argv[]) {
     if (opt(argc, argv, alist_path, enable_SIMD)) {
         return -1;
     }
+#ifdef MIPP_ALIGNED_LOADS
+    printf("aligned!\n");
+#endif
 
     // Eigen::SparseMatrix<int> H = ldpc.getH(), G = ldpc.getG();
     // std::cout << G << H << std::endl;

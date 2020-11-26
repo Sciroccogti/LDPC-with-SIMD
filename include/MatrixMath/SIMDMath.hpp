@@ -8,10 +8,11 @@
 
 #ifndef SIMDMATH_HPP
 #define SIMDMATH_HPP
+
 #include "MIPP/mipp.h"
 
 using b_type = mipp::Reg<int64_t>;
-using vector_type = std::vector<int64_t>;
+using vector_type = mipp::vector<int64_t>;
 size_t inc = mipp::N<int64_t>();
 /*
 using b_type = xsimd::simd_type<u_int64_t>;
