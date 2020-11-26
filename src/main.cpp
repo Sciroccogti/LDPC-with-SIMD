@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
         }
 
         vector_type two(inc, 2);
-        b_type two_vec = xsimd::load_aligned(&two[0]);
+        b_type two_vec = &two[0];
 
         start = omp_get_wtime();
 #pragma omp parallel for reduction(+ : count[:129])
@@ -61,13 +61,13 @@ int main(int argc, char* argv[]) {
 
 #pragma omp parallel for
             for (int j = 0; j < vec_size; j += inc) {
-                b_type G_vec = xsimd::load_aligned(&G_int[j]);
-                b_type I_vec = xsimd::load_aligned(&I[0]);
+                b_type G_vec = &G_int[j];
+                b_type I_vec = &I[0];
                 b_type tmp_vec = G_vec & I_vec;
                 tmp_vec = hamming(tmp_vec);
-                tmp_vec = tmp_vec % two_vec;
+                b_type tmp2_vec = (tmp_vec & b0);
                 for (size_t k = 0; k < inc; k++) {
-                    if (tmp_vec[k] != 0) {
+                    if (tmp_vec[k] != tmp2_vec[k]) {
                         weight++;
                     }
                 }
@@ -107,7 +107,6 @@ int main(int argc, char* argv[]) {
     for (int i = 0; i < 129; i++) {
         printf("%d: %d\n", i, count[i]);
     }
-
 
     //     printf("Threads: %d\n", Eigen::nbThreads());
 }
