@@ -27,7 +27,9 @@ if(COMPILER_OPT_ARCH_NATIVE_SUPPORTED)
   # /arch:AVX") endif()
 endif()
 
+# MIPP
 add_definitions("-DMIPP_ALIGNED_LOADS")
+# add_definitions("-DMIPP_NO_INTRINSICS")
 
 # Eigen3
 find_package(Eigen3 REQUIRED)
