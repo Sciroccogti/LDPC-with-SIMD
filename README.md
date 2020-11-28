@@ -33,6 +33,18 @@ cmake -DEIGEN_TEST_AVX=ON -DEIGEN_TEST_AVX2=ON .
 sudo make install
 ```
 
+### Install yaml-cpp
+
+```Bash
+git clone https://github.com/jbeder/yaml-cpp
+cd yaml-cpp
+mkdir build
+cd build
+cmake ..
+make
+sudo make install
+```
+
 ## How to use
 
 ### 1 Simulation

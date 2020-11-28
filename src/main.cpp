@@ -2,21 +2,20 @@
 
 #include <omp.h>
 
-#include <bitset>
 #include <iostream>
-#include <vector>
 
 #include "Alist/Alist.hpp"
+#include "Combine/Combine.hpp"
 #include "MatrixMath/NoramlMath.hpp"
 #include "MatrixMath/SIMDMath.hpp"
 // #include "LDPC/LDPC.hpp"
 
 int main(int argc, char* argv[]) {
     // Eigen::initParallel();
-    char* alist_path = NULL;
+    char *alist_path = NULL, *output_path = NULL;
     bool enable_SIMD = true;
 
-    if (opt(argc, argv, alist_path, enable_SIMD)) {
+    if (opt(argc, argv, alist_path, enable_SIMD, output_path)) {
         return -1;
     }
 #ifdef MIPP_ALIGNED_LOADS
@@ -32,6 +31,7 @@ int main(int argc, char* argv[]) {
     Eigen::SparseMatrix<int> G = G_alist.getMat();
 
     int count[23] = {0};
+    readOutput(output_path, count);
 
     double start = omp_get_wtime();
     if (enable_SIMD) {
@@ -88,7 +88,6 @@ int main(int argc, char* argv[]) {
             }
             count[weight]++;
         }
-
     } else {  // Non SIMD
 
         // store a 64 bit with int64
@@ -101,12 +100,18 @@ int main(int argc, char* argv[]) {
             }
             G_int[i] = col.to_ullong();
         }
-#pragma omp parallel for reduction(+ : count[:23])
-        for (size_t i = 0; i < 4096000; i++) {
+        Combine com(7);
+        u_int64_t i = com.Fetch();
+        int n = 0;
+        do {
+        } while (i = com.Next());
+
+        /*
+        for (size_t i = 0; i < I_list.size(); i++) {
             int weight = 0;
             bool is_wasted = false;
             for (size_t j = 0; j < N; j++) {
-                u_int64_t G_tmp = G_int[j] & i;
+                u_int64_t G_tmp = G_int[j] & I_list[i];
                 G_tmp = hamming(G_tmp);
                 if (G_tmp % 2) {
                     if (weight >= 22) {
@@ -120,7 +125,7 @@ int main(int argc, char* argv[]) {
                 continue;
             }
             count[weight]++;
-        }
+        }*/
     }
     double end = omp_get_wtime();
 
@@ -130,6 +135,7 @@ int main(int argc, char* argv[]) {
             printf("%d: %d\n", i, count[i]);
         }
     }
+    writeOutput(output_path, count);
 
     //     printf("Threads: %d\n", Eigen::nbThreads());
 }

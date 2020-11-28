@@ -16,7 +16,6 @@ if(OPENMP_FOUND)
       "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
-
 # SIMD
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag("-march=native" COMPILER_OPT_ARCH_NATIVE_SUPPORTED)
@@ -41,6 +40,9 @@ set(SOURCES src/main.cpp src/Alist/alist_matrix.c src/MatrixMath/MatrixMath.cpp
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME}
                            PRIVATE ${PROJECT_SOURCE_DIR}/include)
+
+# YAML
+target_link_libraries(${PROJECT_NAME} PRIVATE yaml-cpp)
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_SOURCE_DIR}/bin)
 
