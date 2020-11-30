@@ -34,6 +34,7 @@ int main(int argc, char* argv[]) {
     if (enable_SIMD) {
         // store a 64 bit with int64
         vector_type G_int;
+        b_type G_vec[N];
         // size for which the vectorization is possible
         size_t vec_size = N - N % inc;
 
@@ -50,6 +51,10 @@ int main(int argc, char* argv[]) {
             G_int.push_back(col.to_ullong());
         }
 
+        for (int j = 0; j < vec_size; j += inc) {
+            G_vec[j / inc] = xsimd::load_aligned(&G_int[j]);
+        }
+
         vector_type two(inc, 2);
         b_type two_vec = xsimd::load_aligned(&two[0]);
 
@@ -58,13 +63,12 @@ int main(int argc, char* argv[]) {
         for (size_t i = 0; i < 4096000; i++) {
             int weight = 0;
             vector_type I(inc, i);
+            b_type I_vec = xsimd::load_aligned(&I[0]);
 
 #pragma omp parallel for
             for (int j = 0; j < vec_size; j += inc) {
-                b_type G_vec = xsimd::load_aligned(&G_int[j]);
-                b_type I_vec = xsimd::load_aligned(&I[0]);
-                b_type tmp_vec = G_vec & I_vec;
-                tmp_vec = hamming(tmp_vec);
+                b_type tmp_vec = G_vec[j / inc] & I_vec;
+                hamming(tmp_vec);
                 tmp_vec = tmp_vec % two_vec;
                 for (size_t k = 0; k < inc; k++) {
                     if (tmp_vec[k] != 0) {
