@@ -44,7 +44,7 @@ b_type b4 = &v4[0];
 b_type b5 = &v5[0];
 b_type b6 = &v6[0];
 
-b_type hamming(b_type n) {
+b_type hamming(b_type &n) {
     n = (n & b1) + ((n >> 1) & b1);
     n = (n & b2) + ((n >> 2) & b2);
     n = (n & b3) + ((n >> 4) & b3);
