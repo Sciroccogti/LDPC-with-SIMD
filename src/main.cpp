@@ -35,8 +35,8 @@ int main(int argc, char* argv[]) {
 
     double start = omp_get_wtime();
     if (enable_SIMD) {
-        // store a 64 bit with int64
-        vector_type G_int;
+        // store a 64 bit with double
+        double G_double[N];
         b_type G_vec[N];
         // size for which the vectorization is possible
         size_t vec_size = N - N % inc;
@@ -51,31 +51,31 @@ int main(int argc, char* argv[]) {
             for (Eigen::SparseMatrix<int>::InnerIterator it(G, k); it; ++it) {
                 col[it.row()] = it.value();
             }
-            G_int.push_back(col.to_ullong());
+            G_double[k] = (double)col.to_ullong();
         }
 
 #pragma omp parallel for
         for (int i = 0; i < vec_size; i += inc) {
-            G_vec[i / inc] = &G_int[i];
+            G_vec[i / inc] = _mm256_cvtpd_epu64(_mm256_load_pd(&G_double[i]));
         }
 
-        vector_type two(inc, 2);
-        b_type two_vec = &two[0];
+        // vector_type two(inc, 2);
+        // b_type two_vec = &two[0];
 
         start = omp_get_wtime();
 #pragma omp parallel for reduction(+ : count[:129])
         for (size_t i = 0; i < 4096000; i++) {
             int weight = 0;
-            vector_type I(inc, i);
-            b_type I_vec = &I[0];
+            double i_double = (double)i;
+            double v0[inc] = {i_double, i_double, i_double, i_double};
+            b_type I_vec = _mm256_cvtpd_epu64(_mm256_load_pd(v0));
 
 #pragma omp parallel for
             for (int j = 0; j < vec_size; j += inc) {
                 b_type tmp_vec = G_vec[j / inc] & I_vec;
                 hamming(tmp_vec);
-                b_type tmp2_vec = (tmp_vec & b0);
                 for (size_t k = 0; k < inc; k++) {
-                    if (tmp_vec[k] != tmp2_vec[k]) {
+                    if (tmp_vec[k] % 2) {
                         weight++;
                     }
                 }

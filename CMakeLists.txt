@@ -21,14 +21,15 @@ endif()
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag("-march=native" COMPILER_OPT_ARCH_NATIVE_SUPPORTED)
 if(COMPILER_OPT_ARCH_NATIVE_SUPPORTED)
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -march=native -mavx -mfma")
+  message("AVX!!!!")
   # else() check_cxx_compiler_flag("/arch:AVX" COMPILER_OPT_ARCH_AVX_SUPPORTED)
   # if(COMPILER_OPT_ARCH_AVX_SUPPORTED) set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}
   # /arch:AVX") endif()
 endif()
 
 # MIPP
-add_definitions("-DMIPP_ALIGNED_LOADS")
+# add_definitions("-DMIPP_ALIGNED_LOADS")
 # add_definitions("-DMIPP_NO_INTRINSICS")
 
 # Eigen3

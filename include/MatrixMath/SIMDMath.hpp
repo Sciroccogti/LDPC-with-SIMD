@@ -9,23 +9,36 @@
 #ifndef SIMDMATH_HPP
 #define SIMDMATH_HPP
 
-#include "MIPP/mipp.h"
+#include <immintrin.h>
 
+using b_type = __m256i;
+// using vector_type = std::vector<u_int64_t>;
+const size_t inc = sizeof(b_type) / 8;
+/*
 using b_type = mipp::Reg<int64_t>;
 using vector_type = mipp::vector<int64_t>;
 size_t inc = mipp::N<int64_t>();
+*/
 /*
 using b_type = xsimd::simd_type<u_int64_t>;
 using vector_type = std::vector<u_int64_t, XSIMD_DEFAULT_ALLOCATOR(u_int64_t)>;
 size_t inc = b_type::size;
 */
-vector_type v0(inc, 0xfffffffffffffffe);
-vector_type v1(inc, 0x5555555555555555);
-vector_type v2(inc, 0x3333333333333333);
-vector_type v3(inc, 0x0f0f0f0f0f0f0f0f);
-vector_type v4(inc, 0x00ff00ff00ff00ff);
-vector_type v5(inc, 0x0000ffff0000ffff);
-vector_type v6(inc, 0x00000000ffffffff);
+
+double v0[inc] = {(double)0xfffffffffffffffe, (double)0xfffffffffffffffe,
+                  (double)0xfffffffffffffffe, (double)0xfffffffffffffffe};
+double v1[inc] = {(double)0x5555555555555555, (double)0x5555555555555555,
+                  (double)0x5555555555555555, (double)0x5555555555555555};
+double v2[inc] = {(double)0x3333333333333333, (double)0x3333333333333333,
+                  (double)0x3333333333333333, (double)0x3333333333333333};
+double v3[inc] = {(double)0x0f0f0f0f0f0f0f0f, (double)0x0f0f0f0f0f0f0f0f,
+                  (double)0x0f0f0f0f0f0f0f0f, (double)0x0f0f0f0f0f0f0f0f};
+double v4[inc] = {(double)0x00ff00ff00ff00ff, (double)0x00ff00ff00ff00ff,
+                  (double)0x00ff00ff00ff00ff, (double)0x00ff00ff00ff00ff};
+double v5[inc] = {(double)0x0000ffff0000ffff, (double)0x0000ffff0000ffff,
+                  (double)0x0000ffff0000ffff, (double)0x0000ffff0000ffff};
+double v6[inc] = {(double)0x00000000ffffffff, (double)0x00000000ffffffff,
+                  (double)0x00000000ffffffff, (double)0x00000000ffffffff};
 
 /*
 b_type b1 = xsimd::load_aligned(&v1[0]);
@@ -35,7 +48,7 @@ b_type b4 = xsimd::load_aligned(&v4[0]);
 b_type b5 = xsimd::load_aligned(&v5[0]);
 b_type b6 = xsimd::load_aligned(&v6[0]);
 */
-
+/*
 b_type b0 = &v0[0];
 b_type b1 = &v1[0];
 b_type b2 = &v2[0];
@@ -43,6 +56,14 @@ b_type b3 = &v3[0];
 b_type b4 = &v4[0];
 b_type b5 = &v5[0];
 b_type b6 = &v6[0];
+*/
+b_type b0 = _mm256_cvtpd_epu64(_mm256_load_pd(v0));
+b_type b1 = _mm256_cvtpd_epu64(_mm256_load_pd(v1));
+b_type b2 = _mm256_cvtpd_epu64(_mm256_load_pd(v2));
+b_type b3 = _mm256_cvtpd_epu64(_mm256_load_pd(v3));
+b_type b4 = _mm256_cvtpd_epu64(_mm256_load_pd(v4));
+b_type b5 = _mm256_cvtpd_epu64(_mm256_load_pd(v5));
+b_type b6 = _mm256_cvtpd_epu64(_mm256_load_pd(v6));
 
 b_type hamming(b_type &n) {
     n = (n & b1) + ((n >> 1) & b1);
