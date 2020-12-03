@@ -13,7 +13,7 @@
 
 using b_type = __m256i;
 // using vector_type = std::vector<u_int64_t>;
-const size_t inc = sizeof(b_type) / 8;
+const size_t inc = sizeof(b_type) / sizeof(double);
 /*
 using b_type = mipp::Reg<int64_t>;
 using vector_type = mipp::vector<int64_t>;

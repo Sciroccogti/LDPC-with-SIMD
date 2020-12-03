@@ -67,8 +67,10 @@ int main(int argc, char* argv[]) {
         for (size_t i = 0; i < 4096000; i++) {
             int weight = 0;
             double i_double = (double)i;
-            double v0[inc] = {i_double, i_double, i_double, i_double};
-            b_type I_vec = _mm256_cvtpd_epu64(_mm256_load_pd(v0));
+            __attribute__((aligned(32))) double v0[8] = {
+                i_double, i_double, i_double, i_double,
+                i_double, i_double, i_double, i_double};
+            b_type I_vec = _mm256_cvtpd_epu64(_mm256_load_pd(&v0[0]));
 
 #pragma omp parallel for
             for (int j = 0; j < vec_size; j += inc) {
