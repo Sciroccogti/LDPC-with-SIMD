@@ -36,13 +36,13 @@ int main(int argc, char* argv[]) {
     double start = omp_get_wtime();
     if (enable_SIMD) {
         // store a 64 bit with double
-        double G_double[N];
+        u_int64_t G_int[N];
         b_type G_vec[N];
         // size for which the vectorization is possible
         size_t vec_size = N - N % inc;
 
         // store a row as a uint64, and every 4 uint64 as a batch
-        // outerSize: M
+        // outerSize: N
         // https://eigen.tuxfamily.org/dox/group__TutorialSparse.html
         for (int k = 0; k < G.outerSize(); k++) {
             // bitset to turn bits into uint64
@@ -51,12 +51,12 @@ int main(int argc, char* argv[]) {
             for (Eigen::SparseMatrix<int>::InnerIterator it(G, k); it; ++it) {
                 col[it.row()] = it.value();
             }
-            G_double[k] = (double)col.to_ullong();
+            G_int[k] = col.to_ullong();
         }
 
 #pragma omp parallel for
         for (int i = 0; i < vec_size; i += inc) {
-            G_vec[i / inc] = _mm256_cvtpd_epu64(_mm256_load_pd(&G_double[i]));
+            G_vec[i / inc] = _mm256_load_si256((__m256i*)&G_int[i]);
         }
 
         // vector_type two(inc, 2);
@@ -66,11 +66,9 @@ int main(int argc, char* argv[]) {
 #pragma omp parallel for reduction(+ : count[:129])
         for (size_t i = 0; i < 4096000; i++) {
             int weight = 0;
-            double i_double = (double)i;
-            __attribute__((aligned(32))) double v0[8] = {
-                i_double, i_double, i_double, i_double,
-                i_double, i_double, i_double, i_double};
-            b_type I_vec = _mm256_cvtpd_epu64(_mm256_load_pd(&v0[0]));
+            __attribute__((aligned(32)))
+            u_int64_t v0[8] = {i, i, i, i, i, i, i, i};
+            b_type I_vec = _mm256_load_si256((__m256i*)&v0[0]);
 
 #pragma omp parallel for
             for (int j = 0; j < vec_size; j += inc) {
