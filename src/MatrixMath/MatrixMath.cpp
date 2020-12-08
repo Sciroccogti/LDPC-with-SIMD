@@ -9,7 +9,7 @@ void swap_columns(Eigen::MatrixXi& mat, size_t idx1, size_t idx2) {
 }
 
 void swap_rows(Eigen::MatrixXi& mat, size_t idx1, size_t idx2) {
-    Eigen::RowVectorX<int> tmp1 = mat.row(idx1), tmp2 = mat.row(idx2);
+    Eigen::RowVectorXi tmp1 = mat.row(idx1), tmp2 = mat.row(idx2);
     mat.row(idx1) = tmp1;
     mat.row(idx2) = tmp2;
 }
@@ -180,12 +180,12 @@ Positions_pair_vector form_diagonal(Eigen::MatrixXi& mat, int direction = 0,
                     // there is a 1 on row i of the column i
                     // then remove any 1 of the column i from the row (i+1)
                     for (auto j = i + 1; j < n_row; j++)
-                        if (mat(j, i))
-                            std::transform(mat.row(i).begin() + i,
-                                           mat.row(i).end(),  // ref
-                                           mat.row(j).begin() + i,
-                                           mat.row(j).begin() + i,
-                                           std::not_equal_to<int>());
+                        if (mat(j, i)) printf("ERROR!\n");
+                    // std::transform(mat.row(i).begin() + i,
+                    //                mat.row(i).end(),  // ref
+                    //                mat.row(j).begin() + i,
+                    //                mat.row(j).begin() + i,
+                    //                std::not_equal_to<int>());
                 } else {
                     // the row is the null vector then delete it
                     removeRow(mat, i);
@@ -242,13 +242,13 @@ Positions_pair_vector form_diagonal(Eigen::MatrixXi& mat, int direction = 0,
                     // (ref_row-1)
                     for (auto j = ref_row; j > 0; j--) {
                         auto tested_row = j - 1;
-                        if (mat(tested_row, ref_col))
-                            std::transform(
-                                mat.row(ref_row).begin() + ref_col,
-                                mat.row(ref_row).end(),  // ref
-                                mat.row(tested_row).begin() + ref_col,
-                                mat.row(tested_row).begin() + ref_col,
-                                std::not_equal_to<int>());
+                        if (mat(tested_row, ref_col)) printf("ERROR!\n");
+                        // std::transform(
+                        // mat.row(ref_row).begin() + ref_col,
+                        // mat.row(ref_row).end(),  // ref
+                        // mat.row(tested_row).begin() + ref_col,
+                        // mat.row(tested_row).begin() + ref_col,
+                        // std::not_equal_to<int>());
                     }
                 } else {
                     // the row is the null vector then delete it
@@ -275,11 +275,11 @@ void form_identity(Eigen::MatrixXi& mat) {
     for (size_t c = n_row - 1; c > 0; c--) {
         size_t ref_row = c;
         for (size_t r = c; r > 0; r--)
-            if (mat(r - 1, c))
-                std::transform(mat.row(ref_row).begin() + c,
-                               mat.row(ref_row).end(),  // ref
-                               mat.row(r - 1).begin() + c,
-                               mat.row(r - 1).begin() + c,
-                               std::not_equal_to<int>());
+            if (mat(r - 1, c)) printf("ERROR!\n");
+        // std::transform(mat.row(ref_row).begin() + c,
+        //                mat.row(ref_row).end(),  // ref
+        //                mat.row(r - 1).begin() + c,
+        //                mat.row(r - 1).begin() + c,
+        //                std::not_equal_to<int>());
     }
 }

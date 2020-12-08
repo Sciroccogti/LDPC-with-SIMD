@@ -8,6 +8,7 @@
         "fstream": "cpp",
         "bitset": "cpp",
         "chrono": "cpp",
-        "algorithm": "cpp"
+        "algorithm": "cpp",
+        "eigen": "cpp"
     },
 }
