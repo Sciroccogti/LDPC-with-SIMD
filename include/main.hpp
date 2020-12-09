@@ -13,8 +13,23 @@
 #include <stdio.h>
 #include <string.h>
 
-// get options
-int opt(int argc, char* argv[], char*& alist_path, bool& enable_SIMD) {
+#include <fstream>
+#include <vector>
+
+#include "yaml-cpp/yaml.h"
+
+/**
+ * @brief get options
+ *
+ * @param argc
+ * @param argv
+ * @param alist_path
+ * @param enable_SIMD
+ * @param output_path
+ * @return int : return 0 if all right, -1 if something wrong
+ */
+int opt(int argc, char* argv[], char*& alist_path, bool& enable_SIMD,
+        char*& output_path) {
     int opt;
     int option_index = 0;
     int ret = 0;
@@ -23,8 +38,9 @@ int opt(int argc, char* argv[], char*& alist_path, bool& enable_SIMD) {
         {"help", no_argument, NULL, 'h'},
         {"dec-h-path", required_argument, NULL, 'H'},
         {"simd", required_argument, NULL, 's'},
+        {"output", required_argument, NULL, 'o'},
         {0, 0, 0, 0}};
-    static char* const short_options = (char*)"hH:s:";
+    static char* const short_options = (char*)"hH:s:o:";
 
     while ((ret = getopt_long(argc, argv, short_options, long_options,
                               &option_index)) != -1) {
@@ -36,7 +52,9 @@ int opt(int argc, char* argv[], char*& alist_path, bool& enable_SIMD) {
                 printf("\t\t\tpath to H matrix in .alist\n");
                 printf("\noptional arguments:\n");
                 printf("  -s ON/1/OFF/0, --simd ON/1/OFF/0\n");
-                printf("\t\t\twhether to enable SIMD");
+                printf("\t\t\twhether to enable SIMD\n");
+                printf("  -o OUTPUT_PATH, --output OUTPUT_PATH\n");
+                printf("\t\t\tpath to output in .yaml\n");
                 printf("  -h, --help\t\tshow this help message and exit\n");
                 return -1;
             case 'H':
@@ -48,6 +66,10 @@ int opt(int argc, char* argv[], char*& alist_path, bool& enable_SIMD) {
                     enable_SIMD = false;
                 }
                 break;
+            case 'o':
+                output_path = optarg;
+                printf("save output to: %s\n", output_path);
+                break;
             default:
                 break;
         }
@@ -57,6 +79,7 @@ int opt(int argc, char* argv[], char*& alist_path, bool& enable_SIMD) {
         printf("Please specify H matrix with argument -H!\n");
         return -1;
     }
+
     if (enable_SIMD) {
 #ifdef __AVX512F__
         printf("using AVX512\n");
@@ -69,7 +92,52 @@ int opt(int argc, char* argv[], char*& alist_path, bool& enable_SIMD) {
 #endif
 #endif
     }
+
+    if (output_path == NULL) {
+        output_path = (char*)"output.yaml";
+        printf("save output default to: %s\n", output_path);
+    }
+
     return 0;
+}
+
+/**
+ * @brief read output from savefile
+ *
+ * @param filename path to savefile
+ * @param count[22] should be initialized to all zero beforehead
+ */
+void readOutput(const char* filename, int* count) {
+    try {
+        YAML::Node yaml = YAML::LoadFile(filename);
+        for (int i = 0; i < 23; i++) {
+            count[i] = yaml["count"][std::to_string(i)].as<int>();
+        }
+    } catch (const std::exception& e) {
+        YAML::Node yaml;
+        YAML::Node countNode;
+        for (int i = 0; i < 23; i++) {
+            countNode[std::to_string(i)] = 0;
+        }
+        yaml["count"] = countNode;
+
+        std::ofstream fout(filename);
+        fout << yaml;
+        fout.close();
+    }
+}
+
+void writeOutput(const char* filename, int* count) {
+    YAML::Node yaml;
+    YAML::Node countNode;
+    for (int i = 0; i < 23; i++) {
+        countNode[std::to_string(i)] = count[i];
+    }
+    yaml["count"] = countNode;
+
+    std::ofstream fout(filename);
+    fout << yaml;
+    fout.close();
 }
 
 #endif
