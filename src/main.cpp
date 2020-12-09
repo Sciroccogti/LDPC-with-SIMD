@@ -3,6 +3,7 @@
 #include <omp.h>
 
 #include <iostream>
+#include <vector>
 
 #include "Alist/Alist.hpp"
 #include "Combine/Combine.hpp"
@@ -12,10 +13,13 @@
 
 int main(int argc, char* argv[]) {
     // Eigen::initParallel();
-    char *alist_path = NULL, *output_path = NULL;
-    bool enable_SIMD = true;
 
-    if (opt(argc, argv, alist_path, enable_SIMD, output_path)) {
+    Config conf = {.alist_path = NULL,
+                   .enable_SIMD = true,
+                   .output_path = NULL,
+                   .enable_MIPP = false};
+
+    if (opt(argc, argv, conf)) {
         return -1;
     }
 #ifdef MIPP_ALIGNED_LOADS
@@ -26,15 +30,15 @@ int main(int argc, char* argv[]) {
     // std::cout << G << H << std::endl;
     // std::cout << G * H.transpose() << std::endl;
 
-    Alist<alist_matrix> G_alist(alist_path);
+    Alist<alist_matrix> G_alist(conf.alist_path);
     const size_t M = 64, N = 128;
     Eigen::SparseMatrix<int> G = G_alist.getMat();
 
     int count[129] = {0};
-    readOutput(output_path, count);
+    readOutput(conf.output_path, count);
 
     double start = omp_get_wtime();
-    if (enable_SIMD) {
+    if (conf.enable_SIMD) {
         // store a 64 bit with double
         u_int64_t G_int[N];
         b_type G_vec[N];
@@ -113,10 +117,10 @@ int main(int argc, char* argv[]) {
     double end = omp_get_wtime();
 
     printf("Use Time:%f\n", end - start);
-    for (int i = 0; i < 129; i++) {
-        printf("%d: %d\n", i, count[i]);
-    }
-    writeOutput(output_path, count);
+    // for (int i = 0; i < 129; i++) {
+    //     printf("%d: %d\n", i, count[i]);
+    // }
+    writeOutput(conf.output_path, count);
 
     //     printf("Threads: %d\n", Eigen::nbThreads());
 }

@@ -4,7 +4,7 @@ LPDC with SIMD.
 
 ## Environment
 
-- OS: Ubuntu 20.04.1
+- OS: Ubuntu 20.04.1 or 18.04.4
 - Instruction: AVX2 or AVX512
 - Dependency:
   - [CMake](https://cmake.org/)
@@ -26,6 +26,7 @@ LPDC with SIMD.
 ```Bash
 sudo apt install python3-pip
 pip3 install conan
+conan profile update settings.compiler.libcxx=libstdc++11 default
 ```
 
 ## How to use
