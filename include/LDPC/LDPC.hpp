@@ -24,7 +24,7 @@ class LDPC {
     LDPC(const char* filename);
     // TODO: add H check
     ~LDPC();
-    Eigen::RowVectorX<int>& Encoder(Eigen::RowVectorX<int>& m);
+    Eigen::RowVectorXi& Encoder(Eigen::RowVectorXi& m);
     Alist<alist_matrix> Decoder();
     Eigen::SparseMatrix<int> getG();
     Eigen::SparseMatrix<int> getH();

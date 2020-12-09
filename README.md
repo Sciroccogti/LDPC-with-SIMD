@@ -1,14 +1,15 @@
 # LPDC-with-SIMD
 
-LPDC with SIMD aimed at AMD CPUs.
+LPDC with SIMD.
 
 ## Environment
 
 - OS: Ubuntu 20.04.1
-- CPU: AMD 3700X
-- Dependency: 
+- Instruction: AVX2 or AVX512
+- Dependency:
+  - [CMake](https://cmake.org/)
+  - [Conon](https://conan.io/)
   - [Eigen3](http://eigen.tuxfamily.org)
-  - [xsimd](https://github.com/xtensor-stack/xsimd)
 
 ## Functions
 
@@ -20,29 +21,11 @@ LPDC with SIMD aimed at AMD CPUs.
 - [x] Draw Tanner
 - [x] Type in Alist
 
-### Install Eigen
+### Install Conan
 
 ```Bash
-sudo apt install git libboost-all-dev
-# sudo snap install cmake --classic
-git clone https://gitlab.com/libeigen/eigen.git
-cd eigen
-mkdir build
-cd build
-cmake ..
-cmake -DEIGEN_TEST_AVX=ON -DEIGEN_TEST_AVX2=ON .
-sudo make install
-```
-
-### Install xsimd
-
-```Bash
-git clone https://github.com/xtensor-stack/xsimd.git
-cd xsimd
-mkdir build
-cd build
-cmake ..
-sudo make install
+sudo apt install python3-pip
+pip3 install conan
 ```
 
 ## How to use
@@ -52,6 +35,7 @@ sudo make install
 ```Bash
 mkdir build
 cd build
+conan install ..
 cmake ..
 cmake --build .
 ../bin/LDPC-with-SIMD --dec-h-path ../example/H.alist
@@ -96,3 +80,4 @@ python3 script/makeAlist.py
 ### C++ tutorial
 
 - [c++模板类(一)理解编译器的编译模板过程](http://blog.csdn.net/onafioo/article/details/29857281)
+- [Conan-CMake transparent integration](https://blog.conan.io/2018/06/11/Transparent-CMake-Integration.html)
