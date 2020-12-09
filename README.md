@@ -28,18 +28,6 @@ sudo apt install python3-pip
 pip3 install conan
 ```
 
-### Install yaml-cpp
-
-```Bash
-git clone https://github.com/jbeder/yaml-cpp
-cd yaml-cpp
-mkdir build
-cd build
-cmake ..
-make
-sudo make install
-```
-
 ## How to use
 
 ### 1 Simulation
