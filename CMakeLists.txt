@@ -18,7 +18,6 @@ if(OPENMP_FOUND)
       "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
-
 # SIMD
 include(CheckCXXCompilerFlag)
 check_cxx_compiler_flag("-march=native" COMPILER_OPT_ARCH_NATIVE_SUPPORTED)
@@ -33,16 +32,20 @@ endif()
 # add_definitions("-DMIPP_ALIGNED_LOADS")
 # add_definitions("-DMIPP_NO_INTRINSICS")
 
-# Eigen3
-find_package(Eigen3 REQUIRED)
-# include_directories(${EIGEN3_INCLUDE_DIRS})
 
 set(SOURCES src/main.cpp src/Alist/alist_matrix.c src/MatrixMath/MatrixMath.cpp
             src/LDPC/LDPC.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
-target_link_libraries(${PROJECT_NAME} Eigen3::Eigen3)
+# Eigen3
+find_package(Eigen3 REQUIRED)
+
+# YAML
+find_package(yaml-cpp REQUIRED)
+
+# Conan
+target_link_libraries(${PROJECT_NAME} Eigen3::Eigen3 yaml-cpp::yaml-cpp)
 
 target_include_directories(${PROJECT_NAME}
                            PRIVATE ${PROJECT_SOURCE_DIR}/include)
