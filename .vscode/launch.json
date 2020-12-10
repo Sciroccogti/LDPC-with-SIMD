@@ -12,7 +12,7 @@
             "console": "integratedTerminal",
             "args": [
                 "-H",
-                "example/G_PAC.alist",
+                "example/simple.alist",
             ]
         },
         {
@@ -22,7 +22,7 @@
             "program": "${workspaceFolder}/bin/LDPC-with-SIMD",
             "args": [
                 "-H",
-                "example/G_PAC.alist",
+                "example/simple.alist",
                 // "-s",
                 // "off",
             ],

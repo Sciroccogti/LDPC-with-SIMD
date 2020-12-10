@@ -1,5 +1,6 @@
 #include "MatrixMath/MatrixMath.hpp"
 
+#include <iostream>
 void swap_columns(Eigen::MatrixXi& mat, size_t idx1, size_t idx2) {
     auto n_row = mat.rows();
     std::vector<int> tmp(n_row);
@@ -9,9 +10,11 @@ void swap_columns(Eigen::MatrixXi& mat, size_t idx1, size_t idx2) {
 }
 
 void swap_rows(Eigen::MatrixXi& mat, size_t idx1, size_t idx2) {
-    Eigen::RowVectorXi tmp1 = mat.row(idx1), tmp2 = mat.row(idx2);
-    mat.row(idx1) = tmp1;
-    mat.row(idx2) = tmp2;
+    auto n_col = mat.cols();
+    std::vector<int> tmp(n_col);
+    for (size_t l = 0; l < n_col; l++) tmp[l] = mat(idx1, l);
+    for (size_t l = 0; l < n_col; l++) mat(idx1, l) = mat(idx2, l);
+    for (size_t l = 0; l < n_col; l++) mat(idx2, l) = tmp[l];
 }
 
 /**
@@ -60,6 +63,26 @@ Eigen::MatrixXi resize_topright(const Eigen::MatrixXi& src, const size_t n_rows,
 }
 
 /**
+ * @brief Returns the indices of the maximum values
+ *
+ * @param a : the input matrix
+ * @return int
+ */
+int argmax(const Eigen::MatrixXi a) {
+    int tmp = a(0, 0);
+    int ret = 0;
+    for (size_t i = 0; i < a.rows(); i++) {
+        for (size_t j = 0; j < a.cols(); j++) {
+            if (a(i, j) > tmp) {
+                tmp = a(i, j);
+                ret = i * a.cols() + j;
+            }
+        }
+    }
+    return ret;
+}
+
+/**
  * @brief for systematic code
  *
  * @param H
@@ -94,12 +117,12 @@ Eigen::MatrixXi transform_H_to_G(const Eigen::MatrixXi& H) {
 }
 
 /**
- * @brief LU decomp
+ * @brief Compute a coding matrix G in systematic format with an identity block.
  *
  * @param H
  * @return Eigen::MatrixXi
  */
-Eigen::MatrixXi transform_H_to_G_LU(const Eigen::MatrixXi& H) {
+Eigen::MatrixXi transform_H_to_G_sys(const Eigen::MatrixXi& H) {
     int M = H.rows();
     int N = H.cols();
     int K = N - M;
@@ -121,9 +144,9 @@ Eigen::MatrixXi transform_H_to_G_LU(const Eigen::MatrixXi& H) {
     return GH.transpose();
 }
 
-Eigen::MatrixXi transform_H_to_G_LU(const Eigen::SparseMatrix<int>& H) {
+Eigen::MatrixXi transform_H_to_G_sys(const Eigen::SparseMatrix<int>& H) {
     Eigen::MatrixXi Hdense(H);
-    return transform_H_to_G_LU(Hdense);
+    return transform_H_to_G_sys(Hdense);
 }
 
 Eigen::MatrixXi transform_H_to_G(const Eigen::SparseMatrix<int>& H) {
@@ -282,4 +305,47 @@ void form_identity(Eigen::MatrixXi& mat) {
         //                mat.row(r - 1).begin() + c,
         //                std::not_equal_to<int>());
     }
+}
+
+/**
+ * @brief Compute the binary row reduced echelon form of X.
+ *        https://github.com/hichamjanati/pyldpc/blob/master/pyldpc/utils.py#L38
+ * @param X
+ * @return Eigen::MatrixXi: the inverse transform
+ */
+Eigen::MatrixXi gaussjordan(Eigen::MatrixXi& X) {
+    size_t m = X.rows(), n = X.cols();
+    Eigen::MatrixXi P = Eigen::MatrixXi::Identity(m, m);
+
+    int pivot_old = -1;
+    for (size_t j = 0; j < n; j++) {
+        Eigen::MatrixXi filtre_down =
+            X.block(pivot_old + 1, j, m - pivot_old - 1, 1);
+        int pivot = argmax(filtre_down) + pivot_old + 1;
+
+        if (X(pivot, j)) {
+            pivot_old++;
+            if (pivot_old != pivot) {
+                swap_rows(X, pivot, pivot_old);
+                swap_rows(P, pivot, pivot_old);
+            }
+
+            for (size_t i = 0; i < m; i++) {
+                if (i != pivot_old && X(i, j)) {
+                    P.row(i) =
+                        (P.row(i) - P.row(pivot_old))
+                            .unaryExpr([](const int x) { return abs(x); });
+                    X.row(i) =
+                        (X.row(i) - X.row(pivot_old))
+                            .unaryExpr([](const int x) { return abs(x); });
+                }
+            }
+        }
+
+        if (pivot_old == m - 1) {
+            break;
+        }
+    }
+
+    return P;
 }
