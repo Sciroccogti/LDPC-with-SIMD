@@ -11,14 +11,14 @@ LDPC::LDPC(Alist<alist_matrix> A) {
     // N = n, M = n - k
     K = A.getnCol() - A.getnRow();
     H_mat = A.getMat();
-    G_mat = Eigen::SparseMatrix<int>(transform_H_to_G_sys(H_mat).sparseView());
+    G_mat = Eigen::SparseMatrix<int>(transform_H_to_G(H_mat).sparseView());
 }
 
 LDPC::LDPC(const char* filename) {
     Alist<alist_matrix> A = Alist<alist_matrix>(filename);
     K = A.getnCol() - A.getnRow();
     H_mat = A.getMat();
-    auto G = transform_H_to_G_sys(H_mat);
+    auto G = transform_H_to_G(H_mat);
     G_mat = Eigen::SparseMatrix<int>(G.sparseView());
 }
 

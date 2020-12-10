@@ -27,8 +27,7 @@ int main(int argc, char* argv[]) {
     LDPC ldpc(conf.alist_path);
     Eigen::SparseMatrix<int> H = ldpc.getH(), G = ldpc.getG();
     std::cout << H << std::endl;
-    Eigen::MatrixXi H_dense = H.toDense().transpose();
-    std::cout << gaussjordan(H_dense) << std::endl;
-    std::cout << H_dense << std::endl;
+    printf("\n");
+    std::cout << G << std::endl;
     // std::cout << G * H.transpose() << std::endl;
 }
