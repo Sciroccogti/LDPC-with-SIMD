@@ -1,8 +1,9 @@
-/*
- * File: nbalist_matrix.h
- * File Created: Thursday, 29th October 2020 14:45:40
- * Author: Yifan Zhang (scirocco_gti@yeah.net)
- * Last Modified: Thursday, 29th October 2020 19:43:57
+/**
+ * @file nbalist_matrix.h
+ * @author Yifan Zhang (scirocco_gti@yeah.net)
+ * @brief
+ * @date 2020-10-29 14:45:40
+ * @modified: 2020-10-31 12:03:48
  */
 
 #ifndef NBALIST_MATRIX_H

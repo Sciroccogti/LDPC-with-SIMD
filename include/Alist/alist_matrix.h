@@ -1,18 +1,18 @@
-/*
- * File: alist_matrix.h
- * File Created: Thursday, 29th October 2020 13:00:39
- * Author: Yifan Zhang (scirocco_gti@yeah.net)
- * Last Modified: Thursday, 29th October 2020 21:48:57
+/**
+ * @file alist_matrix.h
+ * @author Yifan Zhang (scirocco_gti@yeah.net)
+ * @brief
+ * http://www.inference.org.uk/mackay/codes/alist.html
+ * N: number of rows
+ * M: number of cols
+ * num_n: weight of a row
+ * num_m: weight of a col
+ * @date 2020-10-29 13:00:39
+ * @modified: 2020-10-31 12:01:29
  */
 
 #ifndef ALIST_MATRIX_H
 #define ALIST_MATRIX_H
-
-// http://www.inference.org.uk/mackay/codes/alist.html
-// N: number of rows
-// M: number of cols
-// num_n: weight of a row
-// num_m: weight of a col
 
 #include <malloc.h>
 
@@ -37,7 +37,13 @@ typedef struct {
                       */
 } alist_matrix;
 
+// alist_matrix support both C and CXX
+#ifdef __cplusplus
+extern "C" void write_alist(FILE *, alist_matrix *);
+extern "C" int read_alist(FILE *, alist_matrix *);
+#else
 void write_alist(FILE *, alist_matrix *);
 int read_alist(FILE *, alist_matrix *);
+#endif
 
 #endif

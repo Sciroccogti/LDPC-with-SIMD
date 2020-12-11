@@ -1,11 +1,35 @@
 # LPDC-with-SIMD
 
-LPDC with SIMD aimed at AMD CPUs.
+LPDC with SIMD.
 
 ## Environment
 
-- OS: Ubuntu 20.04.1
-- CPU: AMD 3700X
+- OS: Ubuntu 20.04.1 or 18.04.4
+- Instruction: AVX2 or AVX512
+- Dependency:
+  - [CMake](https://cmake.org/)
+  - [Conon](https://conan.io/)
+  - [Eigen3](http://eigen.tuxfamily.org)
+
+## Functions
+
+- [x] Encode
+- [ ] Modulate
+- [ ] Demodulate
+- [ ] Decode
+
+### Tools
+
+- [x] Draw Tanner
+- [x] Type in Alist
+
+### Install Conan
+
+```Bash
+sudo apt install python3-pip
+pip3 install conan
+conan profile update settings.compiler.libcxx=libstdc++11 default
+```
 
 ## How to use
 
@@ -14,8 +38,9 @@ LPDC with SIMD aimed at AMD CPUs.
 ```Bash
 mkdir build
 cd build
+conan install ..
 cmake ..
-make
+cmake --build .
 ../bin/LDPC-with-SIMD --dec-h-path ../example/H.alist
 ```
 
@@ -49,6 +74,7 @@ python3 script/makeAlist.py
 - [pyldpc](https://github.com/hichamjanati/pyldpc.git)
 - [5G-SIMD-LDPC](https://github.com/SherlockHsu/5G-SIMD-LDPC)
 - [Python处理alist文件](https://www.cnblogs.com/lingr7/p/13038410.html)
+- [aff3ct](https://github.com/aff3ct/aff3ct)
 
 ### Nonbinary LDPC
 
@@ -57,3 +83,4 @@ python3 script/makeAlist.py
 ### C++ tutorial
 
 - [c++模板类(一)理解编译器的编译模板过程](http://blog.csdn.net/onafioo/article/details/29857281)
+- [Conan-CMake transparent integration](https://blog.conan.io/2018/06/11/Transparent-CMake-Integration.html)
