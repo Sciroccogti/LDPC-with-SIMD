@@ -24,7 +24,9 @@ LDPC::LDPC(const char* filename) {
 
 LDPC::~LDPC() {}
 
-// Eigen::RowVectorXi LDPC::Encoder(Eigen::RowVectorXi m) {}
+Eigen::RowVectorXi LDPC::encode(Eigen::RowVectorXi& m) {
+    return binaryproduct(m, G_mat.toDense());
+}
 
 Eigen::SparseMatrix<int> LDPC::getG() {
     return G_mat;

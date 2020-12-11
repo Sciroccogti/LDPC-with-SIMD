@@ -2,7 +2,9 @@
 
 #include <omp.h>
 
+#include <algorithm>
 #include <iostream>
+#include <random>
 #include <vector>
 
 #include "Alist/Alist.hpp"
@@ -25,9 +27,16 @@ int main(int argc, char* argv[]) {
 #endif
 
     LDPC ldpc(conf.alist_path);
-    Eigen::SparseMatrix<int> H = ldpc.getH(), G = ldpc.getG();
-    std::cout << H << std::endl;
-    printf("\n");
-    std::cout << G << std::endl;
-    // std::cout << G * H.transpose() << std::endl;
+    int n_info = ldpc.getK();
+    int sigma = 2;
+    static std::default_random_engine e(time(0));
+    static std::normal_distribution<double> normal(0, sigma);
+
+    std::srand(time(nullptr));
+    Eigen::RowVectorXi m = Eigen::RowVectorXf::Random(n_info).unaryExpr(
+        [](const float x) { return (int)ceil(x); });
+    // .unaryExpr(
+    // [](double dummy) { return (int)normal(e); });
+    std::cout << m << std::endl;
+    std::cout << ldpc.encode(m) << std::endl;
 }

@@ -82,20 +82,6 @@ int argmax(const Eigen::MatrixXi a) {
     return ret;
 }
 
-Eigen::MatrixXi binaryproduct(const Eigen::MatrixXi& X,
-                              const Eigen::MatrixXi& Y) {
-    assert(X.cols() == Y.rows());
-
-    Eigen::MatrixXi ret = X * Y;
-    // for (size_t i = 0; i < X.cols(); i++) {
-    //     for (size_t j = 0; j < X.rows(); j++) {
-    //         ret(i, j) = X(i, j) * Y(j, i);
-    //     }
-    // }
-
-    return ret.unaryExpr([](const int x) { return x % 2; });
-}
-
 /**
  * @brief https://github.com/hichamjanati/pyldpc/blob/master/pyldpc/code.py#L58
  *
@@ -203,4 +189,13 @@ Eigen::MatrixXi gaussjordan(Eigen::MatrixXi& X) {
     }
 
     return P;
+}
+
+Eigen::MatrixXi binaryproduct(const Eigen::MatrixXi& X,
+                              const Eigen::MatrixXi& Y) {
+    assert(X.cols() == Y.rows());
+
+    Eigen::MatrixXi ret = X * Y;
+
+    return ret.unaryExpr([](const int x) { return x % 2; });
 }
