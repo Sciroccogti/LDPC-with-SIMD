@@ -14,7 +14,7 @@ LPDC with SIMD.
 ## Functions
 
 - [x] Encode
-- [ ] Modulate
+- [x] Modulate
 - [ ] Demodulate
 - [ ] Decode
 
@@ -28,7 +28,6 @@ LPDC with SIMD.
 ```Bash
 sudo apt install python3-pip
 pip3 install conan
-conan profile update settings.compiler.libcxx=libstdc++11 default
 ```
 
 ## How to use
@@ -39,6 +38,7 @@ conan profile update settings.compiler.libcxx=libstdc++11 default
 mkdir build
 cd build
 conan install ..
+conan profile update settings.compiler.libcxx=libstdc++11 default
 cmake ..
 cmake --build .
 ../bin/LDPC-with-SIMD --dec-h-path ../example/H.alist

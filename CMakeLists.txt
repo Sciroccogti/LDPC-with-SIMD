@@ -34,7 +34,7 @@ endif()
 
 
 set(SOURCES src/main.cpp src/Alist/alist_matrix.c src/MatrixMath/MatrixMath.cpp
-            src/LDPC/LDPC.cpp)
+            src/LDPC/LDPC.cpp src/Modem/Modem.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 

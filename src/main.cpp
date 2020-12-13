@@ -12,6 +12,7 @@
 #include "LDPC/LDPC.hpp"
 #include "MatrixMath/NoramlMath.hpp"
 #include "MatrixMath/SIMDMath.hpp"
+#include "Modem/Modem.hpp"
 
 int main(int argc, char* argv[]) {
     Config conf = {.alist_path = NULL,
@@ -37,6 +38,11 @@ int main(int argc, char* argv[]) {
         [](const float x) { return (int)ceil(x); });
     // .unaryExpr(
     // [](double dummy) { return (int)normal(e); });
-    std::cout << m << std::endl;
-    std::cout << ldpc.encode(m) << std::endl;
+    std::cout << "message  : " << m << std::endl;
+
+    Eigen::RowVectorXi c = ldpc.encode(m);
+    std::cout << "code word: " << c << std::endl;
+
+    Modem modem(100, 4 * 100, 0.1);
+    std::cout << "signal   : " << modem.modulate(c) << std::endl;
 }

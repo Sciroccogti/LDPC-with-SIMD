@@ -199,3 +199,40 @@ Eigen::MatrixXi binaryproduct(const Eigen::MatrixXi& X,
 
     return ret.unaryExpr([](const int x) { return x % 2; });
 }
+
+Eigen::MatrixXd cos(const Eigen::MatrixXd& X) {
+    Eigen::MatrixXd ret = X;
+
+    return ret.unaryExpr([](const double x) { return cos(x); });
+}
+
+/**
+ * @brief Repeat the input vector for n times.
+ * @example X = [1, 2, 3, 4];
+ *          Y = repeat(X, 3); // [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4]
+ * @param X
+ * @param n : the times to repeat
+ * @return Eigen::MatrixXi
+ */
+Eigen::RowVectorXi repeat(const Eigen::RowVectorXi& X, const int n) {
+    Eigen::RowVectorXi ret(X.size() * n);
+    for (size_t i = 0; i < X.size(); i++) {
+        for (size_t j = 0; j < n; j++) {
+            ret(i * n + j) = X(i);
+        }
+    }
+
+    return ret;
+}
+
+Eigen::MatrixXd multiply(const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y) {
+    assert(X.cols() == Y.cols() && X.rows() == Y.rows());
+
+    Eigen::MatrixXd ret(X.rows(), X.cols());
+    for (size_t i = 0; i < X.rows(); i++) {
+        for (size_t j = 0; j < X.cols(); j++) {
+            ret(i, j) = X(i, j) * Y(i, j);
+        }
+    }
+    return ret;
+}
