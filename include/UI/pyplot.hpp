@@ -12,6 +12,6 @@
 #define PY_SSIZE_T_CLEAN
 #include <Python.h>
 
-int pyplot(double* x, double* y, size_t length);
+int pyplot(double* x, double* y, size_t length, const char* label);
 
 #endif

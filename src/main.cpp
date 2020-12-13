@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <iostream>
 #include <random>
+#include <sstream>
 #include <vector>
 
 #include "Alist/Alist.hpp"
@@ -44,6 +45,9 @@ int main(int argc, char* argv[]) {
     Eigen::RowVectorXi c = ldpc.encode(m);
     std::cout << "code word: " << c << std::endl;
 
+    std::stringstream ss;
+    ss << c;
+
     Modem modem(100, 4 * 100, 0.1);
     int length = modem.getL() * c.size();
     Eigen::RowVectorXd x = Eigen::RowVectorXd::LinSpaced(length, 0, length);
@@ -52,7 +56,7 @@ int main(int argc, char* argv[]) {
            *y_array = (double *)malloc(length * sizeof(double));
     Eigen::RowVectorXd::Map(x_array, x.cols()) = x;
     Eigen::RowVectorXd::Map(y_array, y.cols()) = y;
-    if (pyplot(x_array, y_array, length)) {
+    if (pyplot(x_array, y_array, length, ss.str().c_str())) {
         printf("ERROR during pyplot!\n");
     }
     free(x_array);

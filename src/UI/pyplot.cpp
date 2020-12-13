@@ -8,7 +8,7 @@
  * @param length
  * @return int
  */
-int pyplot(double* x, double* y, size_t length) {
+int pyplot(double* x, double* y, size_t length, const char* label) {
     Py_Initialize();
     if (!Py_IsInitialized()) {
         return -1;
@@ -34,12 +34,12 @@ int pyplot(double* x, double* y, size_t length) {
         PyList_SetItem(x_list, i, PyFloat_FromDouble(x[i]));
         PyList_SetItem(y_list, i, PyFloat_FromDouble(y[i]));
     }
-    PyObject* label = Py_BuildValue("s", "test");
+    PyObject* plabel = Py_BuildValue("s", label);
 
     PyObject* pArgs = PyTuple_New(3);
     PyTuple_SetItem(pArgs, 0, x_list);
     PyTuple_SetItem(pArgs, 1, y_list);
-    PyTuple_SetItem(pArgs, 2, label);
+    PyTuple_SetItem(pArgs, 2, plabel);
 
     PyObject_CallObject(pFunc, pArgs);
 
