@@ -25,6 +25,7 @@ class Modem {
     Modem(int freqc, int freqs, double Timeb, int t = MODEM_BPSK);
     ~Modem();
     Eigen::RowVectorXd modulate(const Eigen::RowVectorXi &c);
+    int getL();
 };
 
 #endif

@@ -18,6 +18,12 @@ Modem::Modem(int freqc, int freqs, double Timeb, int t) {
 
 Modem::~Modem() {}
 
+/**
+ * @brief https://github.com/DenisMedeiros/BPSKModDemod
+ *
+ * @param c : encoded code word
+ * @return Eigen::RowVectorXd
+ */
 Eigen::RowVectorXd Modem::modulate(const Eigen::RowVectorXi &c) {
     // turn 0 1 sequence into -1 1 sequence
     Eigen::RowVectorXi c_symbol =
@@ -41,4 +47,8 @@ Eigen::RowVectorXd Modem::modulate(const Eigen::RowVectorXi &c) {
     }
 
     return ret;
+}
+
+int Modem::getL() {
+    return L;
 }

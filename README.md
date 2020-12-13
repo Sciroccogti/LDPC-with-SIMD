@@ -10,6 +10,7 @@ LPDC with SIMD.
   - [CMake](https://cmake.org/)
   - [Conon](https://conan.io/)
   - [Eigen3](http://eigen.tuxfamily.org)
+  - [Python3-dev](https://www.python.org/)
 
 ## Functions
 
@@ -28,6 +29,12 @@ LPDC with SIMD.
 ```Bash
 sudo apt install python3-pip
 pip3 install conan
+```
+
+### Install Python3-dev
+
+```Bash
+sudo apt install python3-dev
 ```
 
 ## How to use

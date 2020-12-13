@@ -13,6 +13,7 @@
 #include "MatrixMath/NoramlMath.hpp"
 #include "MatrixMath/SIMDMath.hpp"
 #include "Modem/Modem.hpp"
+#include "UI/pyplot.hpp"
 
 int main(int argc, char* argv[]) {
     Config conf = {.alist_path = NULL,
@@ -44,5 +45,16 @@ int main(int argc, char* argv[]) {
     std::cout << "code word: " << c << std::endl;
 
     Modem modem(100, 4 * 100, 0.1);
-    std::cout << "signal   : " << modem.modulate(c) << std::endl;
+    int length = modem.getL() * c.size();
+    Eigen::RowVectorXd x = Eigen::RowVectorXd::LinSpaced(length, 0, length);
+    Eigen::RowVectorXd y = modem.modulate(c);
+    double *x_array = (double *)malloc(length * sizeof(double)),
+           *y_array = (double *)malloc(length * sizeof(double));
+    Eigen::RowVectorXd::Map(x_array, x.cols()) = x;
+    Eigen::RowVectorXd::Map(y_array, y.cols()) = y;
+    if (pyplot(x_array, y_array, length)) {
+        printf("ERROR during pyplot!\n");
+    }
+    free(x_array);
+    free(y_array);
 }
