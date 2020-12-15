@@ -1,8 +1,7 @@
 /**
  * @file MatrixMath.hpp
  * @author Yifan Zhang (scirocco_gti@yeah.net)
- * @brief transplanted from aff3ct
- * https://github.com/aff3ct/aff3ct/tree/master/src/Tools/Code/LDPC/Matrix_handler
+ * @brief
  * @date 2020-10-31 10:57:44
  * @modified: 2020-10-31 14:02:56
  */
@@ -22,5 +21,8 @@ Eigen::MatrixXi transform_H_to_G_sys(const Eigen::SparseMatrix<int>& H);
 Eigen::MatrixXi gaussjordan(Eigen::MatrixXi& X);
 Eigen::MatrixXi binaryproduct(const Eigen::MatrixXi& X,
                               const Eigen::MatrixXi& Y);
+Eigen::MatrixXd cos(const Eigen::MatrixXd& X);
+Eigen::RowVectorXi repeat(const Eigen::RowVectorXi& X, const int n);
+Eigen::MatrixXd multiply(const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y);
 
 #endif

@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <iostream>
 #include <random>
+#include <sstream>
 #include <vector>
 
 #include "Alist/Alist.hpp"
@@ -12,6 +13,8 @@
 #include "LDPC/LDPC.hpp"
 #include "MatrixMath/NoramlMath.hpp"
 #include "MatrixMath/SIMDMath.hpp"
+#include "Modem/Modem.hpp"
+#include "UI/pyplot.hpp"
 
 int main(int argc, char* argv[]) {
     Config conf = {.alist_path = NULL,
@@ -37,6 +40,25 @@ int main(int argc, char* argv[]) {
         [](const float x) { return (int)ceil(x); });
     // .unaryExpr(
     // [](double dummy) { return (int)normal(e); });
-    std::cout << m << std::endl;
-    std::cout << ldpc.encode(m) << std::endl;
+    std::cout << "message  : " << m << std::endl;
+
+    Eigen::RowVectorXi c = ldpc.encode(m);
+    std::cout << "code word: " << c << std::endl;
+
+    std::stringstream ss;
+    ss << c;
+
+    Modem modem(100, 4 * 100, 0.1);
+    int length = modem.getL() * c.size();
+    Eigen::RowVectorXd x = Eigen::RowVectorXd::LinSpaced(length, 0, length);
+    Eigen::RowVectorXd y = modem.modulate(c);
+    double *x_array = (double *)malloc(length * sizeof(double)),
+           *y_array = (double *)malloc(length * sizeof(double));
+    Eigen::RowVectorXd::Map(x_array, x.cols()) = x;
+    Eigen::RowVectorXd::Map(y_array, y.cols()) = y;
+    if (pyplot(x_array, y_array, length, ss.str().c_str())) {
+        printf("ERROR during pyplot!\n");
+    }
+    free(x_array);
+    free(y_array);
 }

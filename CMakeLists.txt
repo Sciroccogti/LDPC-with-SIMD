@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.0)
+cmake_minimum_required(VERSION 3.12.0)
 project(LDPC-with-SIMD VERSION 0.1.0)
 include(CTest)
 enable_testing()
@@ -34,18 +34,22 @@ endif()
 
 
 set(SOURCES src/main.cpp src/Alist/alist_matrix.c src/MatrixMath/MatrixMath.cpp
-            src/LDPC/LDPC.cpp)
+            src/LDPC/LDPC.cpp src/Modem/Modem.cpp src/UI/pyplot.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 # Eigen3
 find_package(Eigen3 REQUIRED)
+target_link_libraries(${PROJECT_NAME} Eigen3::Eigen3)
 
 # YAML
 find_package(yaml-cpp REQUIRED)
+target_link_libraries(${PROJECT_NAME} yaml-cpp::yaml-cpp)
 
-# Conan
-target_link_libraries(${PROJECT_NAME} Eigen3::Eigen3 yaml-cpp::yaml-cpp)
+# Python
+find_package(PythonLibs 3.6 REQUIRED)
+include_directories(${PYTHON_INCLUDE_DIRS})
+target_link_libraries(${PROJECT_NAME} ${PYTHON_LIBRARIES})
 
 target_include_directories(${PROJECT_NAME}
                            PRIVATE ${PROJECT_SOURCE_DIR}/include)

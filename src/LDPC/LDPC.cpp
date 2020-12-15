@@ -6,20 +6,22 @@ LDPC::LDPC() {
     K = 0;
 }
 
-LDPC::LDPC(Alist<alist_matrix> A) {
+LDPC::LDPC(Eigen::SparseMatrix<int> H) {
     // G.nRow = N - M, G.nCol = N
     // N = n, M = n - k
-    K = A.getnCol() - A.getnRow();
-    H_mat = A.getMat();
+    // K = A.getnCol() - A.getnRow();
+    H_mat = H;
     G_mat = Eigen::SparseMatrix<int>(transform_H_to_G(H_mat).sparseView());
+    K = G_mat.rows();
+}
+
+LDPC::LDPC(Alist<alist_matrix> A) {
+    *this = LDPC(A.getMat());
 }
 
 LDPC::LDPC(const char* filename) {
     Alist<alist_matrix> A = Alist<alist_matrix>(filename);
-    K = A.getnCol() - A.getnRow();
-    H_mat = A.getMat();
-    auto G = transform_H_to_G(H_mat);
-    G_mat = Eigen::SparseMatrix<int>(G.sparseView());
+    *this = LDPC(A.getMat());
 }
 
 LDPC::~LDPC() {}

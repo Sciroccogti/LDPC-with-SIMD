@@ -63,7 +63,7 @@ Eigen::MatrixXi resize_topright(const Eigen::MatrixXi& src, const size_t n_rows,
 }
 
 /**
- * @brief Returns the indices of the maximum values
+ * @brief Returns the index of the maximum value
  *
  * @param a : the input matrix
  * @return int
@@ -150,6 +150,7 @@ Eigen::MatrixXi transform_H_to_G(const Eigen::SparseMatrix<int>& H) {
 
 /**
  * @brief Compute the binary row reduced echelon form of X.
+ *        That is, turning X into up-right triangle.
  *        https://github.com/hichamjanati/pyldpc/blob/master/pyldpc/utils.py#L38
  * @param X : will be reused to return result!
  * @return Eigen::MatrixXi: the inverse transform
@@ -162,6 +163,9 @@ Eigen::MatrixXi gaussjordan(Eigen::MatrixXi& X) {
     for (size_t j = 0; j < n; j++) {
         Eigen::MatrixXi filtre_down =
             X.block(pivot_old + 1, j, m - pivot_old - 1, 1);
+
+        // The first 1 found in filtre_down.
+        // `argmax()` returns the index of the first 1.
         int pivot = argmax(filtre_down) + pivot_old + 1;
 
         if (X(pivot, j)) {
@@ -172,6 +176,7 @@ Eigen::MatrixXi gaussjordan(Eigen::MatrixXi& X) {
             }
 
             for (size_t i = 0; i < m; i++) {
+                // row(i) -= row(pivot_old), as X(i, j) == 1
                 if (i != pivot_old && X(i, j)) {
                     P.row(i) =
                         (P.row(i) - P.row(pivot_old))
@@ -198,4 +203,41 @@ Eigen::MatrixXi binaryproduct(const Eigen::MatrixXi& X,
     Eigen::MatrixXi ret = X * Y;
 
     return ret.unaryExpr([](const int x) { return x % 2; });
+}
+
+Eigen::MatrixXd cos(const Eigen::MatrixXd& X) {
+    Eigen::MatrixXd ret = X;
+
+    return ret.unaryExpr([](const double x) { return cos(x); });
+}
+
+/**
+ * @brief Repeat the input vector for n times.
+ * @example X = [1, 2, 3, 4];
+ *          Y = repeat(X, 3); // [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4]
+ * @param X
+ * @param n : the times to repeat
+ * @return Eigen::MatrixXi
+ */
+Eigen::RowVectorXi repeat(const Eigen::RowVectorXi& X, const int n) {
+    Eigen::RowVectorXi ret(X.size() * n);
+    for (size_t i = 0; i < X.size(); i++) {
+        for (size_t j = 0; j < n; j++) {
+            ret(i * n + j) = X(i);
+        }
+    }
+
+    return ret;
+}
+
+Eigen::MatrixXd multiply(const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y) {
+    assert(X.cols() == Y.cols() && X.rows() == Y.rows());
+
+    Eigen::MatrixXd ret(X.rows(), X.cols());
+    for (size_t i = 0; i < X.rows(); i++) {
+        for (size_t j = 0; j < X.cols(); j++) {
+            ret(i, j) = X(i, j) * Y(i, j);
+        }
+    }
+    return ret;
 }
