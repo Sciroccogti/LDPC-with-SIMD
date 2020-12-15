@@ -20,6 +20,7 @@ class LDPC {
 
   public:
     LDPC();
+    LDPC(Eigen::SparseMatrix<int> H);
     LDPC(Alist<alist_matrix>);
     LDPC(const char* filename);
     // TODO: add H check
