@@ -22,7 +22,7 @@
             "program": "${workspaceFolder}/bin/LDPC-with-SIMD",
             "args": [
                 "-H",
-                "example/simple.alist",
+                "example/G_PAC.alist",
                 // "-s",
                 // "off",
             ],
