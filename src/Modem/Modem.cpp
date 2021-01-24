@@ -49,6 +49,62 @@ Eigen::RowVectorXd Modem::modulate(const Eigen::RowVectorXi &c) {
     return ret;
 }
 
+Eigen::RowVectorXi Modem::demodulate(const Eigen::RowVectorXd &x) {
+    Eigen::RowVectorXi ret;
+    switch (type) {
+        case MODEM_BPSK:
+
+            // // Generate the square wave where each Tb lasts L samples
+            // Eigen::RowVectorXd wave = repeat(c_symbol, L).cast<double>();
+
+            // Generate the carrier
+            Eigen::RowVectorXd t =
+                Eigen::RowVectorXd::LinSpaced(x.size(), 0, x.size());
+            Eigen::RowVectorXd carrier = cos(2 * M_PI * fc * t);
+
+            Eigen::RowVectorXd signald = multiply(carrier, x);
+
+            signald = convolve(signald, Eigen::RowVectorXd::Ones(L));
+            signald = signald.block(0, L - 1, 1, signald.size() - L);
+
+            Eigen::RowVectorXi signali = signald.unaryExpr(
+                [](const double x) { return x > 0 ? 1 : -1; });
+
+            // take one in every L values
+            Eigen::RowVectorXi tmpRet((int)ceil(signali.size() / (double)L));
+            for (size_t i = 0; i < signali.size(); i += L) {
+                tmpRet(i / L) = signali(i);
+            }
+
+            ret = tmpRet;
+            break;
+    }
+    return ret;
+}
+
 int Modem::getL() {
     return L;
+}
+
+/**
+ * @brief Compare two sequence, one is 0,1 sequence, latter one is -1,1 sequence
+ *
+ * @param X  0, 1 sequence
+ * @param Y -1, 1 sequence
+ * @return int : return 0 if passed, 1 if failed
+ */
+int Compare(const Eigen::RowVectorXi &X, const Eigen::RowVectorXi &Y) {
+    assert(X.size() == Y.size());
+
+    int diffCount = 0;
+    for (size_t i = 0; i < X.size(); i++) {
+        int Xi = X(i), Yi = Y(i);
+        assert(Xi == 0 || Xi == 1);
+        assert(Yi == -1 || Yi == 1);
+
+        if (2 * Xi - 1 != Yi) {
+            diffCount++;
+        }
+    }
+    return diffCount;
 }

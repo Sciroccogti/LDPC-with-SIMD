@@ -15,8 +15,8 @@ LPDC with SIMD.
 ## Functions
 
 - [x] Encode
-- [x] Modulate
-- [ ] Demodulate
+- [x] Modulate(BPSK)
+- [x] Demodulate(BPSK)
 - [ ] Decode
 
 ### Tools

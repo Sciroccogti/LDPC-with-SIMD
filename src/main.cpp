@@ -38,8 +38,6 @@ int main(int argc, char* argv[]) {
     std::srand(time(nullptr));
     Eigen::RowVectorXi m = Eigen::RowVectorXf::Random(n_info).unaryExpr(
         [](const float x) { return (int)ceil(x); });
-    // .unaryExpr(
-    // [](double dummy) { return (int)normal(e); });
     std::cout << "message  : " << m << std::endl;
 
     Eigen::RowVectorXi c = ldpc.encode(m);
@@ -52,13 +50,20 @@ int main(int argc, char* argv[]) {
     int length = modem.getL() * c.size();
     Eigen::RowVectorXd x = Eigen::RowVectorXd::LinSpaced(length, 0, length);
     Eigen::RowVectorXd y = modem.modulate(c);
-    double *x_array = (double *)malloc(length * sizeof(double)),
-           *y_array = (double *)malloc(length * sizeof(double));
-    Eigen::RowVectorXd::Map(x_array, x.cols()) = x;
-    Eigen::RowVectorXd::Map(y_array, y.cols()) = y;
-    if (pyplot(x_array, y_array, length, ss.str().c_str())) {
-        printf("ERROR during pyplot!\n");
-    }
-    free(x_array);
-    free(y_array);
+
+    // double *x_array = (double *)malloc(length * sizeof(double)),
+    //        *y_array = (double *)malloc(length * sizeof(double));
+    // Eigen::RowVectorXd::Map(x_array, x.cols()) = x;
+    // Eigen::RowVectorXd::Map(y_array, y.cols()) = y;
+    // if (pyplot(x_array, y_array, length, ss.str().c_str())) {
+    //     printf("ERROR during pyplot!\n");
+    // }
+    // free(x_array);
+    // free(y_array);
+
+    // std::cout << y << std::endl;
+
+    Eigen::RowVectorXi r = modem.demodulate(y);
+    std::cout << "received: " << r << std::endl;
+    std::cout << Compare(c, r) << std::endl;
 }
