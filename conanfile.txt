@@ -1,5 +1,5 @@
 [requires]
-eigen/3.3.8
+eigen/3.3.9
 yaml-cpp/0.6.3
 
 [generators]
