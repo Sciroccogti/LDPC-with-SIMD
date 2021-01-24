@@ -241,3 +241,30 @@ Eigen::MatrixXd multiply(const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y) {
     }
     return ret;
 }
+
+/**
+ * @brief https://toto-share.com/2011/11/cc-convolution-source-code/
+ *
+ * @param X
+ * @param Y
+ * @return Eigen::RowVectorXd
+ */
+Eigen::RowVectorXd convolve(const Eigen::RowVectorXd& X,
+                            const Eigen::RowVectorXd& Y) {
+    int nconv = X.size() + Y.size() - 1;
+    Eigen::RowVectorXd ret = Eigen::RowVectorXd::Ones(nconv);
+
+    for (size_t i = 0; i < nconv; i++) {
+        size_t current_i = i;
+        double tmp = 0;
+        for (size_t j = 0; j < Y.size(); j++) {
+            if (current_i >= 0 && current_i < X.size()) {
+                tmp += (X(current_i) * Y(j));
+            }
+            current_i--;
+        }
+        ret(i) = tmp;
+    }
+
+    return ret;
+}

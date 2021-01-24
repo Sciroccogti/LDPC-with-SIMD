@@ -25,7 +25,10 @@ class Modem {
     Modem(int freqc, int freqs, double Timeb, int t = MODEM_BPSK);
     ~Modem();
     Eigen::RowVectorXd modulate(const Eigen::RowVectorXi &c);
+    Eigen::RowVectorXi demodulate(const Eigen::RowVectorXd &s);
     int getL();
 };
+
+int Compare(const Eigen::RowVectorXi &X, const Eigen::RowVectorXi &Y);
 
 #endif
