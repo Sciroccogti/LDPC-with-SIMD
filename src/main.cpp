@@ -37,10 +37,10 @@ int main(int argc, char* argv[]) {
 
     std::srand(time(nullptr));
     Eigen::RowVectorXi m = Eigen::RowVectorXf::Random(n_info).unaryExpr(
-        [](const float x) { return (int)ceil(x); });
+        [](const float x) { return (int)ceil(x); }); // message
     std::cout << "message  : " << m << std::endl;
 
-    Eigen::RowVectorXi c = ldpc.encode(m);
+    Eigen::RowVectorXi c = ldpc.encode(m); // code word encoded from m
     std::cout << "code word: " << c << std::endl;
 
     std::stringstream ss;
@@ -65,5 +65,9 @@ int main(int argc, char* argv[]) {
 
     Eigen::RowVectorXi r = modem.demodulate(y);
     std::cout << "received: " << r << std::endl;
-    std::cout << Compare(c, r) << std::endl;
+    // std::cout << Compare(c, r) << std::endl;
+
+    Eigen::RowVectorXi d = ldpc.decode(r);
+    std::cout << "decoded: " << d << std::endl;
+
 }

@@ -28,13 +28,17 @@ if(COMPILER_OPT_ARCH_NATIVE_SUPPORTED)
   # /arch:AVX") endif()
 endif()
 
-# MIPP
-# add_definitions("-DMIPP_ALIGNED_LOADS")
+# MIPP add_definitions("-DMIPP_ALIGNED_LOADS")
 # add_definitions("-DMIPP_NO_INTRINSICS")
 
-
-set(SOURCES src/main.cpp src/Alist/alist_matrix.c src/MatrixMath/MatrixMath.cpp
-            src/LDPC/LDPC.cpp src/Modem/Modem.cpp src/UI/pyplot.cpp)
+set(SOURCES
+    src/main.cpp
+    src/Alist/alist_matrix.c
+    src/MatrixMath/MatrixMath.cpp
+    src/LDPC/LDPC.cpp
+    src/LDPC/Tanner.cpp
+    src/Modem/Modem.cpp
+    src/UI/pyplot.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 

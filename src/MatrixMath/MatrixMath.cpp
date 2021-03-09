@@ -230,10 +230,22 @@ Eigen::RowVectorXi repeat(const Eigen::RowVectorXi& X, const int n) {
     return ret;
 }
 
-Eigen::MatrixXd multiply(const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y) {
+Eigen::MatrixXd multiplyd(const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y) {
     assert(X.cols() == Y.cols() && X.rows() == Y.rows());
 
     Eigen::MatrixXd ret(X.rows(), X.cols());
+    for (size_t i = 0; i < X.rows(); i++) {
+        for (size_t j = 0; j < X.cols(); j++) {
+            ret(i, j) = X(i, j) * Y(i, j);
+        }
+    }
+    return ret;
+}
+
+Eigen::MatrixXi multiplyi(const Eigen::MatrixXi& X, const Eigen::MatrixXi& Y) {
+    assert(X.cols() == Y.cols() && X.rows() == Y.rows());
+
+    Eigen::MatrixXi ret(X.rows(), X.cols());
     for (size_t i = 0; i < X.rows(); i++) {
         for (size_t j = 0; j < X.cols(); j++) {
             ret(i, j) = X(i, j) * Y(i, j);

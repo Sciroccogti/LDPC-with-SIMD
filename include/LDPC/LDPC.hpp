@@ -11,11 +11,14 @@
 
 #include "Alist/Alist.hpp"
 #include "MatrixMath/MatrixMath.hpp"
+#include "LDPC/Tanner.hpp"
 
 class LDPC {
   private:
     Eigen::SparseMatrix<int> H_mat;
     Eigen::SparseMatrix<int> G_mat;
+    int* num_mlist;
+    int* num_nlist;
     int K;  // length of message
 
   public:
@@ -25,8 +28,9 @@ class LDPC {
     LDPC(const char* filename);
     // TODO: add H check
     ~LDPC();
+
     Eigen::RowVectorXi encode(Eigen::RowVectorXi& m);
-    Alist<alist_matrix> Decoder();
+    Eigen::RowVectorXi decode(Eigen::RowVectorXi& r);
     Eigen::SparseMatrix<int> getG();
     Eigen::SparseMatrix<int> getH();
     int getK();

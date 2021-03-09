@@ -42,7 +42,7 @@ Eigen::RowVectorXd Modem::modulate(const Eigen::RowVectorXi &c) {
                 Eigen::RowVectorXd::LinSpaced(length, 0, length);
             Eigen::RowVectorXd carrier = cos(2 * M_PI * fc * t);
 
-            ret = multiply(carrier, wave);
+            ret = multiplyd(carrier, wave);
             break;
     }
 
@@ -62,7 +62,7 @@ Eigen::RowVectorXi Modem::demodulate(const Eigen::RowVectorXd &x) {
                 Eigen::RowVectorXd::LinSpaced(x.size(), 0, x.size());
             Eigen::RowVectorXd carrier = cos(2 * M_PI * fc * t);
 
-            Eigen::RowVectorXd signald = multiply(carrier, x);
+            Eigen::RowVectorXd signald = multiplyd(carrier, x);
 
             signald = convolve(signald, Eigen::RowVectorXd::Ones(L));
             signald = signald.block(0, L - 1, 1, signald.size() - L);

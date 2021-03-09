@@ -23,7 +23,8 @@ Eigen::MatrixXi binaryproduct(const Eigen::MatrixXi& X,
                               const Eigen::MatrixXi& Y);
 Eigen::MatrixXd cos(const Eigen::MatrixXd& X);
 Eigen::RowVectorXi repeat(const Eigen::RowVectorXi& X, const int n);
-Eigen::MatrixXd multiply(const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y);
+Eigen::MatrixXd multiplyd(const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y);
+Eigen::MatrixXi multiplyi(const Eigen::MatrixXi& X, const Eigen::MatrixXi& Y);
 Eigen::RowVectorXd convolve(const Eigen::RowVectorXd& X,
                             const Eigen::RowVectorXd& Y);
 
