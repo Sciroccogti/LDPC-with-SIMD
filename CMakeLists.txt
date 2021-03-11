@@ -38,6 +38,7 @@ set(SOURCES
     src/LDPC/LDPC.cpp
     src/LDPC/Tanner.cpp
     src/Modem/Modem.cpp
+    src/Channel/Channel.cpp
     src/UI/pyplot.cpp)
 
 add_executable(${PROJECT_NAME} ${SOURCES})

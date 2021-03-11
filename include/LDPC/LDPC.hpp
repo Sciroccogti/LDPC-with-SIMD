@@ -30,7 +30,7 @@ class LDPC {
     ~LDPC();
 
     Eigen::RowVectorXi encode(Eigen::RowVectorXi& m);
-    Eigen::RowVectorXi decode(Eigen::RowVectorXi& r);
+    Eigen::RowVectorXi decode(Eigen::RowVectorXd& r);
     Eigen::SparseMatrix<int> getG();
     Eigen::SparseMatrix<int> getH();
     int getK();

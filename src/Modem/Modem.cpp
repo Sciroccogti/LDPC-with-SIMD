@@ -49,8 +49,8 @@ Eigen::RowVectorXd Modem::modulate(const Eigen::RowVectorXi &c) {
     return ret;
 }
 
-Eigen::RowVectorXi Modem::demodulate(const Eigen::RowVectorXd &x) {
-    Eigen::RowVectorXi ret;
+Eigen::RowVectorXd Modem::demodulate(const Eigen::RowVectorXd &x) {
+    Eigen::RowVectorXd ret;
     switch (type) {
         case MODEM_BPSK:
 
@@ -67,13 +67,13 @@ Eigen::RowVectorXi Modem::demodulate(const Eigen::RowVectorXd &x) {
             signald = convolve(signald, Eigen::RowVectorXd::Ones(L));
             signald = signald.block(0, L - 1, 1, signald.size() - L);
 
-            Eigen::RowVectorXi signali = signald.unaryExpr(
-                [](const double x) { return x > 0 ? 1 : -1; });
+            // Eigen::RowVectorXi signali = signald.unaryExpr(
+            //     [](const double x) { return x > 0 ? 1 : -1; });
 
             // take one in every L values
-            Eigen::RowVectorXi tmpRet((int)ceil(signali.size() / (double)L));
-            for (size_t i = 0; i < signali.size(); i += L) {
-                tmpRet(i / L) = signali(i);
+            Eigen::RowVectorXd tmpRet((int)ceil(signald.size() / (double)L));
+            for (size_t i = 0; i < signald.size(); i += L) {
+                tmpRet(i / L) = signald(i);
             }
 
             ret = tmpRet;

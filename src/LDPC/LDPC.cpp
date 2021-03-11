@@ -43,7 +43,7 @@ Eigen::RowVectorXi LDPC::encode(Eigen::RowVectorXi& m) {
     return binaryproduct(m, G_mat.toDense());
 }
 
-Eigen::RowVectorXi LDPC::decode(Eigen::RowVectorXi& r) {
+Eigen::RowVectorXi LDPC::decode(Eigen::RowVectorXd& r) {
     std::vector<VNode*> VNodes_;
     std::vector<CNode*> CNodes_;
     int N = H_mat.cols();

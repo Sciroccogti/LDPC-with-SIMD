@@ -16,7 +16,7 @@ LPDC with SIMD.
 
 - [x] Encode
 - [x] Modulate(BPSK)
-- [ ] Channel(AWGN)
+- [x] Channel(AWGN)
 - [x] Demodulate(BPSK)
 - [x] Decode
 
