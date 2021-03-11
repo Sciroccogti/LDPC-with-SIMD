@@ -1,6 +1,6 @@
-# LPDC-with-SIMD
+# LDPC-with-SIMD
 
-LPDC with SIMD.
+LDPC with SIMD.
 
 ## Environment
 
