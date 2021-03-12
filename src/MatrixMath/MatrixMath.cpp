@@ -196,6 +196,47 @@ Eigen::MatrixXi gaussjordan(Eigen::MatrixXi& X) {
     return P;
 }
 
+/**
+ * @brief https://github.com/hichamjanati/pyldpc/blob/master/pyldpc/utils.py#L161
+ * 
+ * @param X : will be reused to return result!
+ * @param b : will be reused to return result!
+ */
+void gausselimination(Eigen::MatrixXi& X, Eigen::RowVectorXi& b) {
+    int N = X.rows(), K = X.cols();
+    for (int i = 0; i < K; i++) {
+        int count = 0;
+        int minPivot = 0;
+
+        for (int j = i; j < N; j++) {
+            if (X(j, i)) {
+                count++;
+                if (j > minPivot) {
+                    minPivot = j;
+                }
+            }
+        }
+        if (count == 0) {
+            continue;
+        }
+
+        if (minPivot != i) {
+            swap_rows(X, i, minPivot);
+            int tmp = b[i];
+            b[i] = b[minPivot];
+            b[minPivot] = tmp;
+        }
+
+        for (int j = i + 1; j < N; j++) {
+            if (X(j, i)) {
+                X.row(j) = abs(X.row(j) - X.row(i));
+                b[j] = abs(b[j] - b[i]);
+            }
+        }
+    }
+    return;
+}
+
 Eigen::MatrixXi binaryproduct(const Eigen::MatrixXi& X,
                               const Eigen::MatrixXi& Y) {
     assert(X.cols() == Y.rows());
@@ -209,6 +250,12 @@ Eigen::MatrixXd cos(const Eigen::MatrixXd& X) {
     Eigen::MatrixXd ret = X;
 
     return ret.unaryExpr([](const double x) { return cos(x); });
+}
+
+Eigen::MatrixXi abs(const Eigen::MatrixXi& X) {
+    Eigen::MatrixXi ret = X;
+
+    return ret.unaryExpr([](const int x) { return abs(x); });
 }
 
 /**

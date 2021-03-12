@@ -25,9 +25,8 @@ Modem::~Modem() {}
  * @return Eigen::RowVectorXd
  */
 Eigen::RowVectorXd Modem::modulate(const Eigen::RowVectorXi &c) {
-    // turn 0 1 sequence into -1 1 sequence
-    Eigen::RowVectorXi c_symbol =
-        c.unaryExpr([](const int x) { return 2 * x - 1; });
+    // turn 0 1 sequence into 1 -1 sequence
+    Eigen::RowVectorXi c_symbol = RetransBPSK(c);
     int length = L * c.size();
     Eigen::RowVectorXd ret;
 
@@ -49,6 +48,7 @@ Eigen::RowVectorXd Modem::modulate(const Eigen::RowVectorXi &c) {
     return ret;
 }
 
+// TODO: #8 Real BPSK will introduce error
 Eigen::RowVectorXd Modem::demodulate(const Eigen::RowVectorXd &x) {
     Eigen::RowVectorXd ret;
     switch (type) {
@@ -73,7 +73,7 @@ Eigen::RowVectorXd Modem::demodulate(const Eigen::RowVectorXd &x) {
             // take one in every L values
             Eigen::RowVectorXd tmpRet((int)ceil(signald.size() / (double)L));
             for (size_t i = 0; i < signald.size(); i += L) {
-                tmpRet(i / L) = signald(i);
+                tmpRet(i / L) = signald(i + int(L / 2));
             }
 
             ret = tmpRet;
@@ -87,13 +87,55 @@ int Modem::getL() {
 }
 
 /**
+ * @brief Compare two Matrix
+ *
+ * @param X
+ * @param Y
+ * @return int : error count
+ */
+int Compare(const Eigen::MatrixXi &X, const Eigen::MatrixXi &Y) {
+    assert(X.size() == Y.size());
+    int diffCount = 0;
+    for (size_t i = 0; i < X.size(); i++) {
+        int Xi = X(i), Yi = Y(i);
+        assert(Xi == 0 || Xi == 1);
+        assert(Yi == 0 || Yi == 1);
+
+        if (Xi != Yi) {
+            diffCount++;
+        }
+    }
+    return diffCount;
+}
+
+/**
+ * @brief Compare two Matrix
+ *
+ * @param X
+ * @param Y
+ * @return int : error count
+ */
+int Compare(const Eigen::MatrixXd &X, const Eigen::MatrixXd &Y) {
+    assert(X.size() == Y.size());
+    int diffCount = 0;
+    for (size_t i = 0; i < X.size(); i++) {
+        double Xi = X(i), Yi = Y(i);
+
+        if (Xi != Yi) {
+            diffCount++;
+        }
+    }
+    return diffCount;
+}
+
+/**
  * @brief Compare two sequence, one is 0,1 sequence, latter one is -1,1 sequence
  *
  * @param X  0, 1 sequence
  * @param Y -1, 1 sequence
- * @return int : return 0 if passed, 1 if failed
+ * @return int : error count
  */
-int Compare(const Eigen::RowVectorXi &X, const Eigen::RowVectorXi &Y) {
+int CompareBPSK(const Eigen::RowVectorXi &X, const Eigen::RowVectorXi &Y) {
     assert(X.size() == Y.size());
 
     int diffCount = 0;
@@ -107,4 +149,34 @@ int Compare(const Eigen::RowVectorXi &X, const Eigen::RowVectorXi &Y) {
         }
     }
     return diffCount;
+}
+
+/**
+ * @brief Trans 1,-1 sequence to 0,1 sequence. 1=>0, -1=>1
+ *
+ * @param X
+ * @return Eigen::MatrixXi
+ */
+Eigen::MatrixXi TransBPSK(const Eigen::MatrixXi &X) {
+    Eigen::MatrixXi ret = X;
+
+    return ret.unaryExpr([](const int x) {
+        assert(x == 1 || x == -1);
+        return (1 - x) / 2;
+    });
+}
+
+/**
+ * @brief Trans 0,1 sequence to 1,-1 sequence. 0=>1, 1=> -1
+ *
+ * @param X
+ * @return Eigen::MatrixXi
+ */
+Eigen::MatrixXi RetransBPSK(const Eigen::MatrixXi &X) {
+    Eigen::MatrixXi ret = X;
+
+    return ret.unaryExpr([](const int x) {
+        assert(x == 1 || x == 0);
+        return 1 - 2 * x;
+    });
 }

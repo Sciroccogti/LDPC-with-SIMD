@@ -19,9 +19,11 @@ Eigen::MatrixXi transform_H_to_G(const Eigen::SparseMatrix<int>& H);
 Eigen::MatrixXi transform_H_to_G_sys(const Eigen::MatrixXi& H);
 Eigen::MatrixXi transform_H_to_G_sys(const Eigen::SparseMatrix<int>& H);
 Eigen::MatrixXi gaussjordan(Eigen::MatrixXi& X);
+void gausselimination(Eigen::MatrixXi& X, Eigen::RowVectorXi& b);
 Eigen::MatrixXi binaryproduct(const Eigen::MatrixXi& X,
                               const Eigen::MatrixXi& Y);
 Eigen::MatrixXd cos(const Eigen::MatrixXd& X);
+Eigen::MatrixXi abs(const Eigen::MatrixXi& X);
 Eigen::RowVectorXi repeat(const Eigen::RowVectorXi& X, const int n);
 Eigen::MatrixXd multiplyd(const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y);
 Eigen::MatrixXi multiplyi(const Eigen::MatrixXi& X, const Eigen::MatrixXi& Y);

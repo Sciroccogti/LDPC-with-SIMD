@@ -29,6 +29,10 @@ class Modem {
     int getL();
 };
 
-int Compare(const Eigen::RowVectorXi &X, const Eigen::RowVectorXi &Y);
+int Compare(const Eigen::MatrixXi &X, const Eigen::MatrixXi &Y);
+// int Compare(const Eigen::MatrixXd &X, const Eigen::MatrixXd &Y);
+int CompareBPSK(const Eigen::RowVectorXi &X, const Eigen::RowVectorXi &Y);
+Eigen::MatrixXi TransBPSK(const Eigen::MatrixXi& X);
+Eigen::MatrixXi RetransBPSK(const Eigen::MatrixXi &X);
 
 #endif

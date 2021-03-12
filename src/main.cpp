@@ -9,12 +9,12 @@
 #include <vector>
 
 #include "Alist/Alist.hpp"
+#include "Channel/Channel.hpp"
 #include "Combine/Combine.hpp"
 #include "LDPC/LDPC.hpp"
 #include "MatrixMath/NoramlMath.hpp"
 #include "MatrixMath/SIMDMath.hpp"
 #include "Modem/Modem.hpp"
-#include "Channel/Channel.hpp"
 #include "UI/pyplot.hpp"
 
 int main(int argc, char* argv[]) {
@@ -31,27 +31,33 @@ int main(int argc, char* argv[]) {
 #endif
 
     LDPC ldpc(conf.alist_path);
-    int K = ldpc.getK(); // length of message
+    int K = ldpc.getK();  // length of message
+    int N = ldpc.getN();  // length of message
 
     std::srand(time(nullptr));
     Eigen::RowVectorXi m = Eigen::RowVectorXf::Random(K).unaryExpr(
-        [](const float x) { return (int)ceil(x); }); // message
-    std::cout << "message  : " << m << std::endl;
+        [](const float x) { return (int)ceil(x); });  // message
+    // std::cout << "message  : " << m << std::endl;
 
-    Eigen::RowVectorXi c = ldpc.encode(m); // code word encoded from m
+    Eigen::RowVectorXi c = ldpc.encode(m);  // code word encoded from m
     std::cout << "code word: " << c << std::endl;
 
+    // Modem modem(100, 4 * 100, 0.1);
+    // Eigen::RowVectorXd y = modem.modulate(c);
+    // Real BPSK will introduce error
+    Eigen::RowVectorXd y = RetransBPSK(c).cast<double>();
 
-    Modem modem(100, 4 * 100, 0.1);
-    int length = modem.getL() * c.size();
-    Eigen::RowVectorXd x = Eigen::RowVectorXd::LinSpaced(length, 0, length);
-    Eigen::RowVectorXd y = modem.modulate(c);
-
-    Eigen::RowVectorXd y_noised = AWGN(y, 0.1, 2);
+    double snrdB = 10;                       // log SNR: Eb/N0
+    double snr = pow(10, snrdB / 10) * K / N;  // linear SNR after encode
+    // std::cout << snr << std::endl;
+    // std::cout << sqrt(1 / (snr))<<std::endl;
+    Eigen::RowVectorXd y_noised = AWGN(y, snr, 2);
     // std::cout << y - y_noised << std::endl;
 
     // std::stringstream ss;
     // ss << c;
+    // int length = modem.getL() * c.size();
+    // Eigen::RowVectorXd x = Eigen::RowVectorXd::LinSpaced(length, 0, length);
     // double *x_array = (double *)malloc(length * sizeof(double)),
     //        *y_array = (double *)malloc(length * sizeof(double));
     // Eigen::RowVectorXd::Map(x_array, x.cols()) = x;
@@ -70,11 +76,16 @@ int main(int argc, char* argv[]) {
 
     // std::cout << y << std::endl;
 
-    Eigen::RowVectorXd r = modem.demodulate(y_noised);
-    std::cout << "received: " << r << std::endl;
-    // std::cout << Compare(c, r) << std::endl;
+    // Eigen::RowVectorXd r = modem.demodulate(y);
+    Eigen::RowVectorXd r = y_noised;
+    // std::cout << "received: " << r << std::endl;
 
     Eigen::RowVectorXi d = ldpc.decode(r);
-    std::cout << "decoded: " << d << std::endl;
+    // std::cout << "decoded: " << d << std::endl;
 
+    std::cout << Compare(c, d) << std::endl;
+
+    Eigen::RowVectorXi m_ = ldpc.recoverMessage(d);
+    // std::cout << "message  : " << m_ << std::endl;
+    std::cout << Compare(m, m_) << std::endl;
 }

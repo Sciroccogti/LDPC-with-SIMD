@@ -20,6 +20,8 @@ class LDPC {
     int* num_mlist;
     int* num_nlist;
     int K;  // length of message
+    int N;
+    bool isSystematic;
 
   public:
     LDPC();
@@ -31,9 +33,12 @@ class LDPC {
 
     Eigen::RowVectorXi encode(Eigen::RowVectorXi& m);
     Eigen::RowVectorXi decode(Eigen::RowVectorXd& r);
+    Eigen::RowVectorXi recoverMessage(Eigen::RowVectorXi & d);
     Eigen::SparseMatrix<int> getG();
     Eigen::SparseMatrix<int> getH();
     int getK();
+    int getN();
+    bool getIsSys();
 };
 
 #endif

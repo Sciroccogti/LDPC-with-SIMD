@@ -15,6 +15,14 @@ LDPC::LDPC(Eigen::SparseMatrix<int> H) {
     H_mat = H;
     G_mat = Eigen::SparseMatrix<int>(transform_H_to_G(H_mat).sparseView());
     K = G_mat.rows();
+    N = G_mat.cols();
+    Eigen::MatrixXi diff =
+        G_mat.block(0, N - K, K, K) - Eigen::MatrixXi::Identity(K, K);
+    if (diff.any()) {
+        isSystematic = false;
+    } else {
+        isSystematic = true;
+    }
 }
 
 LDPC::LDPC(Alist<alist_matrix> A) {
@@ -46,7 +54,6 @@ Eigen::RowVectorXi LDPC::encode(Eigen::RowVectorXi& m) {
 Eigen::RowVectorXi LDPC::decode(Eigen::RowVectorXd& r) {
     std::vector<VNode*> VNodes_;
     std::vector<CNode*> CNodes_;
-    int N = H_mat.cols();
     int M = H_mat.rows();
     assert(r.size() == N);
 
@@ -71,6 +78,7 @@ Eigen::RowVectorXi LDPC::decode(Eigen::RowVectorXd& r) {
 
     // bool isDone = false;
     Eigen::RowVectorXi ret(N);
+    int count = 0;
     do {
         for (VNode* v : VNodes_) {
             v->Update();
@@ -82,13 +90,46 @@ Eigen::RowVectorXi LDPC::decode(Eigen::RowVectorXd& r) {
         // update ret
         for (int i = 0; i < N; i++) {
             if (VNodes_[i]->getValue() >= 0) {
-                ret[i] = 1;
+                ret[i] = 0;
             } else {
-                ret[i] = -1;
+                ret[i] = 1;
             }
         }
+        count ++;
     } while (binaryproduct(ret, H_mat.toDense().transpose()).any());
-     
+    std::cout<<"迭代次数： "<<count<<std::endl;
+
+    return ret;
+}
+
+/**
+ * @brief recover message from decoded sequence
+ *     https://github.com/hichamjanati/pyldpc/blob/master/pyldpc/decoder.py#L186
+ * @param d decoded sequence, should be 0,1 sequence!
+ * @return Eigen::RowVectorXi
+ */
+Eigen::RowVectorXi LDPC::recoverMessage(Eigen::RowVectorXi& d) {
+    Eigen::RowVectorXi ret(K);
+
+    if (isSystematic) {
+        ret = d.rightCols(K);
+    } else {
+        Eigen::MatrixXi tG = G_mat.toDense().transpose();
+        Eigen::RowVectorXi d_ = d.unaryExpr([](const int x) {
+            assert(x == 1 || x == 0);
+            return 2 * x - 1;
+        });
+        gausselimination(tG, d_);
+        ret.setZero();
+        ret[K - 1] = d[K - 1];
+        for (int i = K - 2; i >= 0; i--) {
+            ret[i] = d[i];
+            Eigen::RowVectorXi tmpGrow = tG.block(i, i + 1, 1, K - i - 1);
+            ret[i] -= tmpGrow.dot(ret.block(0, i + 1, 1, K - i - 1)) % 2;
+        }
+        // mod 2 and transbpsk
+        ret = ret.unaryExpr([](const int x) { return (x % 2 + 1) / 2; }); 
+    }
     return ret;
 }
 
@@ -102,4 +143,12 @@ Eigen::SparseMatrix<int> LDPC::getH() {
 
 int LDPC::getK() {
     return K;
+}
+
+int LDPC::getN() {
+    return N;
+}
+
+bool LDPC::getIsSys() {
+    return isSystematic;
 }
