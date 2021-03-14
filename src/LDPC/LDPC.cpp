@@ -51,7 +51,16 @@ Eigen::RowVectorXi LDPC::encode(Eigen::RowVectorXi& m) {
     return binaryproduct(m, G_mat.toDense());
 }
 
-Eigen::RowVectorXi LDPC::decode(Eigen::RowVectorXd& r, int iter_max) {
+/**
+ * @brief decode the received sequence
+ *
+ * @param r received sequence
+ * @param iter_max stop early criterion
+ * @param factor normalize factor, should not larger than 1
+ * @return Eigen::RowVectorXi
+ */
+Eigen::RowVectorXi LDPC::decode(Eigen::RowVectorXd& r, int iter_max,
+                                double factor) {
     std::vector<VNode*> VNodes_;
     std::vector<CNode*> CNodes_;
     int M = H_mat.rows();
@@ -59,7 +68,7 @@ Eigen::RowVectorXi LDPC::decode(Eigen::RowVectorXd& r, int iter_max) {
 
     // init Nodes
     for (int i = 0; i < M; i++) {
-        CNode* c = new CNode(num_mlist[i]);
+        CNode* c = new CNode(num_mlist[i], factor);
         CNodes_.push_back(c);
     }
 

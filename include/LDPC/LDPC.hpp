@@ -10,8 +10,8 @@
 #define LDPC_HPP
 
 #include "Alist/Alist.hpp"
-#include "MatrixMath/MatrixMath.hpp"
 #include "LDPC/Tanner.hpp"
+#include "MatrixMath/MatrixMath.hpp"
 
 class LDPC {
   private:
@@ -32,8 +32,9 @@ class LDPC {
     ~LDPC();
 
     Eigen::RowVectorXi encode(Eigen::RowVectorXi& m);
-    Eigen::RowVectorXi decode(Eigen::RowVectorXd& r, int iter_max);
-    Eigen::RowVectorXi recoverMessage(Eigen::RowVectorXi & d);
+    Eigen::RowVectorXi decode(Eigen::RowVectorXd& r, int iter_max,
+                              double factor);
+    Eigen::RowVectorXi recoverMessage(Eigen::RowVectorXi& d);
     Eigen::SparseMatrix<int> getG();
     Eigen::SparseMatrix<int> getH();
     int getK();

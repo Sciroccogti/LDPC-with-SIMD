@@ -68,7 +68,16 @@ bool VNode::isVN() {
     return true;
 }
 
-CNode::CNode(int d) : Node(d) {}
+/**
+ * @brief Construct a new CNode::CNode object
+ * 
+ * @param d degree
+ * @param f normalize factor
+ */
+CNode::CNode(int d, double f) : Node(d) {
+    assert(f <= 1);
+    factor = f;
+}
 
 void CNode::Link(Node* n) {
     assert(n->isVN());  // assure n is VN
@@ -96,7 +105,7 @@ void CNode::Update() {
             sgn *= inValues_[j] >= 0 ? 1 : -1;
         }
 
-        Nodes_[i]->setInValue(sgn * min);
+        Nodes_[i]->setInValue(sgn * min * factor);
     }
 }
 

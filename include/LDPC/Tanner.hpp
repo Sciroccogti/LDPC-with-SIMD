@@ -44,8 +44,11 @@ class VNode : public Node {
 };
 
 class CNode : public Node {
+  private:
+    double factor;
+
   public:
-    CNode(int d);
+    CNode(int d, double f);
     void Link(Node* n);
     void Update();
     bool isVN();

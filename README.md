@@ -14,11 +14,12 @@ LDPC with SIMD.
 
 ## Functions
 
+### Binary LDPC
 - [x] Encode
 - [x] Modulate(BPSK)
 - [x] Channel(AWGN)
 - [x] Demodulate(BPSK)
-- [x] Decode
+- [x] Decode(NMS)
 
 ### Tools
 

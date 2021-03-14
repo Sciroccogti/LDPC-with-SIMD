@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
     int FEcount = 0;
     int BEcount = 0;
     int count = 0;
-    while (FEcount <= 50) {
+    while (FEcount <= 100) {
         std::srand(time(nullptr));
         Eigen::RowVectorXi m = Eigen::RowVectorXf::Random(K).unaryExpr(
             [](const float x) { return (int)ceil(x); });  // message
@@ -50,7 +50,7 @@ int main(int argc, char* argv[]) {
         // Real BPSK will introduce error
         Eigen::RowVectorXd y = RetransBPSK(c).cast<double>();
 
-        double snrdB = 0.0;                        // log Eb/N0
+        double snrdB = 2.75;                        // log Eb/N0
         double snr = pow(10, snrdB / 10) * K / N;  // linear Es/N0
         // std::cout << snr << std::endl;
         // std::cout << sqrt(1 / (snr))<<std::endl;
@@ -83,7 +83,7 @@ int main(int argc, char* argv[]) {
         Eigen::RowVectorXd r = y_noised;
         // std::cout << "received: " << r << std::endl;
 
-        Eigen::RowVectorXi d = ldpc.decode(r, 30);
+        Eigen::RowVectorXi d = ldpc.decode(r, 30, 0.5);
         // std::cout << "decoded: " << d << std::endl;
 
         // std::cout << Compare(c, d) << std::endl;
