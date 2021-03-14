@@ -32,7 +32,7 @@ class LDPC {
     ~LDPC();
 
     Eigen::RowVectorXi encode(Eigen::RowVectorXi& m);
-    Eigen::RowVectorXi decode(Eigen::RowVectorXd& r);
+    Eigen::RowVectorXi decode(Eigen::RowVectorXd& r, int iter_max);
     Eigen::RowVectorXi recoverMessage(Eigen::RowVectorXi & d);
     Eigen::SparseMatrix<int> getG();
     Eigen::SparseMatrix<int> getH();

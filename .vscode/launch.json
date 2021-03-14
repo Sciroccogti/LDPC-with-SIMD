@@ -22,7 +22,7 @@
             "program": "${workspaceFolder}/bin/LDPC-with-SIMD",
             "args": [
                 "-H",
-                "example/73.alist",
+                "example/10GBPS-ETHERNET_1723_2048.alist",
                 // "-s",
                 // "off",
             ],

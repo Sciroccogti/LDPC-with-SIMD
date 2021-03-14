@@ -30,7 +30,7 @@ LDPC::LDPC(Alist<alist_matrix> A) {
     memcpy(num_mlist, A.getData().num_mlist, A.getnRow() * sizeof(int));
     memset(num_nlist, 0, A.getnCol() * sizeof(int));
     memcpy(num_nlist, A.getData().num_nlist, A.getnCol() * sizeof(int));
-    new (this) LDPC(A.getMat());
+    new (this) LDPC(A.getMat());  // no need to delete, cause memory is reused
 }
 
 LDPC::LDPC(const char* filename) {
@@ -39,7 +39,7 @@ LDPC::LDPC(const char* filename) {
     memcpy(num_mlist, A.getData().num_mlist, A.getnRow() * sizeof(int));
     num_nlist = (int*)malloc(A.getnCol() * sizeof(int));
     memcpy(num_nlist, A.getData().num_nlist, A.getnCol() * sizeof(int));
-    new (this) LDPC(A.getMat());
+    new (this) LDPC(A.getMat());  // no need to delete, cause memory is reused
 }
 
 LDPC::~LDPC() {
@@ -51,7 +51,7 @@ Eigen::RowVectorXi LDPC::encode(Eigen::RowVectorXi& m) {
     return binaryproduct(m, G_mat.toDense());
 }
 
-Eigen::RowVectorXi LDPC::decode(Eigen::RowVectorXd& r) {
+Eigen::RowVectorXi LDPC::decode(Eigen::RowVectorXd& r, int iter_max) {
     std::vector<VNode*> VNodes_;
     std::vector<CNode*> CNodes_;
     int M = H_mat.rows();
@@ -76,7 +76,6 @@ Eigen::RowVectorXi LDPC::decode(Eigen::RowVectorXd& r) {
         assert(VNodes_[i]->isReady());
     }
 
-    // bool isDone = false;
     Eigen::RowVectorXi ret(N);
     int count = 0;
     do {
@@ -95,9 +94,18 @@ Eigen::RowVectorXi LDPC::decode(Eigen::RowVectorXd& r) {
                 ret[i] = 1;
             }
         }
-        count ++;
-    } while (binaryproduct(ret, H_mat.toDense().transpose()).any());
-    std::cout<<"迭代次数： "<<count<<std::endl;
+        count++;
+    } while (binaryproduct(ret, H_mat.toDense().transpose()).any() &&
+             count <= iter_max);  // stop criterion
+    // std::cout << "迭代次数： " << count << std::endl;
+
+    for (CNode* c : CNodes_) {
+        delete c;
+    }
+
+    for (VNode* d : VNodes_) {
+        delete d;
+    }
 
     return ret;
 }
@@ -128,7 +136,7 @@ Eigen::RowVectorXi LDPC::recoverMessage(Eigen::RowVectorXi& d) {
             ret[i] -= tmpGrow.dot(ret.block(0, i + 1, 1, K - i - 1)) % 2;
         }
         // mod 2 and transbpsk
-        ret = ret.unaryExpr([](const int x) { return (x % 2 + 1) / 2; }); 
+        ret = ret.unaryExpr([](const int x) { return (x % 2 + 1) / 2; });
     }
     return ret;
 }
