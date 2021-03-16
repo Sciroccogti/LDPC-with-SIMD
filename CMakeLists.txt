@@ -33,6 +33,7 @@ endif()
 
 set(SOURCES
     src/main.cpp
+    src/utils/utils.cpp
     src/Alist/alist_matrix.c
     src/MatrixMath/MatrixMath.cpp
     src/LDPC/LDPC.cpp
