@@ -195,7 +195,7 @@ void writeResult(const char* filename, double BER, double FER, int duration) {
     result["BER"] = tmp;
     sprintf(tmp, "%.2e", FER);
     result["FER"] = tmp;
-    result["duration"] = duration;
+    result["sec"] = duration;
     yaml["result"] = result;
 
     std::ofstream fout(filename, std::ios_base::app);
