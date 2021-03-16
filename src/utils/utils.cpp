@@ -135,7 +135,7 @@ int opt(int argc, char* argv[], Config& conf) {
         printf("save output default to: %s\n", conf.output_path);
     }
 
-    writeOutput(conf.output_path, conf);
+    writeConf(conf.output_path, conf);
 
     return 0;
 }
@@ -166,7 +166,7 @@ void readOutput(const char* filename, int* count) {
     }
 }
 
-void writeOutput(const char* filename, Config& conf) {
+void writeConf(const char* filename, Config& conf) {
     YAML::Node yaml;
     YAML::Node basic;
     basic["alist_path"] = conf.alist_path;
@@ -183,6 +183,22 @@ void writeOutput(const char* filename, Config& conf) {
     yaml["B_LDPC"] = B_LDPC;
 
     std::ofstream fout(filename);
-    fout << yaml;
+    fout << yaml << std::endl;
+    fout.close();
+}
+
+void writeResult(const char* filename, double BER, double FER, int duration) {
+    YAML::Node yaml;
+    YAML::Node result;
+    char tmp[20];
+    sprintf(tmp, "%.2e", BER);
+    result["BER"] = tmp;
+    sprintf(tmp, "%.2e", FER);
+    result["FER"] = tmp;
+    result["duration"] = duration;
+    yaml["result"] = result;
+
+    std::ofstream fout(filename, std::ios_base::app);
+    fout << std::scientific << yaml << std::endl;
     fout.close();
 }

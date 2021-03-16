@@ -34,6 +34,7 @@ int main(int argc, char* argv[]) {
 #endif
 
     LDPC ldpc(conf.alist_path);
+    printf("%s read in successfully.\n", conf.alist_path);
     int K = ldpc.getK();  // length of message
     int N = ldpc.getN();  // length of message
     int FEcount = 0;
@@ -42,6 +43,7 @@ int main(int argc, char* argv[]) {
 
     double snr = pow(10, conf.SNR / 10) * K / N;  // linear Es/N0
 
+    double start = omp_get_wtime();
     while (FEcount <= conf.FEcount) {
         std::srand(time(nullptr));
         Eigen::RowVectorXi m = Eigen::RowVectorXf::Random(K).unaryExpr(
@@ -97,6 +99,12 @@ int main(int argc, char* argv[]) {
         BEcount += BE;
         count++;
     }
-    printf("BER: %.2e\n", (double)BEcount / (count * K));
-    printf("FER: %.2e\n", (double)FEcount / count);
+    double end = omp_get_wtime();
+    double BER = (double)BEcount / (count * K);
+    double FER = (double)FEcount / count;
+    printf("BER: %.2e\n", BER);
+    printf("FER: %.2e\n", FER);
+    printf("Time: %d sec\n", (int)(end - start));
+    writeResult(conf.output_path, BER, FER, (int)(end - start));
+    return 0;
 }

@@ -32,7 +32,8 @@ struct Config {
 int opt(int argc, char* argv[], Config& conf);
 
 void readOutput(const char* filename, int* count);
+void writeConf(const char* filename, Config& conf);
 
-void writeOutput(const char* filename, Config& conf);
+void writeResult(const char* filename, double BER, double FER, int duration);
 
 #endif
