@@ -23,6 +23,8 @@
             "args": [
                 "-H",
                 "example/10GBPS-ETHERNET_1723_2048.alist",
+                "--factor", "0.5",
+                "--SNR", "3.0",
                 // "-s",
                 // "off",
             ],

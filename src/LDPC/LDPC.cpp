@@ -47,7 +47,7 @@ LDPC::~LDPC() {
     free(num_nlist);
 }
 
-Eigen::RowVectorXi LDPC::encode(Eigen::RowVectorXi& m) {
+Eigen::RowVectorXi LDPC::encode(Eigen::RowVectorXi& m) const {
     return binaryproduct(m, G_mat.toDense());
 }
 
@@ -60,10 +60,11 @@ Eigen::RowVectorXi LDPC::encode(Eigen::RowVectorXi& m) {
  * @return Eigen::RowVectorXi
  */
 Eigen::RowVectorXi LDPC::decode(Eigen::RowVectorXd& r, int iter_max,
-                                double factor) {
+                                double factor) const {
     std::vector<VNode*> VNodes_;
     std::vector<CNode*> CNodes_;
     int M = H_mat.rows();
+    Eigen::MatrixXi Hdense = H_mat.toDense();
     assert(r.size() == N);
 
     // init Nodes
@@ -78,7 +79,7 @@ Eigen::RowVectorXi LDPC::decode(Eigen::RowVectorXd& r, int iter_max,
         VNode* v = new VNode(num_nlist[i], r[i]);
         VNodes_.push_back(v);
         for (int j = 0; j < M; j++) {
-            if (H_mat.coeffRef(j, i) == 1) {
+            if (Hdense(j, i) == 1) {
                 VNodes_[i]->Link(CNodes_[j]);
             }
         }
@@ -125,7 +126,7 @@ Eigen::RowVectorXi LDPC::decode(Eigen::RowVectorXd& r, int iter_max,
  * @param d decoded sequence, should be 0,1 sequence!
  * @return Eigen::RowVectorXi
  */
-Eigen::RowVectorXi LDPC::recoverMessage(Eigen::RowVectorXi& d) {
+Eigen::RowVectorXi LDPC::recoverMessage(Eigen::RowVectorXi& d) const {
     Eigen::RowVectorXi ret(K);
 
     if (isSystematic) {
@@ -150,22 +151,22 @@ Eigen::RowVectorXi LDPC::recoverMessage(Eigen::RowVectorXi& d) {
     return ret;
 }
 
-Eigen::SparseMatrix<int> LDPC::getG() {
+Eigen::SparseMatrix<int> LDPC::getG() const {
     return G_mat;
 }
 
-Eigen::SparseMatrix<int> LDPC::getH() {
+Eigen::SparseMatrix<int> LDPC::getH() const {
     return H_mat;
 }
 
-int LDPC::getK() {
+int LDPC::getK() const {
     return K;
 }
 
-int LDPC::getN() {
+int LDPC::getN() const {
     return N;
 }
 
-bool LDPC::getIsSys() {
+bool LDPC::getIsSys() const {
     return isSystematic;
 }

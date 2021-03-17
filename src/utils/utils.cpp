@@ -21,13 +21,14 @@ int opt(int argc, char* argv[], Config& conf) {
         {"dec-h-path", required_argument, NULL, 'H'},
         {"simd", required_argument, NULL, 's'},
         {"output", required_argument, NULL, 'o'},
+        {"thread", required_argument, NULL, 't'},
         {"MIPP", required_argument, NULL, 'M'},
         {"factor", required_argument, NULL, 'f' + 128},  // +128 to avoid ascii
         {"SNR", required_argument, NULL, 'S' + 128},
         {"iter", required_argument, NULL, 'i'},
         {"FE", required_argument, NULL, 'e'},
         {0, 0, 0, 0}};
-    static char* const short_options = (char*)"hH:s:o:M:i:e:";
+    static char* const short_options = (char*)"hH:s:o:t:M:i:e:";
 
     while ((ret = getopt_long(argc, argv, short_options, long_options,
                               &option_index)) != -1) {
@@ -46,6 +47,10 @@ int opt(int argc, char* argv[], Config& conf) {
                 printf(
                     "\t\t\tpath to output in .yaml,"
                     " default to be output.yaml\n");
+                printf("  --thread, -t <int>\n");
+                printf(
+                    "\t\t\tthreads to use,"
+                    " default to be the maximum of CPU - 1\n");
                 printf("  --MIPP, -M <bool: ON/1/OFF/0>\n");
                 printf(
                     "\t\t\twhether to enable MIPP for SIMD,"
@@ -68,7 +73,7 @@ int opt(int argc, char* argv[], Config& conf) {
                     "\tFrame error count,"
                     " default to be 100\n");
                 printf(
-                    "  --help, -h\t\tshow this help message and "
+                    "\n  --help, -h\t\tshow this help message and "
                     "exit\n");
                 return -1;
             case 'H':
@@ -83,6 +88,9 @@ int opt(int argc, char* argv[], Config& conf) {
             case 'o':
                 conf.output_path = optarg;
                 printf("save output to: %s\n", conf.output_path);
+                break;
+            case 't':
+                conf.threads = atoi(optarg);
                 break;
             case 'M':
                 if (strcasecmp(optarg, "ON") || strcasecmp(optarg, "1")) {
@@ -172,6 +180,7 @@ void writeConf(const char* filename, Config& conf) {
     basic["alist_path"] = conf.alist_path;
     basic["enable_SIMD"] = conf.enable_SIMD;
     basic["output_path"] = conf.output_path;
+    basic["threads"] = conf.threads;
     basic["enable_MIPP"] = conf.enable_MIPP;
     yaml["basic"] = basic;
 
@@ -187,7 +196,7 @@ void writeConf(const char* filename, Config& conf) {
     fout.close();
 }
 
-void writeResult(const char* filename, double BER, double FER, int duration) {
+void writeResult(const char* filename, double BER, double FER, double duration) {
     YAML::Node yaml;
     YAML::Node result;
     char tmp[20];
@@ -195,7 +204,8 @@ void writeResult(const char* filename, double BER, double FER, int duration) {
     result["BER"] = tmp;
     sprintf(tmp, "%.2e", FER);
     result["FER"] = tmp;
-    result["sec"] = duration;
+    sprintf(tmp, "%.2f", duration);
+    result["sec"] = tmp;
     yaml["result"] = result;
 
     std::ofstream fout(filename, std::ios_base::app);

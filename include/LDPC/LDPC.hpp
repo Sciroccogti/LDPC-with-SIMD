@@ -31,15 +31,15 @@ class LDPC {
     // TODO: add H check
     ~LDPC();
 
-    Eigen::RowVectorXi encode(Eigen::RowVectorXi& m);
+    Eigen::RowVectorXi encode(Eigen::RowVectorXi& m) const;
     Eigen::RowVectorXi decode(Eigen::RowVectorXd& r, int iter_max,
-                              double factor);
-    Eigen::RowVectorXi recoverMessage(Eigen::RowVectorXi& d);
-    Eigen::SparseMatrix<int> getG();
-    Eigen::SparseMatrix<int> getH();
-    int getK();
-    int getN();
-    bool getIsSys();
+                              double factor) const;
+    Eigen::RowVectorXi recoverMessage(Eigen::RowVectorXi& d) const;
+    Eigen::SparseMatrix<int> getG() const;
+    Eigen::SparseMatrix<int> getH() const;
+    int getK() const;
+    int getN() const;
+    bool getIsSys() const;
 };
 
 #endif

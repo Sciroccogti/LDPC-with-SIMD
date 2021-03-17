@@ -1,9 +1,12 @@
 #include <omp.h>
 
 #include <algorithm>
+#include <chrono>
 #include <iostream>
+#include <mutex>
 #include <random>
 #include <sstream>
+#include <thread>
 #include <vector>
 
 #include "Alist/Alist.hpp"
@@ -16,10 +19,16 @@
 #include "UI/pyplot.hpp"
 #include "utils/utils.hpp"
 
-int main(int argc, char* argv[]) {
+std::mutex mtx;
+
+void decode(const LDPC *ldpc, const Config *conf, int *count, int *BEcount,
+            int *FEcount);
+
+int main(int argc, char *argv[]) {
     Config conf = {.alist_path = NULL,
                    .enable_SIMD = true,
                    .output_path = NULL,
+                   .threads = std::thread::hardware_concurrency() - 1,
                    .enable_MIPP = false,
                    .factor = 1.0,
                    .SNR = 0.0,
@@ -41,16 +50,44 @@ int main(int argc, char* argv[]) {
     int BEcount = 0;
     int count = 0;
 
-    double snr = pow(10, conf.SNR / 10) * K / N;  // linear Es/N0
+    std::vector<std::thread> threads_(conf.threads);
+    for (int i = 0; i < conf.threads; i++) {
+        threads_[i] =
+            std::thread(decode, &ldpc, &conf, &count, &BEcount, &FEcount);
+    }
 
-    double start = omp_get_wtime();
-    while (FEcount <= conf.FEcount) {
-        std::srand(time(nullptr));
+    auto start = std::chrono::steady_clock::now();
+    for (int i = 0; i < conf.threads; i++) {
+        threads_[i].join();
+    }
+    auto end = std::chrono::steady_clock::now();
+    double BER = (double)BEcount / (count * K);
+    double FER = (double)FEcount / count;
+    double duration = (end - start).count() / 1000000000.0; // count is ns
+    printf("BER: %.2e\n", BER);
+    printf("FER: %.2e\n", FER);
+    printf("Time: %.2f sec\n", duration);
+    writeResult(conf.output_path, BER, FER, duration);
+    return 0;
+}
+
+void decode(const LDPC *ldpc, const Config *conf, int *count, int *BEcount,
+            int *FEcount) {
+    int K = ldpc->getK();  // length of message
+    int N = ldpc->getN();  // length of message
+
+    double snr = pow(10, conf->SNR / 10) * K / N;  // linear Es/N0
+
+    std::srand(time(nullptr) *
+               std::hash<std::thread::id>()(std::this_thread::get_id()));
+    mtx.lock();
+    while (*FEcount <= conf->FEcount) {
+        mtx.unlock();
         Eigen::RowVectorXi m = Eigen::RowVectorXf::Random(K).unaryExpr(
             [](const float x) { return (int)ceil(x); });  // message
         // std::cout << "message  : " << m << std::endl;
 
-        Eigen::RowVectorXi c = ldpc.encode(m);  // code word encoded from m
+        Eigen::RowVectorXi c = ldpc->encode(m);  // code word encoded from m
         // std::cout << "code word: " << c << std::endl;
 
         // Modem modem(100, 4 * 100, 0.1);
@@ -86,25 +123,24 @@ int main(int argc, char* argv[]) {
         Eigen::RowVectorXd r = y_noised;
         // std::cout << "received: " << r << std::endl;
 
-        Eigen::RowVectorXi d = ldpc.decode(r, conf.iter_max, conf.factor);
+        Eigen::RowVectorXi d = ldpc->decode(r, conf->iter_max, conf->factor);
         // std::cout << "decoded: " << d << std::endl;
 
-        Eigen::RowVectorXi m_ = ldpc.recoverMessage(d);
+        Eigen::RowVectorXi m_ = ldpc->recoverMessage(d);
         // std::cout << "message  : " << m_ << std::endl;
         // std::cout << Compare(m, m_) << std::endl;
         int BE = Compare(m, m_);
-        if (BE) {
-            FEcount++;
+
+        mtx.lock();
+        if (*FEcount >= conf->FEcount) {
+            mtx.unlock();
+            break;
         }
-        BEcount += BE;
-        count++;
+        if (BE) {
+            (*FEcount)++;
+        }
+        *BEcount += BE;
+        (*count)++;
     }
-    double end = omp_get_wtime();
-    double BER = (double)BEcount / (count * K);
-    double FER = (double)FEcount / count;
-    printf("BER: %.2e\n", BER);
-    printf("FER: %.2e\n", FER);
-    printf("Time: %d sec\n", (int)(end - start));
-    writeResult(conf.output_path, BER, FER, (int)(end - start));
-    return 0;
+    mtx.unlock();
 }

@@ -20,6 +20,7 @@ struct Config {
     char* alist_path;   // path to the .alist which stores the matrix
     bool enable_SIMD;   // whether to enable SIMD
     char* output_path;  // path to the .yaml which stores the output
+    unsigned int threads;        // threads to use
     bool enable_MIPP;   // whether to enable MIPP for SIMD
 
     // B-LDPC
@@ -34,6 +35,6 @@ int opt(int argc, char* argv[], Config& conf);
 void readOutput(const char* filename, int* count);
 void writeConf(const char* filename, Config& conf);
 
-void writeResult(const char* filename, double BER, double FER, int duration);
+void writeResult(const char* filename, double BER, double FER, double duration);
 
 #endif
