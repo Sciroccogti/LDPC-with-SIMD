@@ -133,7 +133,6 @@ void decode(const LDPC *ldpc, const Config *conf, int *count, int *BEcount,
 
         mtx.lock();
         if (*FEcount >= conf->FEcount) {
-            mtx.unlock();
             break;
         }
         if (BE) {
