@@ -1,5 +1,10 @@
 #include "LDPC/Tanner.hpp"
 
+/**
+ * @brief Construct a new Node:: Node object
+ *  inValues are initialized as 0
+ * @param d degree
+ */
 Node::Node(int d) {
     degree = d;
     inCount = 0;
@@ -8,10 +13,6 @@ Node::Node(int d) {
     // init inValues
     for (int i = 0; i < degree; i++) {
         inValues_.push_back(0);
-    }
-    // init outValues
-    for (int i = 0; i < degree; i++) {
-        outValues_.push_back(0);
     }
 }
 
@@ -23,6 +24,7 @@ void Node::Link(Node* n) {
     Nodes_.push_back(n);
 }
 
+// return true if size == degree
 bool Node::isReady() {
     return Nodes_.size() == degree;
 }
@@ -70,7 +72,7 @@ bool VNode::isVN() {
 
 /**
  * @brief Construct a new CNode::CNode object
- * 
+ *
  * @param d degree
  * @param f normalize factor
  */

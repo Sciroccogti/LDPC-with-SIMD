@@ -61,8 +61,8 @@ Eigen::RowVectorXi LDPC::encode(Eigen::RowVectorXi& m) const {
  */
 Eigen::RowVectorXi LDPC::decode(Eigen::RowVectorXd& r, int iter_max,
                                 double factor) const {
-    std::vector<VNode*> VNodes_;
-    std::vector<CNode*> CNodes_;
+    std::vector<VNode*> VNodes_;  // size: N
+    std::vector<CNode*> CNodes_;  // size: M
     int M = H_mat.rows();
     Eigen::MatrixXi Hdense = H_mat.toDense();
     assert(r.size() == N);
@@ -105,8 +105,8 @@ Eigen::RowVectorXi LDPC::decode(Eigen::RowVectorXd& r, int iter_max,
             }
         }
         count++;
-    } while (binaryproduct(ret, H_mat.toDense().transpose()).any() &&
-             count <= iter_max);  // stop criterion
+    } while (binaryproduct(H_mat.toDense(), ret.transpose()).any() &&
+             count < iter_max);  // stop criterion
     // std::cout << "迭代次数： " << count << std::endl;
 
     for (CNode* c : CNodes_) {

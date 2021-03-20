@@ -16,10 +16,9 @@
 class Node {
   protected:
     int degree;
-    int inCount;
+    int inCount;                // used to record No. of current inputting node
     std::vector<Node*> Nodes_;  // Linked Nodes
     std::vector<double> inValues_;
-    std::vector<double> outValues_;
 
   public:
     Node(int d);

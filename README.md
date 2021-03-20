@@ -84,6 +84,7 @@ python3 script/makeAlist.py
 - [5G-SIMD-LDPC](https://github.com/SherlockHsu/5G-SIMD-LDPC)
 - [Python处理alist文件](https://www.cnblogs.com/lingr7/p/13038410.html)
 - [aff3ct](https://github.com/aff3ct/aff3ct)
+- [paper: NMS](https://www.researchgate.net/publication/3160637_Near_optimum_universal_belief_propagation_based_decoding_of_low-density_parity_check_codes)
 
 ### Nonbinary LDPC
 
