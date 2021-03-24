@@ -50,6 +50,7 @@ class CNode : public Node {
     CNode(int d, double f);
     void Link(Node* n);
     void Update();
+    void UpdateSPA();
     bool isVN();
 };
 

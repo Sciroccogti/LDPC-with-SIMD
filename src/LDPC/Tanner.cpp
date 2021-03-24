@@ -111,6 +111,23 @@ void CNode::Update() {
     }
 }
 
+void CNode::UpdateSPA() {
+    assert(inCount == 0);  // assure all inValue is changed
+
+    for (int i = 0; i < degree; i++) {
+        double prod = 1;
+        bool isFirst = true;
+        for (int j = 0; j < degree; j++) {
+            if (j == i) {
+                continue;  // skip current VN
+            }
+            prod *= tanh(inValues_[j] / 2);
+        }
+
+        Nodes_[i]->setInValue(2 * atanh(prod));
+    }
+}
+
 bool CNode::isVN() {
     return false;
 }
