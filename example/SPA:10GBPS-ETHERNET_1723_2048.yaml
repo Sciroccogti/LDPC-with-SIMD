@@ -1,0 +1,46 @@
+basic:
+  alist_path: example/10GBPS-ETHERNET_1723_2048.alist
+  enable_SIMD: true
+  output_path: output.yaml
+  threads: 15
+  enable_MIPP: false
+B_LDPC:
+  factor: 1
+  iter_max: 100
+  FEcount: 100
+  mode: SPA
+0.00:
+  SNR: 0.00
+  BER: 9.75e-02
+  FER: 1.00e+00
+  sec: 20.17
+0.50:
+  SNR: 0.50
+  BER: 8.43e-02
+  FER: 1.00e+00
+  sec: 20.90
+1.00:
+  SNR: 1.00
+  BER: 7.17e-02
+  FER: 1.00e+00
+  sec: 20.25
+1.50:
+  SNR: 1.50
+  BER: 6.00e-02
+  FER: 1.00e+00
+  sec: 20.28
+2.00:
+  SNR: 2.00
+  BER: 4.99e-02
+  FER: 1.00e+00
+  sec: 20.66
+2.50:
+  SNR: 2.50
+  BER: 4.18e-02
+  FER: 1.00e+00
+  sec: 20.40
+3.00:
+  SNR: 3.00
+  BER: 3.36e-02
+  FER: 1.00e+00
+  sec: 21.18
