@@ -13,6 +13,11 @@
 #include <cmath>
 #include <vector>
 
+#define BP_NMS 0
+#define BP_SPA 1
+
+extern const char * Modes_[2];
+
 class Node {
   protected:
     int degree;
@@ -27,7 +32,7 @@ class Node {
     virtual bool isVN() = 0;
     void setInValue(double data);
     bool isReady();
-    virtual void Update() = 0;
+    virtual void Update(int mode) = 0;
 };
 
 class VNode : public Node {
@@ -37,7 +42,7 @@ class VNode : public Node {
   public:
     VNode(int d, double v);
     void Link(Node* n);
-    void Update();
+    void Update(int mode);
     double getValue();
     bool isVN();
 };
@@ -49,8 +54,7 @@ class CNode : public Node {
   public:
     CNode(int d, double f);
     void Link(Node* n);
-    void Update();
-    void UpdateSPA();
+    void Update(int mode);
     bool isVN();
 };
 

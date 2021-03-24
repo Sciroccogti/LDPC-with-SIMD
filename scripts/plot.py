@@ -6,9 +6,9 @@ plt.xlabel(r"$E_b/N_0$")
 plt.ylabel(r"$BER$")
 plt.yscale("log")
 
-SNR = [0.0, 0.75, 1.50, 2.5, 2.75, 3.25, 3.75]
-BER = [1.16e-01, 1.00e-01, 8.35e-02, 5.96e-02, 5.08e-02, 3.00e-02, 2.93e-03]
-BER2 = [9.97e-02, 8.12e-02, 6.35e-02, 4.06e-02, 3.29e-02, 8.12e-03, 9.57e-05]
+SNR = [0.0, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0, 3.5, 4.0]
+BER = [1.15e-01, 1.07e-01, 9.58e-02, 8.35e-02, 7.04e-02, 6.02e-02, 4.18e-02, 1.05e-02, 2.50e-04]
+BER2 = [1.04e-01, 9.05e-02, 7.90e-02, 6.67e-02, 5.53e-02, 4.37e-02, 2.79e-02, 4.49e-03, 3.31e-05]
 plt.plot(SNR, BER, color="blue", marker="o", markerfacecolor="none", label="mine")
 plt.plot(SNR, BER2, color="red", marker="o", markerfacecolor="none", label="aff3ct")
 plt.legend()

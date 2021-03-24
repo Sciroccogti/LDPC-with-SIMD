@@ -14,6 +14,8 @@ LDPC::LDPC(Eigen::SparseMatrix<int> H) {
     // K = A.getnCol() - A.getnRow();
     H_mat = H;
     G_mat = Eigen::SparseMatrix<int>(transform_H_to_G(H_mat).sparseView());
+    assert(
+        !(binaryproduct(G_mat, H_mat.transpose()).any()));  // G*H should be 0
     K = G_mat.rows();
     N = G_mat.cols();
     Eigen::MatrixXi diff =
@@ -57,10 +59,11 @@ Eigen::RowVectorXi LDPC::encode(Eigen::RowVectorXi& m) const {
  * @param r received sequence
  * @param iter_max stop early criterion
  * @param factor normalize factor, should not larger than 1
+ * @param mode decode mode, 0: NMS, 1: SPA
  * @return Eigen::RowVectorXi
  */
 Eigen::RowVectorXi LDPC::decode(Eigen::RowVectorXd& r, int iter_max,
-                                double factor) const {
+                                double factor, int mode) const {
     std::vector<VNode*> VNodes_;  // size: N
     std::vector<CNode*> CNodes_;  // size: M
     int M = H_mat.rows();
@@ -90,10 +93,10 @@ Eigen::RowVectorXi LDPC::decode(Eigen::RowVectorXd& r, int iter_max,
     int count = 0;
     do {
         for (VNode* v : VNodes_) {
-            v->Update();
+            v->Update(mode);
         }
         for (CNode* c : CNodes_) {
-            c->Update();
+            c->Update(mode);
         }
 
         // update ret

@@ -1,5 +1,9 @@
 #include "utils/utils.hpp"
 
+#include <ctime>
+
+#include "LDPC/Tanner.hpp"
+
 /**
  * @brief get options
  *
@@ -19,16 +23,19 @@ int opt(int argc, char* argv[], Config& conf) {
     static struct option long_options[] = {
         {"help", no_argument, NULL, 'h'},
         {"dec-h-path", required_argument, NULL, 'H'},
-        {"simd", required_argument, NULL, 's'},
+        {"simd", required_argument, NULL, 's' + 128},
         {"output", required_argument, NULL, 'o'},
         {"thread", required_argument, NULL, 't'},
-        {"MIPP", required_argument, NULL, 'M'},
+        {"MIPP", required_argument, NULL, 'M' + 128},
         {"factor", required_argument, NULL, 'f' + 128},  // +128 to avoid ascii
-        {"SNR", required_argument, NULL, 'S' + 128},
+        {"SNRmin", required_argument, NULL, 'm'},
+        {"SNRmax", required_argument, NULL, 'M'},
+        {"SNRstep", required_argument, NULL, 's'},
         {"iter", required_argument, NULL, 'i'},
         {"FE", required_argument, NULL, 'e'},
+        {"dec-implem", required_argument, NULL, 'd' + 128},
         {0, 0, 0, 0}};
-    static char* const short_options = (char*)"hH:s:o:t:M:i:e:";
+    static char* const short_options = (char*)"hH:o:t:m:M:s:i:e:";
 
     while ((ret = getopt_long(argc, argv, short_options, long_options,
                               &option_index)) != -1) {
@@ -39,7 +46,7 @@ int opt(int argc, char* argv[], Config& conf) {
                 printf("  --dec-h-path, -H <file [read only]>\n");
                 printf("\t\t\tpath to H matrix in .alist\n");
                 printf("\noptional arguments:\n");
-                printf("  --simd, -s <bool: ON/1/OFF/0>\n");
+                printf("  --simd <bool: ON/1/OFF/0>\n");
                 printf(
                     "\t\t\twhether to enable SIMD, default to be "
                     "ON\n");
@@ -51,7 +58,7 @@ int opt(int argc, char* argv[], Config& conf) {
                 printf(
                     "\t\t\tthreads to use,"
                     " default to be the maximum of CPU - 1\n");
-                printf("  --MIPP, -M <bool: ON/1/OFF/0>\n");
+                printf("  --MIPP <bool: ON/1/OFF/0>\n");
                 printf(
                     "\t\t\twhether to enable MIPP for SIMD,"
                     " default to be OFF\n");
@@ -61,9 +68,17 @@ int opt(int argc, char* argv[], Config& conf) {
                     " should not greater than 1,"
                     " default to be 1.0\n");
                 printf(
-                    "  --SNR <double>"
-                    "\tthe Eb/N0 of AWGN channel,"
+                    "  --SNRmin, -m <double>\n"
+                    "\t\t\tthe start Eb/N0 of AWGN channel,"
                     " default to be 0.0\n");
+                printf(
+                    "  --SNRmax, -M <double>\n"
+                    "\t\t\tthe stop Eb/N0 of AWGN channel,"
+                    " default to be 3.0\n");
+                printf(
+                    "  --SNRstep, -s <double>\n"
+                    "\t\t\tthe step of Eb/N0 increment of AWGN channel,"
+                    " default to be 0.5\n");
                 printf(
                     "  --iter, -i <int>"
                     "\tthe Num. of iterations,"
@@ -73,6 +88,10 @@ int opt(int argc, char* argv[], Config& conf) {
                     "\tFrame error count,"
                     " default to be 100\n");
                 printf(
+                    "  --dec-implem <string>"
+                    "\tdecoding algorithm, choose from \"NMS\", \"SPA\""
+                    " default to be \"NMS\"\n");
+                printf(
                     "\n  --help, -h\t\tshow this help message and "
                     "exit\n");
                 return -1;
@@ -80,7 +99,7 @@ int opt(int argc, char* argv[], Config& conf) {
                 conf.alist_path = optarg;
                 printf("parity matrix: %s\n", conf.alist_path);
                 break;
-            case 's':
+            case 's' + 128:
                 if (strcasecmp(optarg, "OFF") || strcasecmp(optarg, "0")) {
                     conf.enable_SIMD = false;
                 }
@@ -92,7 +111,7 @@ int opt(int argc, char* argv[], Config& conf) {
             case 't':
                 conf.threads = atoi(optarg);
                 break;
-            case 'M':
+            case 'M' + 128:
                 if (strcasecmp(optarg, "ON") || strcasecmp(optarg, "1")) {
                     conf.enable_MIPP = true;
                 }
@@ -106,8 +125,14 @@ int opt(int argc, char* argv[], Config& conf) {
             case 'f' + 128:
                 conf.factor = atof(optarg);
                 break;
-            case 'S' + 128:
-                conf.SNR = atof(optarg);
+            case 'm':
+                conf.SNRmin = atof(optarg);
+                break;
+            case 'M':
+                conf.SNRmax = atof(optarg);
+                break;
+            case 's':
+                conf.SNRstep = atof(optarg);
                 break;
             case 'i':
                 conf.iter_max = atoi(optarg);
@@ -115,6 +140,18 @@ int opt(int argc, char* argv[], Config& conf) {
             case 'e':
                 conf.FEcount = atoi(optarg);
                 break;
+            case 'd' + 128: {
+                int i = 0;
+                bool isInited = false;
+                for (const char* m : Modes_) {
+                    if (!strcasecmp(m, optarg)) {
+                        conf.mode = i;
+                        isInited = true;
+                        break;
+                    }
+                    i++;
+                }
+            } break;
             default:
                 break;
         }
@@ -186,9 +223,9 @@ void writeConf(const char* filename, Config& conf) {
 
     YAML::Node B_LDPC;
     B_LDPC["factor"] = conf.factor;
-    B_LDPC["SNR"] = conf.SNR;
     B_LDPC["iter_max"] = conf.iter_max;
     B_LDPC["FEcount"] = conf.FEcount;
+    B_LDPC["mode"] = Modes_[conf.mode];
     yaml["B_LDPC"] = B_LDPC;
 
     std::ofstream fout(filename);
@@ -196,17 +233,20 @@ void writeConf(const char* filename, Config& conf) {
     fout.close();
 }
 
-void writeResult(const char* filename, double BER, double FER, double duration) {
+void writeResult(const char* filename, double SNR, double BER, double FER,
+                 double duration) {
     YAML::Node yaml;
     YAML::Node result;
-    char tmp[20];
+    char tmp[20], snr[20];
+    sprintf(snr, "%.2lf", SNR);
+    result["SNR"] = snr;
     sprintf(tmp, "%.2e", BER);
     result["BER"] = tmp;
     sprintf(tmp, "%.2e", FER);
     result["FER"] = tmp;
     sprintf(tmp, "%.2f", duration);
     result["sec"] = tmp;
-    yaml["result"] = result;
+    yaml[snr] = result;
 
     std::ofstream fout(filename, std::ios_base::app);
     fout << std::scientific << yaml << std::endl;

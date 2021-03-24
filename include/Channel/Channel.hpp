@@ -8,9 +8,11 @@
 #ifndef CHANNEL_HPP
 #define CHANNEL_HPP
 
+#include <random>
+
 #include "MatrixMath/MatrixMath.hpp"
 
 Eigen::RowVectorXd AWGN(const Eigen::RowVectorXd &origin, const double snr,
-                        const int Q);
+                        const int Q, std::default_random_engine engine);
 
 #endif

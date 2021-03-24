@@ -1,5 +1,7 @@
 #include "LDPC/Tanner.hpp"
 
+const char * Modes_[2] = {"NMS", "SPA"};
+
 /**
  * @brief Construct a new Node:: Node object
  *  inValues are initialized as 0
@@ -47,7 +49,7 @@ void VNode::Link(Node* n) {
     n->Link(this);       // register self to n
 }
 
-void VNode::Update() {
+void VNode::Update(int mode) {
     // update own value
     // for (double i : inValues_) {
     //     value += i;
@@ -86,45 +88,46 @@ void CNode::Link(Node* n) {
     Node::Link(n);      // register n to self
 }
 
-void CNode::Update() {
+void CNode::Update(int mode) {
+    assert(mode >= 0 && mode <= BP_SPA);
     assert(inCount == 0);  // assure all inValue is changed
 
     for (int i = 0; i < degree; i++) {
-        double min = 0;
-        int sgn = 1;
-        bool isFirst = true;
-        for (int j = 0; j < degree; j++) {
-            double absJ = fabs(inValues_[j]);
-            if (j == i) {
-                continue;  // skip current VN
-            }
-            if (isFirst) {
-                isFirst = false;
-                min = absJ;
-            } else {
-                min = absJ < min ? absJ : min;
-            }
-            sgn *= inValues_[j] >= 0 ? 1 : -1;
+        switch (mode) {
+            case BP_NMS: {
+                double min = 0;
+                int sgn = 1;
+                bool isFirst = true;
+                for (int j = 0; j < degree; j++) {
+                    double absJ = fabs(inValues_[j]);
+                    if (j == i) {
+                        continue;  // skip current VN
+                    }
+                    if (isFirst) {
+                        isFirst = false;
+                        min = absJ;
+                    } else {
+                        min = absJ < min ? absJ : min;
+                    }
+                    sgn *= inValues_[j] >= 0 ? 1 : -1;
+                }
+
+                Nodes_[i]->setInValue(sgn * min * factor);
+            } break;
+            case BP_SPA: {
+                double prod = 1;
+                for (int j = 0; j < degree; j++) {
+                    if (j == i) {
+                        continue;  // skip current VN
+                    }
+                    prod *= tanh(inValues_[j] / 2);
+                }
+
+                Nodes_[i]->setInValue(2 * atanh(prod));
+            } break;
+            default:
+                break;
         }
-
-        Nodes_[i]->setInValue(sgn * min * factor);
-    }
-}
-
-void CNode::UpdateSPA() {
-    assert(inCount == 0);  // assure all inValue is changed
-
-    for (int i = 0; i < degree; i++) {
-        double prod = 1;
-        bool isFirst = true;
-        for (int j = 0; j < degree; j++) {
-            if (j == i) {
-                continue;  // skip current VN
-            }
-            prod *= tanh(inValues_[j] / 2);
-        }
-
-        Nodes_[i]->setInValue(2 * atanh(prod));
     }
 }
 

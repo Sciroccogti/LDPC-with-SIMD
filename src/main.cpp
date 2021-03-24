@@ -21,8 +21,8 @@
 
 std::mutex mtx;
 
-void decode(const LDPC *ldpc, const Config *conf, int *count, int *BEcount,
-            int *FEcount);
+void decode(const LDPC *ldpc, const Config *conf, const double SNR, int *count,
+            int *BEcount, int *FEcount);
 
 int main(int argc, char *argv[]) {
     Config conf = {.alist_path = NULL,
@@ -31,9 +31,12 @@ int main(int argc, char *argv[]) {
                    .threads = std::thread::hardware_concurrency() - 1,
                    .enable_MIPP = false,
                    .factor = 1.0,
-                   .SNR = 0.0,
+                   .SNRmin = 0.0,
+                   .SNRmax = 3.0,
+                   .SNRstep = 0.5,
                    .iter_max = 30,
-                   .FEcount = 100};
+                   .FEcount = 100,
+                   .mode = BP_NMS};
 
     if (opt(argc, argv, conf)) {
         return -1;
@@ -46,40 +49,51 @@ int main(int argc, char *argv[]) {
     printf("%s read in successfully.\n", conf.alist_path);
     int K = ldpc.getK();  // length of message
     int N = ldpc.getN();  // length of message
-    int FEcount = 0;
-    int BEcount = 0;
-    int count = 0;
 
-    std::vector<std::thread> threads_(conf.threads);
-    for (int i = 0; i < conf.threads; i++) {
-        threads_[i] =
-            std::thread(decode, &ldpc, &conf, &count, &BEcount, &FEcount);
-    }
+    for (double SNR = conf.SNRmin; SNR <= conf.SNRmax; SNR += conf.SNRstep) {
+        int FEcount = 0;
+        int BEcount = 0;
+        int count = 0;
 
-    auto start = std::chrono::steady_clock::now();
-    for (int i = 0; i < conf.threads; i++) {
-        threads_[i].join();
+        std::vector<std::thread> threads_(conf.threads);
+        for (int i = 0; i < conf.threads; i++) {
+            threads_[i] = std::thread(decode, &ldpc, &conf, SNR, &count,
+                                      &BEcount, &FEcount);
+        }
+
+        auto start = std::chrono::steady_clock::now();
+        for (int i = 0; i < conf.threads; i++) {
+            threads_[i].join();
+        }
+        auto end = std::chrono::steady_clock::now();
+        double BER = (double)BEcount / (count * K);
+        double FER = (double)FEcount / count;
+        double duration = (end - start).count() / 1000000000.0;  // count is ns
+        printf("\nBER: %.2e\n", BER);
+        printf("FER: %.2e\n", FER);
+        printf("Time: %.2f sec\n", duration);
+        writeResult(conf.output_path, SNR, BER, FER, duration);
+        for (int i = 0; i < conf.threads; i++) {
+            threads_[i].~thread();
+        }
     }
-    auto end = std::chrono::steady_clock::now();
-    double BER = (double)BEcount / (count * K);
-    double FER = (double)FEcount / count;
-    double duration = (end - start).count() / 1000000000.0; // count is ns
-    printf("BER: %.2e\n", BER);
-    printf("FER: %.2e\n", FER);
-    printf("Time: %.2f sec\n", duration);
-    writeResult(conf.output_path, BER, FER, duration);
     return 0;
 }
 
-void decode(const LDPC *ldpc, const Config *conf, int *count, int *BEcount,
-            int *FEcount) {
+void decode(const LDPC *ldpc, const Config *conf, const double SNR, int *count,
+            int *BEcount, int *FEcount) {
     int K = ldpc->getK();  // length of message
     int N = ldpc->getN();  // length of message
 
-    double snr = pow(10, conf->SNR / 10) * K / N;  // linear Es/N0
+    // printf("%lf\n", SNR);
+    double snr = pow(10, SNR / 10) * K / N;  // linear Es/N0
 
-    std::srand(time(nullptr) *
+    std::srand(time(nullptr) +
                std::hash<std::thread::id>()(std::this_thread::get_id()));
+    std::default_random_engine engine(
+        time(nullptr) +
+        std::hash<std::thread::id>()(std::this_thread::get_id()));
+
     mtx.lock();
     while (*FEcount <= conf->FEcount) {
         mtx.unlock();
@@ -94,7 +108,8 @@ void decode(const LDPC *ldpc, const Config *conf, int *count, int *BEcount,
         // Eigen::RowVectorXd y = modem.modulate(c);
         // Real BPSK will introduce error
         Eigen::RowVectorXd y = RetransBPSK(c).cast<double>();
-        Eigen::RowVectorXd y_noised = AWGN(y, snr, 2);
+
+        Eigen::RowVectorXd y_noised = AWGN(y, snr, 2, engine);
         // std::cout << y - y_noised << std::endl;
 
         // std::stringstream ss;
@@ -123,7 +138,8 @@ void decode(const LDPC *ldpc, const Config *conf, int *count, int *BEcount,
         Eigen::RowVectorXd r = y_noised;
         // std::cout << "received: " << r << std::endl;
 
-        Eigen::RowVectorXi d = ldpc->decode(r, conf->iter_max, conf->factor);
+        Eigen::RowVectorXi d =
+            ldpc->decode(r, conf->iter_max, conf->factor, conf->mode);
         // std::cout << "decoded: " << d << std::endl;
 
         Eigen::RowVectorXi m_ = ldpc->recoverMessage(d);
@@ -137,6 +153,7 @@ void decode(const LDPC *ldpc, const Config *conf, int *count, int *BEcount,
         }
         if (BE) {
             (*FEcount)++;
+            // printf("\rFEcount = %3d", *FEcount);
         }
         *BEcount += BE;
         (*count)++;

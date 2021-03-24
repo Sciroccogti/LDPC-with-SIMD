@@ -15,8 +15,8 @@
 
 class LDPC {
   private:
-    Eigen::SparseMatrix<int> H_mat;
-    Eigen::SparseMatrix<int> G_mat;
+    Eigen::SparseMatrix<int> H_mat; // rows=N-K, cols=N
+    Eigen::SparseMatrix<int> G_mat; // rows=K, cols=N
     int* num_mlist;
     int* num_nlist;
     int K;  // length of message
@@ -28,12 +28,11 @@ class LDPC {
     LDPC(Eigen::SparseMatrix<int> H);
     LDPC(Alist<alist_matrix>);
     LDPC(const char* filename);
-    // TODO: add H check
     ~LDPC();
 
     Eigen::RowVectorXi encode(Eigen::RowVectorXi& m) const;
     Eigen::RowVectorXi decode(Eigen::RowVectorXd& r, int iter_max,
-                              double factor) const;
+                              double factor, int mode) const;
     Eigen::RowVectorXi recoverMessage(Eigen::RowVectorXi& d) const;
     Eigen::SparseMatrix<int> getG() const;
     Eigen::SparseMatrix<int> getH() const;
