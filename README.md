@@ -15,11 +15,20 @@ LDPC with SIMD.
 ## Functions
 
 ### Binary LDPC
+
 - [x] Encode
 - [x] Modulate(BPSK)
 - [x] Channel(AWGN)
 - [x] Demodulate(BPSK)
-- [x] Decode(NMS)
+- [x] Decode(NMS/SPA)
+
+### NonBinary LDPC
+
+- [ ] Encode
+- [ ] Modulate
+- [ ] Channel
+- [ ] Demodulate
+- [ ] Decode
 
 ### Tools
 
@@ -89,6 +98,7 @@ python3 script/makeAlist.py
 ### Nonbinary LDPC
 
 - [NB_LDPC_FB](https://github.com/cedricomarchando/NB_LDPC_FB)
+- [Kaiserslautern database](https://www.uni-kl.de/channel-codes/channel-codes-database/non-binary-ldpc/)
 
 ### C++ tutorial
 

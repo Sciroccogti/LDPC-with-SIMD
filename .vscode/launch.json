@@ -22,7 +22,7 @@
             "program": "${workspaceFolder}/bin/LDPC-with-SIMD",
             "args": [
                 "-H",
-                "example/73.alist",
+                "example/LDPC_N96_K48_GF256_d1_exp.alist",
                 "-i",
                 "100",
                 "--factor",

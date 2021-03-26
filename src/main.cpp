@@ -45,38 +45,40 @@ int main(int argc, char *argv[]) {
     printf("aligned!\n");
 #endif
 
-    LDPC ldpc(conf.alist_path);
-    printf("%s read in successfully.\n", conf.alist_path);
-    int K = ldpc.getK();  // length of message
-    int N = ldpc.getN();  // length of message
+    Alist<nbalist_matrix> A = Alist<nbalist_matrix>(conf.alist_path);
+    std::cout << A.getMat() << std::endl;
 
-    for (double SNR = conf.SNRmin; SNR <= conf.SNRmax; SNR += conf.SNRstep) {
-        int FEcount = 0;
-        int BEcount = 0;
-        int count = 0;
+    // LDPC ldpc(conf.alist_path);
+    // printf("%s read in successfully.\n", conf.alist_path);
+    // int K = ldpc.getK();  // length of message
+    // int N = ldpc.getN();  // length of message
 
-        std::vector<std::thread> threads_(conf.threads);
-        for (int i = 0; i < conf.threads; i++) {
-            threads_[i] = std::thread(decode, &ldpc, &conf, SNR, &count,
-                                      &BEcount, &FEcount);
-        }
+    // for (double SNR = conf.SNRmin; SNR <= conf.SNRmax; SNR += conf.SNRstep) {
+    //     int FEcount = 0;
+    //     int BEcount = 0;
+    //     int count = 0;
 
-        auto start = std::chrono::steady_clock::now();
-        for (int i = 0; i < conf.threads; i++) {
-            threads_[i].join();
-        }
-        auto end = std::chrono::steady_clock::now();
-        double BER = (double)BEcount / (count * K);
-        double FER = (double)FEcount / count;
-        double duration = (end - start).count() / 1000000000.0;  // count is ns
-        printf("\nBER: %.2e\n", BER);
-        printf("FER: %.2e\n", FER);
-        printf("Time: %.2f sec\n", duration);
-        writeResult(conf.output_path, SNR, BER, FER, duration);
-        for (int i = 0; i < conf.threads; i++) {
-            threads_[i].~thread();
-        }
-    }
+    //     std::vector<std::thread> threads_(conf.threads);
+    //     for (int i = 0; i < conf.threads; i++) {
+    //         threads_[i] = std::thread(decode, &ldpc, &conf, SNR, &count,
+    //                                   &BEcount, &FEcount);
+    //     }
+
+    //     auto start = std::chrono::steady_clock::now();
+    //     for (int i = 0; i < conf.threads; i++) {
+    //         threads_[i].join();
+    //     }
+    //     auto end = std::chrono::steady_clock::now();
+    //     double BER = (double)BEcount / (count * K);
+    //     double FER = (double)FEcount / count;
+    //     double duration = (end - start).count() / 1000000000.0;  // count is
+    //     ns printf("\nBER: %.2e\n", BER); printf("FER: %.2e\n", FER);
+    //     printf("Time: %.2f sec\n", duration);
+    //     writeResult(conf.output_path, SNR, BER, FER, duration);
+    //     for (int i = 0; i < conf.threads; i++) {
+    //         threads_[i].~thread();
+    //     }
+    // }
     return 0;
 }
 

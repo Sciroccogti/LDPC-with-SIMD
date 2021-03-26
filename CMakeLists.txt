@@ -37,7 +37,9 @@ endif()
 set(SOURCES
     src/main.cpp
     src/utils/utils.cpp
+    src/Alist/Alist.cpp
     src/Alist/alist_matrix.c
+    src/Alist/nbalist_matrix.c
     src/MatrixMath/MatrixMath.cpp
     src/LDPC/LDPC.cpp
     src/LDPC/Tanner.cpp

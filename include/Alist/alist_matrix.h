@@ -8,7 +8,7 @@
  * num_n: weight of a row
  * num_m: weight of a col
  * @date 2020-10-29 13:00:39
- * @modified: 2020-10-31 12:01:29
+ * @modified: 2021-03-26 20:35:42
  */
 
 #ifndef ALIST_MATRIX_H
@@ -45,5 +45,8 @@ extern "C" int read_alist(FILE *, alist_matrix *);
 void write_alist(FILE *, alist_matrix *);
 int read_alist(FILE *, alist_matrix *);
 #endif
+
+int read_ivector(FILE *fp, int *num_list, int unk, const int length);
+void write_ivector(FILE *fp, const int *num_list, int unk, const int length);
 
 #endif
