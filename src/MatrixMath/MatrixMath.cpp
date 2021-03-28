@@ -63,23 +63,23 @@ Eigen::MatrixXi resize_topright(const Eigen::MatrixXi& src, const size_t n_rows,
 }
 
 /**
- * @brief Returns the index of the maximum value
+ * @brief Returns the index of the maximum value (actually the first 1 in GF2)
  *
  * @param a : the input matrix
  * @return int
  */
 int argmax(const Eigen::MatrixXi a) {
-    int tmp = a(0, 0);
-    int ret = 0;
+    // int tmp = a(0, 0);
+    // int ret = 0;
     for (size_t i = 0; i < a.rows(); i++) {
         for (size_t j = 0; j < a.cols(); j++) {
-            if (a(i, j) > tmp) {
-                tmp = a(i, j);
-                ret = i * a.cols() + j;
+            if (a(i, j) != 0) {
+                // tmp = a(i, j);
+                return i * a.cols() + j;
             }
         }
     }
-    return ret;
+    return 0;
 }
 
 /**

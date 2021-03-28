@@ -3,7 +3,7 @@
  * @author Yifan Zhang (scirocco_gti@yeah.net)
  * @brief
  * @date 2020-10-31 10:57:44
- * @modified: 2021-03-27 10:53:26
+ * @modified: 2021-03-28 17:35:05
  */
 
 #ifndef MATRIXMATH_HPP
@@ -30,7 +30,10 @@ Eigen::MatrixXi multiplyi(const Eigen::MatrixXi& X, const Eigen::MatrixXi& Y);
 Eigen::RowVectorXd convolve(const Eigen::RowVectorXd& X,
                             const Eigen::RowVectorXd& Y);
 
-Eigen::MatrixXi NBtransform_H_to_G(const Eigen::MatrixXi& H);
-Eigen::MatrixXi NBtransform_H_to_G(const Eigen::SparseMatrix<int>& H);
+Eigen::MatrixXi NBtransform_H_to_G(const Eigen::MatrixXi& H, const int GF);
+Eigen::MatrixXi NBtransform_H_to_G(const Eigen::SparseMatrix<int>& H,
+                                   const int GF);
+Eigen::MatrixXi NBproduct(const Eigen::MatrixXi& X, const Eigen::MatrixXi& Y,
+                          const int GF);
 
 #endif

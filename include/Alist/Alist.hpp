@@ -3,7 +3,7 @@
  * @author Yifan Zhang (scirocco_gti@yeah.net)
  * @brief
  * @date 2020-10-29 15:11:30
- * @modified: 2021-03-26 21:49:42
+ * @modified: 2021-03-28 17:40:53
  */
 
 #ifndef ALIST_HPP
@@ -30,6 +30,7 @@ class Alist {
     int load(const char* filename);
     void save(const char* filename);
     T getData();
+    int getGF();    // GF
     int getnRow();  // M
     int getnCol();  // N
     Eigen::SparseMatrix<int> getMat();
@@ -73,6 +74,12 @@ void Alist<T>::save(const char* filename) {
 template <class T>
 T Alist<T>::getData() {
     return data;
+}
+
+// GF
+template <class T>
+int Alist<T>::getGF() {
+    return GF;
 }
 
 // M
