@@ -3,19 +3,17 @@ project(LDPC-with-SIMD VERSION 0.1.0)
 include(CTest)
 enable_testing()
 
+add_subdirectory(${PROJECT_SOURCE_DIR}/lib/libGF)
+
 set(CMAKE_MODULE_PATH ${CMAKE_BINARY_DIR})
-message(${CMAKE_BINARY_DIR})
 
 # set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11") set (CMAKE_CXX_FLAGS
 # "${CMAKE_CXX_FLAGS} -std=c++11")
 
-# # OPENMP
-# find_package(OpenMP REQUIRED)
-# if(OPENMP_FOUND)
-#   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
-#   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-#   set(CMAKE_EXE_LINKER_FLAGS
-#       "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+# # OPENMP find_package(OpenMP REQUIRED) if(OPENMP_FOUND) set(CMAKE_C_FLAGS
+# "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}") set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}
+# ${OpenMP_CXX_FLAGS}") set(CMAKE_EXE_LINKER_FLAGS
+# "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 # endif()
 
 # pthread conflict with OPENMP
@@ -41,7 +39,9 @@ set(SOURCES
     src/Alist/alist_matrix.c
     src/Alist/nbalist_matrix.c
     src/MatrixMath/MatrixMath.cpp
+    src/MatrixMath/NBMatrixMath.cpp
     src/LDPC/LDPC.cpp
+    src/LDPC/NBLDPC.cpp
     src/LDPC/Tanner.cpp
     src/Modem/Modem.cpp
     src/Channel/Channel.cpp
@@ -61,6 +61,11 @@ target_link_libraries(${PROJECT_NAME} yaml-cpp::yaml-cpp)
 find_package(PythonLibs 3.6 REQUIRED)
 include_directories(${PYTHON_INCLUDE_DIRS})
 target_link_libraries(${PROJECT_NAME} ${PYTHON_LIBRARIES})
+
+# GF
+target_link_libraries(${PROJECT_NAME} libGF)
+target_include_directories(${PROJECT_NAME}
+                           PRIVATE ${PROJECT_SOURCE_DIR}/lib/libGF/include)
 
 target_include_directories(${PROJECT_NAME}
                            PRIVATE ${PROJECT_SOURCE_DIR}/include)

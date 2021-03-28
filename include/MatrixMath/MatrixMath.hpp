@@ -3,7 +3,7 @@
  * @author Yifan Zhang (scirocco_gti@yeah.net)
  * @brief
  * @date 2020-10-31 10:57:44
- * @modified: 2020-10-31 14:02:56
+ * @modified: 2021-03-27 10:53:26
  */
 
 #ifndef MATRIXMATH_HPP
@@ -29,5 +29,8 @@ Eigen::MatrixXd multiplyd(const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y);
 Eigen::MatrixXi multiplyi(const Eigen::MatrixXi& X, const Eigen::MatrixXi& Y);
 Eigen::RowVectorXd convolve(const Eigen::RowVectorXd& X,
                             const Eigen::RowVectorXd& Y);
+
+Eigen::MatrixXi NBtransform_H_to_G(const Eigen::MatrixXi& H);
+Eigen::MatrixXi NBtransform_H_to_G(const Eigen::SparseMatrix<int>& H);
 
 #endif

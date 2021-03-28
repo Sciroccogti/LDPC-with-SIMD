@@ -1,11 +1,10 @@
 #include "LDPC/LDPC.hpp"
 
-#include <iostream>
-
 LDPC::LDPC() {
     H_mat = Eigen::SparseMatrix<int>();
     G_mat = Eigen::SparseMatrix<int>();
     K = 0;
+    N = 0;
 }
 
 LDPC::LDPC(Eigen::SparseMatrix<int> H) {

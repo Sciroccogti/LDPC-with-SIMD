@@ -1,5 +1,6 @@
 #include <omp.h>
 
+#include <GF.hpp>
 #include <algorithm>
 #include <chrono>
 #include <iostream>
@@ -46,7 +47,7 @@ int main(int argc, char *argv[]) {
 #endif
 
     Alist<nbalist_matrix> A = Alist<nbalist_matrix>(conf.alist_path);
-    std::cout << A.getMat() << std::endl;
+    // std::cout << A.getMat() << std::endl;
 
     // LDPC ldpc(conf.alist_path);
     // printf("%s read in successfully.\n", conf.alist_path);
