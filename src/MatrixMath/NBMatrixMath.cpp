@@ -40,7 +40,7 @@ Eigen::MatrixXi NBtransform_H_to_G(const Eigen::MatrixXi& H, const int GF) {
     // DOUBLE GAUSS-JORDAN:
     Eigen::MatrixXi Href_colonnes = H.transpose();
     Eigen::MatrixXi Q_mat = NBgaussjordan(Href_colonnes, GF).transpose();
-    std::cout <<"221 * 1 = "<< GF_mul(221, 1, GF) << std::endl;
+    std::cout <<"9 * 1 = "<< GF_plus(9, 1, GF) << std::endl;
     std::cout << "Q * H:\n" << NBproduct(H, Q_mat.transpose(), GF) << std::endl;
     std::cout << "Q:\n" << Q_mat << std::endl;
     Eigen::MatrixXi Href_diag = Href_colonnes.transpose();

@@ -79,14 +79,14 @@ short GF_plus(const short &a, const short &b, const int Q) {
             ret = GF4_plus__[abs(a)][abs(b)];
             break;
         case 256:
-            if (a == 0 && b == 0) {
+            if (a == b) {
                 ret = 0;
             } else if (a == 0) {
                 ret = b;
             } else if (b == 0) {
                 ret = a;
             } else {
-                ret = GF256_log_[GF256_2pow_[abs(a - 1)] ^ GF256_2pow_[abs(b - 1)]];
+                ret = GF_log2(GF256_2pow_[abs(a - 1)] ^ GF256_2pow_[abs(b - 1)], Q);
             }
             break;
         default:
