@@ -1,5 +1,7 @@
 #include "LDPC/NBLDPC.hpp"
 
+#include <iostream>
+
 #include "MatrixMath/MatrixMath.hpp"
 
 NBLDPC::NBLDPC() {
@@ -15,8 +17,14 @@ NBLDPC::NBLDPC(Eigen::SparseMatrix<int> H) {
     // N = n, M = n - k
     // K = A.getnCol() - A.getnRow();
     H_mat = H;
+    // G_mat = Eigen::SparseMatrix<int>(H_mat.cols() - H_mat.rows(),
+    // H_mat.cols()); G_mat.setZero();
     G_mat =
         Eigen::SparseMatrix<int>(NBtransform_H_to_G(H_mat, GF).sparseView());
+    std::cout << "G_mat:\n" << G_mat.toDense() << std::endl;
+    std::cout << "H_mat:\n" << H_mat.toDense() << std::endl;
+    std::cout << "Prod:\n"
+              << NBproduct(G_mat, H_mat.transpose(), GF) << std::endl;
     assert(
         !(NBproduct(G_mat, H_mat.transpose(), GF).any()));  // G*H should be 0
     K = G_mat.rows();
@@ -55,4 +63,28 @@ NBLDPC::NBLDPC(const char* filename) {
 NBLDPC::~NBLDPC() {
     free(num_mlist);
     free(num_nlist);
+}
+
+Eigen::RowVectorXi NBLDPC::encode(Eigen::RowVectorXi& m) const {
+    return NBproduct(m, G_mat, GF);
+}
+
+Eigen::SparseMatrix<int> NBLDPC::getG() const {
+    return G_mat;
+}
+
+Eigen::SparseMatrix<int> NBLDPC::getH() const {
+    return H_mat;
+}
+
+int NBLDPC::getK() const {
+    return K;
+}
+
+int NBLDPC::getN() const {
+    return N;
+}
+
+bool NBLDPC::getIsSys() const {
+    return isSystematic;
 }

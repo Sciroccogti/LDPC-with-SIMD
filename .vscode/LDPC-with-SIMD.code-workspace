@@ -7,6 +7,9 @@
 	"settings": {
 		"files.associations": {
 			"*.mcfunction": "mcfunction",
+			"*.cu": "cpp",
+			"*.cuh": "cpp",
+			"*.tcc": "cpp",
 			"iostream": "cpp",
 			"fstream": "cpp",
 			"vector": "cpp",
@@ -37,7 +40,6 @@
 			"cwctype": "cpp",
 			"atomic": "cpp",
 			"strstream": "cpp",
-			"*.tcc": "cpp",
 			"bitset": "cpp",
 			"chrono": "cpp",
 			"complex": "cpp",
@@ -74,7 +76,10 @@
 			"typeinfo": "cpp",
 			"variant": "cpp",
 			"bit": "cpp",
-			"ranges": "cpp"
+			"ranges": "cpp",
+			"compare": "cpp",
+			"concepts": "cpp",
+			"stop_token": "cpp"
 		},
 		"psi-header.config": {
 			"author": "Yifan Zhang",

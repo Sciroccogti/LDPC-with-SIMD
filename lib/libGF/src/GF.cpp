@@ -1,6 +1,7 @@
 #include "GF.hpp"
 
 #include <cassert>
+#include <cmath>
 
 // template <int Q>
 // GF<Q>::GF(/* args */) {}
@@ -11,8 +12,8 @@
 const short GF4_plus__[4][4] = {
     {0, 1, 2, 3}, {1, 0, 3, 2}, {2, 3, 0, 1}, {3, 2, 1, 0}};
 
-// values greater than 2^Q should be altered by primitive polynomials, that's it
-// has 510 elements 'cause 255 + 255 = 510, which is resulted from log() + log()
+// Values greater than 2^Q should be altered by primitive polynomials, that's it
+// Has 510 elements 'cause 255 + 255 = 510, which is resulted from log() + log()
 const short GF256_2pow_[510]{
     1,   2,   4,   8,   16,  32,  64,  128, 29,  58,  116, 232, 205, 135, 19,
     38,  76,  152, 45,  90,  180, 117, 234, 201, 143, 3,   6,   12,  24,  48,
@@ -71,13 +72,23 @@ const short GF256_log_[255] = {
 
 short GF_plus(const short &a, const short &b, const int Q) {
     assert(a < Q && a > -Q && b < Q && b > -Q);
-    assert(Q == 4);
+    assert(Q == 4 || Q == 256);
     short ret;
     switch (Q) {
         case 4:
-            ret = GF4_plus__[a][b];
+            ret = GF4_plus__[abs(a)][abs(b)];
             break;
-
+        case 256:
+            if (a == 0 && b == 0) {
+                ret = 0;
+            } else if (a == 0) {
+                ret = b;
+            } else if (b == 0) {
+                ret = a;
+            } else {
+                ret = GF256_log_[GF256_2pow_[abs(a - 1)] ^ GF256_2pow_[abs(b - 1)]];
+            }
+            break;
         default:
             break;
     }
@@ -108,7 +119,7 @@ short GF_mul(const short &a, const short &b, const int Q) {
     return ret;
 }
 
-short GF_div(const short &a, const short &b, const int Q){
+short GF_div(const short &a, const short &b, const int Q) {
     assert(b != 0);
     assert(a < Q && a > -Q && b < Q && b > -Q);
     assert(Q == 256);
@@ -123,7 +134,7 @@ short GF_div(const short &a, const short &b, const int Q){
             tmpa *= GF_log2(a * tmpa, Q);  // ensure logged value is positive
             short tmpb = b > 0 ? 1 : -1;
             tmpb *= GF_log2(b * tmpb, Q);
-            ret = GF_2pow(tmpa - tmpb, Q);
+            ret = GF_2pow(tmpa - tmpb + 255, Q);  // the table is cyclic
         } break;
 
         default:
@@ -155,7 +166,7 @@ short GF_log2(const short &a, const int Q) {
     short ret;
     switch (Q) {
         case 256:
-            ret = GF256_log_[a];
+            ret = GF256_log_[a - 1];
             break;
 
         default:

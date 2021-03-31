@@ -3,7 +3,7 @@
  * @author Yifan Zhang (scirocco_gti@yeah.net)
  * @brief
  * @date 2020-10-31 10:57:44
- * @modified: 2021-03-28 17:35:05
+ * @modified: 2021-03-30 10:49:08
  */
 
 #ifndef MATRIXMATH_HPP
@@ -14,6 +14,8 @@
 using Positions_pair_vector = std::vector<std::pair<size_t, size_t>>;
 using Container = std::vector<std::vector<int>>;
 
+void swap_rows(Eigen::MatrixXi& mat, size_t idx1, size_t idx2);
+int argmax(const Eigen::MatrixXi a);
 Eigen::MatrixXi transform_H_to_G(const Eigen::MatrixXi& H);
 Eigen::MatrixXi transform_H_to_G(const Eigen::SparseMatrix<int>& H);
 Eigen::MatrixXi transform_H_to_G_sys(const Eigen::MatrixXi& H);
@@ -29,11 +31,15 @@ Eigen::MatrixXd multiplyd(const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y);
 Eigen::MatrixXi multiplyi(const Eigen::MatrixXi& X, const Eigen::MatrixXi& Y);
 Eigen::RowVectorXd convolve(const Eigen::RowVectorXd& X,
                             const Eigen::RowVectorXd& Y);
+Eigen::MatrixXi xori(const Eigen::MatrixXi& X, const Eigen::MatrixXi& Y);
 
 Eigen::MatrixXi NBtransform_H_to_G(const Eigen::MatrixXi& H, const int GF);
 Eigen::MatrixXi NBtransform_H_to_G(const Eigen::SparseMatrix<int>& H,
                                    const int GF);
+Eigen::MatrixXi NBgaussjordan(Eigen::MatrixXi& X, const int GF);
 Eigen::MatrixXi NBproduct(const Eigen::MatrixXi& X, const Eigen::MatrixXi& Y,
+                          const int GF);
+Eigen::MatrixXi NBplus(const Eigen::MatrixXi& X, const Eigen::MatrixXi& Y,
                           const int GF);
 
 #endif

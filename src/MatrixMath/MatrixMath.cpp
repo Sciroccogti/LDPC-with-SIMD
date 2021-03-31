@@ -63,18 +63,15 @@ Eigen::MatrixXi resize_topright(const Eigen::MatrixXi& src, const size_t n_rows,
 }
 
 /**
- * @brief Returns the index of the maximum value (actually the first 1 in GF2)
+ * @brief Returns the index of the nonzero value
  *
  * @param a : the input matrix
  * @return int
  */
 int argmax(const Eigen::MatrixXi a) {
-    // int tmp = a(0, 0);
-    // int ret = 0;
     for (size_t i = 0; i < a.rows(); i++) {
         for (size_t j = 0; j < a.cols(); j++) {
             if (a(i, j) != 0) {
-                // tmp = a(i, j);
                 return i * a.cols() + j;
             }
         }
@@ -94,6 +91,8 @@ Eigen::MatrixXi transform_H_to_G(const Eigen::MatrixXi& H) {
     // DOUBLE GAUSS-JORDAN:
     Eigen::MatrixXi Href_colonnes = H.transpose();
     Eigen::MatrixXi Q = gaussjordan(Href_colonnes).transpose();
+    std::cout << "Q:\n" << Q << std::endl;
+    std::cout << "Q * H:\n" << H * Q.transpose() << std::endl;
     Eigen::MatrixXi Href_diag = Href_colonnes.transpose();
     gaussjordan(Href_diag);
 
@@ -197,8 +196,9 @@ Eigen::MatrixXi gaussjordan(Eigen::MatrixXi& X) {
 }
 
 /**
- * @brief https://github.com/hichamjanati/pyldpc/blob/master/pyldpc/utils.py#L161
- * 
+ * @brief
+ * https://github.com/hichamjanati/pyldpc/blob/master/pyldpc/utils.py#L161
+ *
  * @param X : will be reused to return result!
  * @param b : will be reused to return result!
  */
@@ -325,5 +325,25 @@ Eigen::RowVectorXd convolve(const Eigen::RowVectorXd& X,
         ret(i) = tmp;
     }
 
+    return ret;
+}
+
+/**
+ * @brief
+ * 
+ * @param X 
+ * @param Y 
+ * @return Eigen::MatrixXi 
+ */
+Eigen::MatrixXi xori(const Eigen::MatrixXi& X, const Eigen::MatrixXi& Y) {
+    assert(X.cols() == Y.cols() && X.rows() == Y.rows());
+
+    Eigen::MatrixXi ret(X.rows(), X.cols());
+    for (size_t i = 0; i < X.rows(); i++) {
+        for (size_t j = 0; j < X.cols(); j++) {
+            // printf("%d, %d, %d\n", X(i, j), Y(i, j), X(i, j) ^ Y(i, j));
+            ret(i, j) = X(i, j) ^ Y(i, j);
+        }
+    }
     return ret;
 }
