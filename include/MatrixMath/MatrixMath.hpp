@@ -3,7 +3,7 @@
  * @author Yifan Zhang (scirocco_gti@yeah.net)
  * @brief
  * @date 2020-10-31 10:57:44
- * @modified: 2021-03-30 10:49:08
+ * @modified: 2021-04-01 22:48:03
  */
 
 #ifndef MATRIXMATH_HPP
@@ -37,6 +37,7 @@ Eigen::MatrixXi NBtransform_H_to_G(const Eigen::MatrixXi& H, const int GF);
 Eigen::MatrixXi NBtransform_H_to_G(const Eigen::SparseMatrix<int>& H,
                                    const int GF);
 Eigen::MatrixXi NBgaussjordan(Eigen::MatrixXi& X, const int GF);
+int NBGauss(Eigen::MatrixXi &X, const int GF);
 Eigen::MatrixXi NBproduct(const Eigen::MatrixXi& X, const Eigen::MatrixXi& Y,
                           const int GF);
 Eigen::MatrixXi NBplus(const Eigen::MatrixXi& X, const Eigen::MatrixXi& Y,

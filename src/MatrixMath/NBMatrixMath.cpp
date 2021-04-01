@@ -40,9 +40,6 @@ Eigen::MatrixXi NBtransform_H_to_G(const Eigen::MatrixXi& H, const int GF) {
     // DOUBLE GAUSS-JORDAN:
     Eigen::MatrixXi Href_colonnes = H.transpose();
     Eigen::MatrixXi Q_mat = NBgaussjordan(Href_colonnes, GF).transpose();
-    std::cout <<"9 * 1 = "<< GF_plus(9, 1, GF) << std::endl;
-    std::cout << "Q * H:\n" << NBproduct(H, Q_mat.transpose(), GF) << std::endl;
-    std::cout << "Q:\n" << Q_mat << std::endl;
     Eigen::MatrixXi Href_diag = Href_colonnes.transpose();
     NBgaussjordan(Href_diag, GF);
     int n_bits =
@@ -56,13 +53,14 @@ Eigen::MatrixXi NBtransform_H_to_G(const Eigen::MatrixXi& H, const int GF) {
         Y(n_code - n_bits + i, i) = 1;
     }
 
-    std::cout << "Y:\n" << Y << std::endl;
     Eigen::MatrixXi ret = NBproduct(Q_mat, Y, GF).transpose();
-    // for (int i = 0; i < n_bits; i++) {
-    //     int coef = GF_div(1, ret(i, ret.rows() + i), GF);
-    //     ret.block(i, 0, 1, ret.cols()) =
-    //         NBcoefdot(ret.block(i, 0, 1, ret.cols()), coef, GF);
-    // }
+    // Eigen::MatrixXi Q = H;
+    // int n_bits = NBGauss(Q, GF);
+    // Eigen::MatrixXi Q_cut =
+    //     Q.transpose().block(n_bits, 0, Q.cols() - n_bits, Q.rows());
+    // Eigen::MatrixXi I = Eigen::MatrixXi::Identity(Q_cut.rows(),
+    // Q_cut.rows()); Eigen::MatrixXi ret(Q_cut.rows(), Q_cut.cols() +
+    // Q_cut.rows()); ret << Q_cut, I;
 
     return ret;
 }
@@ -122,6 +120,69 @@ Eigen::MatrixXi NBgaussjordan(Eigen::MatrixXi& X, const int GF) {
     return P;
 }
 
+/**
+ * @brief https://github.com/kir1994/LDPC/blob/686d33b9bc818e1d050e91ad1ecef56c24299b8b/LDPC/GFLinAlg.cpp#L36
+ * 
+ * @param X 
+ * @param GF 
+ * @return int 
+ */
+int NBGauss(Eigen::MatrixXi& X, const int GF) {
+    int n_rows = X.rows();
+    Eigen::RowVectorXi permute(X.cols());
+    for (size_t i = 0; i < X.cols(); i++) {
+        permute[i] = i;
+    }
+
+    for (size_t i = 0; i < n_rows; i++) {
+        bool isChanged = false;
+        for (size_t col_cur = i; col_cur < X.cols(); col_cur++) {
+            int C = permute[col_cur];
+            for (size_t j = i; j < n_rows; j++) {
+                if (X(j, C)) {
+                    isChanged = true;
+                    int coef = GF_div(1, X(j, C), GF);
+                    X.row(j) = NBcoefdot(X.row(j), coef, GF);
+                    if (j > i) {
+                        for (size_t k = 0; k < X.cols(); k++) {
+                            X(i, k) ^= X(j, k);
+                        }
+                    }
+                    break;
+                }
+            }
+
+            if (isChanged && col_cur != i) {
+                int tmp = permute[col_cur];
+                permute[col_cur] = permute[i];
+                permute[i] = tmp;
+            }
+            break;
+        }
+        if (!isChanged) {
+            n_rows = i;
+            break;
+        }
+
+        int C = permute[i];
+        for (size_t j = 0; j < n_rows; j++) {
+            if (j == i) {
+                continue;
+            }
+            if (X(j, C)) {
+                int ret_jC = X(j, C);
+                for (size_t k = 0; k < X.cols(); k++) {
+                    int tmp = GF_mul(X(i, k), ret_jC, GF);
+                    X(j, k) ^= tmp;
+                }
+            }
+        }
+    }
+
+    return n_rows;
+}
+
+// TODO: #10 really should use xor?!
 Eigen::MatrixXi NBproduct(const Eigen::MatrixXi& X, const Eigen::MatrixXi& Y,
                           const int GF) {
     assert(X.cols() == Y.rows());
@@ -130,8 +191,7 @@ Eigen::MatrixXi NBproduct(const Eigen::MatrixXi& X, const Eigen::MatrixXi& Y,
         for (int j = 0; j < Y.cols(); j++) {
             int ret_ij = 0;
             for (int k = 0; k < X.cols(); k++) {
-                // printf("%d %d %d\n", X(i, k), Y(k, j), GF_mul(X(i, k), Y(k, j), GF));
-                ret_ij = GF_plus(ret_ij, GF_mul(X(i, k), Y(k, j), GF), GF);
+                ret_ij = ret_ij ^ GF_mul(X(i, k), Y(k, j), GF);
             }
             ret(i, j) = ret_ij;
         }
@@ -139,13 +199,14 @@ Eigen::MatrixXi NBproduct(const Eigen::MatrixXi& X, const Eigen::MatrixXi& Y,
     return ret;
 }
 
+// TODO: really should use xor?!
 Eigen::MatrixXi NBplus(const Eigen::MatrixXi& X, const Eigen::MatrixXi& Y,
                        const int GF) {
     assert(X.cols() == Y.cols() && X.rows() == Y.rows());
     Eigen::MatrixXi ret = X;
     for (int i = 0; i < Y.rows(); i++) {
         for (int j = 0; j < Y.cols(); j++) {
-            ret(i, j) = GF_plus(X(i, j), Y(i, j), GF);
+            ret(i, j) = X(i, j) ^ Y(i, j);
         }
     }
     return ret;

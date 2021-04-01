@@ -12,9 +12,10 @@
 const short GF4_plus__[4][4] = {
     {0, 1, 2, 3}, {1, 0, 3, 2}, {2, 3, 0, 1}, {3, 2, 1, 0}};
 
+// This table maps pow format to vector format, GF256_pow_[n] = alpha^n
 // Values greater than 2^Q should be altered by primitive polynomials, that's it
 // Has 510 elements 'cause 255 + 255 = 510, which is resulted from log() + log()
-const short GF256_2pow_[510]{
+const short GF256_pow_[510]{
     1,   2,   4,   8,   16,  32,  64,  128, 29,  58,  116, 232, 205, 135, 19,
     38,  76,  152, 45,  90,  180, 117, 234, 201, 143, 3,   6,   12,  24,  48,
     96,  192, 157, 39,  78,  156, 37,  74,  148, 53,  106, 212, 181, 119, 238,
@@ -50,7 +51,9 @@ const short GF256_2pow_[510]{
     36,  72,  144, 61,  122, 244, 245, 247, 243, 251, 235, 203, 139, 11,  22,
     44,  88,  176, 125, 250, 233, 207, 131, 27,  54,  108, 216, 173, 71,  142};
 
-// store the index of the value in GF256_2pow_
+// store the index - 1 of the value in GF256_pow_, in order to map vector
+//  format back to power format
+//  e.g.: 3 -> alpha2 -> 4, GF256_log_[4 - 1] + 1 = 3
 const short GF256_log_[255] = {
     0,   1,   25,  2,   50,  26,  198, 3,   223, 51,  238, 27,  104, 199, 75,
     4,   100, 224, 14,  52,  141, 239, 129, 28,  193, 105, 248, 200, 8,   76,
@@ -86,7 +89,13 @@ short GF_plus(const short &a, const short &b, const int Q) {
             } else if (b == 0) {
                 ret = a;
             } else {
-                ret = GF_log2(GF256_2pow_[abs(a - 1)] ^ GF256_2pow_[abs(b - 1)], Q);
+                // change to vector to do xor as plus
+                // e.g.:
+                // a = 9 = alpha8, b = 1 = 1
+                // GF_p2v(9) = 29, GF_p2v(1) = 1
+                // 29 ^ 1 = 28
+                // GF_v2p(28) = 201
+                ret = GF_v2p(GF_p2v(abs(a), Q) ^ GF_p2v(abs(b), Q), Q);
             }
             break;
         default:
@@ -96,7 +105,7 @@ short GF_plus(const short &a, const short &b, const int Q) {
 }
 
 short GF_mul(const short &a, const short &b, const int Q) {
-    assert(a < Q && a > -Q && b < Q && b > -Q);
+    assert(a < Q && a >= 0 && b < Q && b >= 0);
     assert(Q == 256);
     if (a == 0 || b == 0) {
         return 0;
@@ -106,10 +115,10 @@ short GF_mul(const short &a, const short &b, const int Q) {
     switch (Q) {
         case 256: {
             short tmpa = a > 0 ? 1 : -1;   // store sign of a
-            tmpa *= GF_log2(a * tmpa, Q);  // ensure logged value is positive
+            tmpa *= GF256_log_[a * tmpa - 1];  // ensure logged value is positive
             short tmpb = b > 0 ? 1 : -1;
-            tmpb *= GF_log2(b * tmpb, Q);
-            ret = GF_2pow(tmpa + tmpb, Q);
+            tmpb *= GF256_log_[b * tmpb - 1];
+            ret = GF256_pow_[tmpa + tmpb];
         } break;
 
         default:
@@ -121,8 +130,9 @@ short GF_mul(const short &a, const short &b, const int Q) {
 
 short GF_div(const short &a, const short &b, const int Q) {
     assert(b != 0);
-    assert(a < Q && a > -Q && b < Q && b > -Q);
+    assert(a < Q && a >= 0 && b < Q && b >= 0);
     assert(Q == 256);
+
     if (a == 0) {
         return 0;
     }
@@ -131,10 +141,10 @@ short GF_div(const short &a, const short &b, const int Q) {
     switch (Q) {
         case 256: {
             short tmpa = a > 0 ? 1 : -1;   // store sign of a
-            tmpa *= GF_log2(a * tmpa, Q);  // ensure logged value is positive
+            tmpa *= GF256_log_[a * tmpa - 1];  // ensure logged value is positive
             short tmpb = b > 0 ? 1 : -1;
-            tmpb *= GF_log2(b * tmpb, Q);
-            ret = GF_2pow(tmpa - tmpb + 255, Q);  // the table is cyclic
+            tmpb *= GF256_log_[b * tmpb - 1];
+            ret = GF256_pow_[tmpa - tmpb + 255];  // the table is cyclic
         } break;
 
         default:
@@ -144,13 +154,20 @@ short GF_div(const short &a, const short &b, const int Q) {
     return ret;
 }
 
-short GF_2pow(const short &a, const int Q) {
-    assert(a < 2 * Q - 1 && a >= 0);
+/**
+ * @brief turn power format to vector foramt
+ *
+ * @param a 0 < a < 2 * Q
+ * @param Q
+ * @return short GF256_pow_[a - 1]
+ */
+short GF_p2v(const short &a, const int Q) {
+    assert(a < 2 * Q && a > 0);
     assert(Q == 256);
     short ret;
     switch (Q) {
         case 256:
-            ret = GF256_2pow_[a];
+            ret = GF256_pow_[a - 1];
             break;
 
         default:
@@ -160,13 +177,20 @@ short GF_2pow(const short &a, const int Q) {
     return ret;
 }
 
-short GF_log2(const short &a, const int Q) {
-    assert(a < Q && a > 0);
+/**
+ * @brief turn vector format to power foramt
+ * 
+ * @param a 0 < a <= Q
+ * @param Q 
+ * @return short GF256_log_[a - 1] + 1
+ */
+short GF_v2p(const short &a, const int Q) {
+    assert(a <= Q && a > 0);
     assert(Q == 256);
     short ret;
     switch (Q) {
         case 256:
-            ret = GF256_log_[a - 1];
+            ret = GF256_log_[a - 1] + 1;
             break;
 
         default:
