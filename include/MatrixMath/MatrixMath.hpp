@@ -3,7 +3,7 @@
  * @author Yifan Zhang (scirocco_gti@yeah.net)
  * @brief
  * @date 2020-10-31 10:57:44
- * @modified: 2021-04-01 22:48:03
+ * @modified: 2021-04-07 00:50:25
  */
 
 #ifndef MATRIXMATH_HPP
@@ -42,5 +42,7 @@ Eigen::MatrixXi NBproduct(const Eigen::MatrixXi& X, const Eigen::MatrixXi& Y,
                           const int GF);
 Eigen::MatrixXi NBplus(const Eigen::MatrixXi& X, const Eigen::MatrixXi& Y,
                           const int GF);
+Eigen::MatrixXi NB2Bin(const Eigen::MatrixXi& X, const int GF);
+Eigen::MatrixXi Bin2GF(const Eigen::MatrixXi& X, const int GF);
 
 #endif

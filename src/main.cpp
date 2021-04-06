@@ -55,11 +55,18 @@ int main(int argc, char *argv[]) {
 
     // LDPC ldpc(conf.alist_path);
     NBLDPC NBldpc(conf.alist_path);
-    // std::cout << "G:\n" << ldpc.getG() << std::endl;
-    // std::cout << "H:\n" << ldpc.getH() << std::endl;
+    // std::cout << "G:\n" << NBldpc.getG() << std::endl;
+    // std::cout << "H:\n" << NBldpc.getH() << std::endl;
     printf("%s read in successfully.\n", conf.alist_path);
-    // int K = NBldpc.getK();  // length of message
-    // int N = NBldpc.getN();  // length of message
+    int K = NBldpc.getK();  // length of message
+    printf("K = %d\n", K);
+    int N = NBldpc.getN();  // length of message
+    printf("N = %d\n", N);
+
+    int FEcount = 0;
+    int BEcount = 0;
+    int count = 0;
+    NBdecode(&NBldpc, &conf, 0, &count, &BEcount, &FEcount);
 
     // for (double SNR = conf.SNRmin; SNR <= conf.SNRmax; SNR += conf.SNRstep) {
     //     int FEcount = 0;
@@ -177,6 +184,7 @@ void NBdecode(const NBLDPC *NBldpc, const Config *conf, const double SNR,
               int *count, int *BEcount, int *FEcount) {
     int K = NBldpc->getK();  // length of message
     int N = NBldpc->getN();  // length of message
+    int GF = NBldpc->getGF();
 
     // printf("%lf\n", SNR);
     double snr = pow(10, SNR / 10) * K / N;  // linear Es/N0
@@ -190,66 +198,77 @@ void NBdecode(const NBLDPC *NBldpc, const Config *conf, const double SNR,
     mtx.lock();
     while (*FEcount <= conf->FEcount) {
         mtx.unlock();
-        Eigen::RowVectorXi m = Eigen::RowVectorXf::Random(K).unaryExpr(
-            [](const float x) { return (int)ceil(x); });  // message
-        // std::cout << "message  : " << m << std::endl;
+        // 0 < randf < 2
+        Eigen::RowVectorXf randf =
+            Eigen::RowVectorXf::Random(K) + Eigen::RowVectorXf::Ones(K);
+        randf *= (GF * 0.5);  // 0 < randf < GF
+        // message
+        Eigen::RowVectorXi m =
+            randf.unaryExpr([](const float x) { return (int)floor(x); });
+        std::cout << "message  : " << m << std::endl;
 
         Eigen::RowVectorXi c = NBldpc->encode(m);  // code word encoded from m
-        // std::cout << "code word: " << c << std::endl;
+        std::cout << "code word: " << c << std::endl;
 
-        // Modem modem(100, 4 * 100, 0.1);
-        // Eigen::RowVectorXd y = modem.modulate(c);
-        // Real BPSK will introduce error
-        Eigen::RowVectorXd y = RetransBPSK(c).cast<double>();
+        // // Modem modem(100, 4 * 100, 0.1);
+        // // Eigen::RowVectorXd y = modem.modulate(c);
+        // // Real BPSK will introduce error
+        // Eigen::RowVectorXd y = RetransBPSK(c).cast<double>();
+        Eigen::RowVectorXd y = RetransBPSK(NB2Bin(c, GF)).cast<double>();
+        std::cout << y << std::endl;
+        Eigen::RowVectorXi test = Bin2GF(TransBPSK(y.cast<int>()), GF);
+        std::cout << test << std::endl;
 
         Eigen::RowVectorXd y_noised = AWGN(y, snr, 2, engine);
         // std::cout << y - y_noised << std::endl;
 
-        // std::stringstream ss;
-        // ss << c;
-        // int length = modem.getL() * c.size();
-        // Eigen::RowVectorXd x = Eigen::RowVectorXd::LinSpaced(length, 0,
-        // length); double *x_array = (double *)malloc(length * sizeof(double)),
-        //        *y_array = (double *)malloc(length * sizeof(double));
-        // Eigen::RowVectorXd::Map(x_array, x.cols()) = x;
-        // // Eigen::RowVectorXd::Map(y_array, y.cols()) = y;
+        // // std::stringstream ss;
+        // // ss << c;
+        // // int length = modem.getL() * c.size();
+        // // Eigen::RowVectorXd x = Eigen::RowVectorXd::LinSpaced(length, 0,
+        // // length); double *x_array = (double *)malloc(length *
+        // sizeof(double)),
+        // //        *y_array = (double *)malloc(length * sizeof(double));
+        // // Eigen::RowVectorXd::Map(x_array, x.cols()) = x;
+        // // // Eigen::RowVectorXd::Map(y_array, y.cols()) = y;
+        // // // if (pyplot(x_array, y_array, length, ss.str().c_str())) {
+        // // //     printf("ERROR during pyplot!\n");
+        // // // }
+
+        // // Eigen::RowVectorXd::Map(y_array, y_noised.cols()) = y_noised;
         // // if (pyplot(x_array, y_array, length, ss.str().c_str())) {
         // //     printf("ERROR during pyplot!\n");
         // // }
 
-        // Eigen::RowVectorXd::Map(y_array, y_noised.cols()) = y_noised;
-        // if (pyplot(x_array, y_array, length, ss.str().c_str())) {
-        //     printf("ERROR during pyplot!\n");
-        // }
+        // // free(x_array);
+        // // free(y_array);
 
-        // free(x_array);
-        // free(y_array);
+        // // std::cout << y << std::endl;
 
-        // std::cout << y << std::endl;
-
-        // Eigen::RowVectorXd r = modem.demodulate(y);
+        // // Eigen::RowVectorXd r = modem.demodulate(y);
         Eigen::RowVectorXd r = y_noised;
-        // std::cout << "received: " << r << std::endl;
+        std::cout << "received: " << r << std::endl;
 
-        // Eigen::RowVectorXi d =
-        //     NBldpc->decode(r, conf->iter_max, conf->factor, conf->mode);
-        // // std::cout << "decoded: " << d << std::endl;
+        // // Eigen::RowVectorXi d =
+        // //     NBldpc->decode(r, conf->iter_max, conf->factor, conf->mode);
+        // // // std::cout << "decoded: " << d << std::endl;
 
-        // Eigen::RowVectorXi m_ = NBldpc->recoverMessage(d);
-        // // std::cout << "message  : " << m_ << std::endl;
-        // // std::cout << Compare(m, m_) << std::endl;
-        // int BE = Compare(m, m_);
+        // // Eigen::RowVectorXi m_ = NBldpc->recoverMessage(d);
+        // // // std::cout << "message  : " << m_ << std::endl;
+        // // // std::cout << Compare(m, m_) << std::endl;
+        // // int BE = Compare(m, m_);
 
-        mtx.lock();
-        if (*FEcount >= conf->FEcount) {
-            break;
-        }
-        // if (BE) {
-        (*FEcount)++;
-        //     // printf("\rFEcount = %3d", *FEcount);
+        // mtx.lock();
+        // if (*FEcount >= conf->FEcount) {
+        //     break;
         // }
-        // *BEcount += BE;
-        (*count)++;
+        // // if (BE) {
+        // (*FEcount)++;
+        // //     // printf("\rFEcount = %3d", *FEcount);
+        // // }
+        // // *BEcount += BE;
+        // (*count)++;
+        break;
     }
     mtx.unlock();
 }

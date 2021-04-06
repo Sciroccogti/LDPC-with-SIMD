@@ -24,10 +24,10 @@ LDPC with SIMD.
 
 ### NonBinary LDPC
 
-- [ ] Encode
-- [ ] Modulate
-- [ ] Channel
-- [ ] Demodulate
+- [x] Encode
+- [x] Modulate(BPSK)
+- [x] Channel(AWGN)
+- [ ] Demodulate(BPSK)
 - [ ] Decode
 
 ### Tools

@@ -3,7 +3,7 @@
  * @author Yifan Zhang (scirocco_gti@yeah.net)
  * @brief
  * @date 2021-03-27 10:36:37
- * @modified: 2021-03-29 15:41:54
+ * @modified: 2021-04-06 10:39:13
  */
 
 #ifndef NBLDPC_HPP
@@ -34,6 +34,7 @@ class NBLDPC {
     Eigen::SparseMatrix<int> getH() const;
     int getK() const;
     int getN() const;
+    int getGF() const;
     bool getIsSys() const;
 };
 

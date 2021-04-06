@@ -21,10 +21,6 @@ NBLDPC::NBLDPC(Eigen::SparseMatrix<int> H) {
     // H_mat.cols()); G_mat.setZero();
     G_mat =
         Eigen::SparseMatrix<int>(NBtransform_H_to_G(H_mat, GF).sparseView());
-    std::cout << "G_mat:\n" << G_mat.toDense() << std::endl;
-    std::cout << "H_mat:\n" << H_mat.toDense() << std::endl;
-    std::cout << "Prod:\n"
-              << NBproduct(G_mat, H_mat.transpose(), GF) << std::endl;
     assert(
         !(NBproduct(G_mat, H_mat.transpose(), GF).any()));  // G*H should be 0
     K = G_mat.rows();
@@ -83,6 +79,10 @@ int NBLDPC::getK() const {
 
 int NBLDPC::getN() const {
     return N;
+}
+
+int NBLDPC::getGF() const {
+    return GF;
 }
 
 bool NBLDPC::getIsSys() const {

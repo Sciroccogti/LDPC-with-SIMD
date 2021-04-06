@@ -121,11 +121,12 @@ Eigen::MatrixXi NBgaussjordan(Eigen::MatrixXi& X, const int GF) {
 }
 
 /**
- * @brief https://github.com/kir1994/LDPC/blob/686d33b9bc818e1d050e91ad1ecef56c24299b8b/LDPC/GFLinAlg.cpp#L36
- * 
- * @param X 
- * @param GF 
- * @return int 
+ * @brief
+ * https://github.com/kir1994/LDPC/blob/686d33b9bc818e1d050e91ad1ecef56c24299b8b/LDPC/GFLinAlg.cpp#L36
+ *
+ * @param X
+ * @param GF
+ * @return int
  */
 int NBGauss(Eigen::MatrixXi& X, const int GF) {
     int n_rows = X.rows();
@@ -209,5 +210,54 @@ Eigen::MatrixXi NBplus(const Eigen::MatrixXi& X, const Eigen::MatrixXi& Y,
             ret(i, j) = X(i, j) ^ Y(i, j);
         }
     }
+    return ret;
+}
+
+/**
+ * @brief turn GF to Binary, expanding log2(GF) times in cols
+ *          e.g. 6 -> 01010000
+ * @param X
+ * @param GF
+ * @return Eigen::MatrixXi
+ */
+Eigen::MatrixXi NB2Bin(const Eigen::MatrixXi& X, const int GF) {
+    int rate = log2(GF);  // ret will be <X.rows(), X.cols() * rate>
+    assert(pow(2, rate) == GF);
+    Eigen::MatrixXi ret(X.rows(), X.cols() * rate);
+
+    for (size_t i = 0; i < X.rows(); i++) {
+        for (size_t j = 0; j < X.cols(); j++) {
+            for (size_t r = 0; r < rate; r++) {
+                ret(i, j * rate + r) = (X(i, j) >> r) & 1;  // 6 -> 01010000
+            }
+        }
+    }
+
+    return ret;
+}
+
+/**
+ * @brief turn Binary to GF, shrinking log2(GF) times in cols
+ *          e.g. 01010000 -> 6
+ * @param X
+ * @param GF
+ * @return Eigen::MatrixXi
+ */
+Eigen::MatrixXi Bin2GF(const Eigen::MatrixXi& X, const int GF) {
+    int rate = log2(GF);  // ret will be <X.rows(), X.cols() / rate>
+    assert(X.cols() % rate == 0);
+    Eigen::MatrixXi ret(X.rows(), X.cols() / rate);
+
+    for (int i = 0; i < ret.rows(); i++) {
+        for (int j = 0; j < ret.cols(); j++) {
+            int ret_ij = 0;
+            for (int r = rate - 1; r >= 0; r--) {
+                ret_ij =
+                    (ret_ij << 1) + X(i, j * rate + r);  // 6 -> 01010000
+            }
+            ret(i, j) = ret_ij;
+        }
+    }
+
     return ret;
 }
