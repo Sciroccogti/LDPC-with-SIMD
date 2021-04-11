@@ -115,7 +115,9 @@ Eigen::RowVectorXi NBLDPC::decode(Eigen::MatrixXd& LLR, int iter_max,
 
         // update ret
         for (int i = 0; i < N; i++) {
+            // printf("%d: ", i);
             ret[i] = VNodes_[i]->getValue();
+            // printf("\n");
         }
         std::cout << ret << std::endl;
         count++;

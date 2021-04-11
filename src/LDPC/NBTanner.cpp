@@ -81,12 +81,13 @@ int NBVNode::getValue() {
     double max = valueQ[0];
     int ret = 0;
     for (int i = 1; i < GF - 1; i++) {
+        // printf("%.2lf ", valueQ[i]);
         if (max < valueQ[i]) {
             max = valueQ[i];
             ret = i;
         }
     }
-
+    // printf(" -> %.0lf ", max);
     return ret + 1;
 }
 
@@ -119,17 +120,26 @@ void NBCNode::Update(int mode) {
         switch (mode) {
             case BP_QSPA: {
                 Eigen::RowVectorXd prod = Eigen::RowVectorXd::Ones(GF - 1);
+                Eigen::RowVectorXi sgn = Eigen::RowVectorXi::Ones(GF - 1);
                 for (int j = 0; j < degree; j++) {
                     if (j == i) {
                         continue;  // skip current VN
                     }
                     for (int q = 0; q < GF - 1; q++) {
-                        prod[q] *= tanh(inValuesQ_[j][q] / 2);
+                        prod[q] *= tanh(fabs(inValuesQ_[j][q]) / 2);
+                        sgn[q] *= inValuesQ_[j][q] >= 0 ? 1 : -1;
                     }
                 }
 
-                NBNodes_[i]->setInValue(prod.unaryExpr(
-                    [](const double x) { return 2 * atanh(x); }));
+                for (int q = 0; q < GF - 1; q++) {
+                    prod[q] =
+                        prod[q] < 1
+                            ? prod[q]
+                            : 1.0 - std::numeric_limits<double>::epsilon();
+                    prod[q] = sgn[q] * 2 * fabs(atanh(prod[q]));
+                }
+
+                NBNodes_[i]->setInValue(prod);
             } break;
             default:
                 break;

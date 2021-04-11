@@ -215,9 +215,9 @@ void NBdecode(const NBLDPC *NBldpc, const Config *conf, const double SNR,
         // // Real BPSK will introduce error
         // Eigen::RowVectorXd y = RetransBPSK(c).cast<double>();
         Eigen::RowVectorXd y = RetransBPSK(NB2Bin(c, GF)).cast<double>();
-        std::cout << y << std::endl;
-        Eigen::RowVectorXi test = Bin2GF(TransBPSK(y.cast<int>()), GF);
-        std::cout << test << std::endl;
+        // std::cout << y << std::endl;
+        // Eigen::RowVectorXi test = Bin2GF(TransBPSK(y.cast<int>()), GF);
+        // std::cout << test << std::endl;
 
         Eigen::RowVectorXd y_noised = AWGN(y, snr, 2, engine);
         // std::cout << y - y_noised << std::endl;
@@ -247,9 +247,10 @@ void NBdecode(const NBLDPC *NBldpc, const Config *conf, const double SNR,
 
         // // Eigen::RowVectorXd r = modem.demodulate(y);
         Eigen::RowVectorXd r = y_noised;
-        std::cout << "received: " << r << std::endl;
+        // std::cout << "received: " << r << std::endl;
 
         Eigen::MatrixXd LLR = LLR_BinAWGN2GF(r, GF, snr);
+        // std::cout << "LLR: " << LLR << std::endl;
 
         Eigen::RowVectorXi d =
             NBldpc->decode(LLR, conf->iter_max, conf->factor, snr, conf->mode);

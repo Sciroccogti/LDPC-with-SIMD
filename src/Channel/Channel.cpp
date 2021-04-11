@@ -50,11 +50,11 @@ Eigen::MatrixXd LLR_BinAWGN2GF(const Eigen::RowVectorXd& X, const int GF,
     for (int j = 0; j < ret.cols(); j++) {
         // q is 1 ~ GF -1, but stored at 0~GF-2, cause no LLR for 0
         for (int q = 1; q < GF; q++) {
-            int ret_qj = 0;
+            double ret_qj = 0;
             for (int r = rate - 1; r >= 0; r--) {
                 // whether this bit has contribute to the q
                 if (q & (1 << r)) {
-                    ret_qj += LLR_AWGN(X(j * rate + r), snr);  // 01010000 -> 6
+                    ret_qj +=-X(j * rate + r);// LLR_AWGN(X(j * rate + r), snr);  // 01010000 -> 6
                 }
             }
             ret(q - 1, j) = ret_qj;

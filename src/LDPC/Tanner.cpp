@@ -1,6 +1,6 @@
 #include "LDPC/Tanner.hpp"
 
-const char * Modes_[3] = {"NMS", "SPA", "QSPA"};
+const char* Modes_[3] = {"NMS", "SPA", "QSPA"};
 
 /**
  * @brief Construct a new Node:: Node object
@@ -116,14 +116,18 @@ void CNode::Update(int mode) {
             } break;
             case BP_SPA: {
                 double prod = 1;
+                int sgn = 1;
                 for (int j = 0; j < degree; j++) {
                     if (j == i) {
                         continue;  // skip current VN
                     }
-                    prod *= tanh(inValues_[j] / 2);
+                    prod *= tanh(fabs(inValues_[j]) / 2);
+                    sgn *= inValues_[j] >= 0 ? 1 : -1;
                 }
 
-                Nodes_[i]->setInValue(2 * atanh(prod));
+                prod = prod < 1 ? prod
+                                : 1.0 - std::numeric_limits<double>::epsilon();
+                Nodes_[i]->setInValue(sgn * 2 * atanh(prod));
             } break;
             default:
                 break;
