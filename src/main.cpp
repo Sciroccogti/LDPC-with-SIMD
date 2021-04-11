@@ -59,43 +59,43 @@ int main(int argc, char *argv[]) {
     // std::cout << "H:\n" << NBldpc.getH() << std::endl;
     printf("%s read in successfully.\n", conf.alist_path);
     int K = NBldpc.getK();  // length of message
-    printf("K = %d\n", K);
-    int N = NBldpc.getN();  // length of message
-    printf("N = %d\n", N);
+    // printf("K = %d\n", K);
+    // int N = NBldpc.getN();  // length of message
+    // printf("N = %d\n", N);
 
-    int FEcount = 0;
-    int BEcount = 0;
-    int count = 0;
-    NBdecode(&NBldpc, &conf, 0, &count, &BEcount, &FEcount);
+    // int FEcount = 0;
+    // int BEcount = 0;
+    // int count = 0;
+    // NBdecode(&NBldpc, &conf, 0, &count, &BEcount, &FEcount);
 
-    // for (double SNR = conf.SNRmin; SNR <= conf.SNRmax; SNR += conf.SNRstep) {
-    //     int FEcount = 0;
-    //     int BEcount = 0;
-    //     int count = 0;
+    for (double SNR = conf.SNRmin; SNR <= conf.SNRmax; SNR += conf.SNRstep) {
+        int FEcount = 0;
+        int BEcount = 0;
+        int count = 0;
 
-    //     std::vector<std::thread> threads_(conf.threads);
-    //     for (int i = 0; i < conf.threads; i++) {
-    //         threads_[i] = std::thread(NBdecode, &NBldpc, &conf, SNR, &count,
-    //                                   &BEcount, &FEcount);
-    //     }
+        std::vector<std::thread> threads_(conf.threads);
+        for (int i = 0; i < conf.threads; i++) {
+            threads_[i] = std::thread(NBdecode, &NBldpc, &conf, SNR, &count,
+                                      &BEcount, &FEcount);
+        }
 
-    //     auto start = std::chrono::steady_clock::now();
-    //     for (int i = 0; i < conf.threads; i++) {
-    //         threads_[i].join();
-    //     }
-    //     auto end = std::chrono::steady_clock::now();
-    //     double BER = (double)BEcount / (count * K);
-    //     double FER = (double)FEcount / count;
-    //     // count is ns
-    //     double duration = (end - start).count() / 1000000000.0;
-    //     printf("\nBER: %.2e\n", BER);
-    //     printf("FER: %.2e\n", FER);
-    //     printf("Time: %.2f sec\n", duration);
-    //     writeResult(conf.output_path, SNR, BER, FER, duration);
-    //     for (int i = 0; i < conf.threads; i++) {
-    //         threads_[i].~thread();
-    //     }
-    // }
+        auto start = std::chrono::steady_clock::now();
+        for (int i = 0; i < conf.threads; i++) {
+            threads_[i].join();
+        }
+        auto end = std::chrono::steady_clock::now();
+        double BER = (double)BEcount / (count * K);
+        double FER = (double)FEcount / count;
+        // count is ns
+        double duration = (end - start).count() / 1000000000.0;
+        printf("\nBER: %.2e\n", BER);
+        printf("FER: %.2e\n", FER);
+        printf("Time: %.2f sec\n", duration);
+        writeResult(conf.output_path, SNR, BER, FER, duration);
+        for (int i = 0; i < conf.threads; i++) {
+            threads_[i].~thread();
+        }
+    }
     return 0;
 }
 
@@ -158,7 +158,7 @@ void decode(const LDPC *ldpc, const Config *conf, const double SNR, int *count,
         // std::cout << "received: " << r << std::endl;
 
         Eigen::RowVectorXi d =
-            ldpc->decode(r, conf->iter_max, conf->factor, conf->mode);
+            ldpc->decode(r, conf->iter_max, conf->factor, snr, conf->mode);
         // std::cout << "decoded: " << d << std::endl;
 
         Eigen::RowVectorXi m_ = ldpc->recoverMessage(d);
@@ -249,9 +249,11 @@ void NBdecode(const NBLDPC *NBldpc, const Config *conf, const double SNR,
         Eigen::RowVectorXd r = y_noised;
         std::cout << "received: " << r << std::endl;
 
-        // // Eigen::RowVectorXi d =
-        // //     NBldpc->decode(r, conf->iter_max, conf->factor, conf->mode);
-        // // // std::cout << "decoded: " << d << std::endl;
+        Eigen::MatrixXd LLR = LLR_BinAWGN2GF(r, GF, snr);
+
+        Eigen::RowVectorXi d =
+            NBldpc->decode(LLR, conf->iter_max, conf->factor, snr, conf->mode);
+        std::cout << "decoded: " << d << std::endl;
 
         // // Eigen::RowVectorXi m_ = NBldpc->recoverMessage(d);
         // // // std::cout << "message  : " << m_ << std::endl;

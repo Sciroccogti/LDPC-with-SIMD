@@ -2,6 +2,7 @@
 
 #include <iostream>
 
+#include "LDPC/Tanner.hpp"
 #include "MatrixMath/MatrixMath.hpp"
 
 NBLDPC::NBLDPC() {
@@ -63,6 +64,74 @@ NBLDPC::~NBLDPC() {
 
 Eigen::RowVectorXi NBLDPC::encode(Eigen::RowVectorXi& m) const {
     return NBproduct(m, G_mat, GF);
+}
+
+/**
+ * @brief decode the received LLR
+ *
+ * @param LLR received LLR, <GF - 1, N>
+ * @param iter_max stop early criterion
+ * @param factor normalize factor, should not larger than 1
+ * @param snr Channel snr
+ * @param mode decode mode, 0: NMS, 1: SPA
+ * @return Eigen::RowVectorXi
+ */
+Eigen::RowVectorXi NBLDPC::decode(Eigen::MatrixXd& LLR, int iter_max,
+                                  double factor, double snr, int mode) const {
+    std::vector<NBVNode*> VNodes_;  // size: N
+    std::vector<NBCNode*> CNodes_;  // size: M
+    int M = H_mat.rows();
+    Eigen::MatrixXi Hdense = H_mat.toDense();
+    assert(LLR.cols() == N && LLR.rows() == GF - 1);
+
+    // init Nodes
+    for (int i = 0; i < M; i++) {
+        NBCNode* c = new NBCNode(num_mlist[i], factor, GF);
+        CNodes_.push_back(c);
+    }
+
+    // TODO: use feature of SparseMatrix
+    for (int i = 0; i < N; i++) {
+        // init LLR directly by r
+        NBVNode* v = new NBVNode(num_nlist[i], LLR.col(i), GF);
+        VNodes_.push_back(v);
+        for (int j = 0; j < M; j++) {
+            if (Hdense(j, i)) {
+                VNodes_[i]->Link(CNodes_[j]);
+            }
+        }
+        assert(VNodes_[i]->isReady());
+    }
+
+    Eigen::RowVectorXi ret(N);
+    int count = 0;
+    do {
+        for (NBVNode* v : VNodes_) {
+            v->Update(mode);
+        }
+        for (NBCNode* c : CNodes_) {
+            c->Update(mode);
+        }
+
+        // update ret
+        for (int i = 0; i < N; i++) {
+            ret[i] = VNodes_[i]->getValue();
+        }
+        std::cout << ret << std::endl;
+        count++;
+    } while (NBproduct(H_mat.toDense(), ret.transpose(), GF).any() &&
+             count < iter_max);  // stop criterion
+    // std::cout << "迭代次数： " << count << std::endl;
+
+    for (NBCNode* c : CNodes_) {
+        delete c;
+    }
+
+    for (NBVNode* d : VNodes_) {
+        delete d;
+    }
+
+    return ret;
 }
 
 Eigen::SparseMatrix<int> NBLDPC::getG() const {

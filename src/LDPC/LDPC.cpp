@@ -1,5 +1,7 @@
 #include "LDPC/LDPC.hpp"
 
+#include "Channel/Channel.hpp"
+
 LDPC::LDPC() {
     H_mat = Eigen::SparseMatrix<int>();
     G_mat = Eigen::SparseMatrix<int>();
@@ -58,11 +60,12 @@ Eigen::RowVectorXi LDPC::encode(Eigen::RowVectorXi& m) const {
  * @param r received sequence
  * @param iter_max stop early criterion
  * @param factor normalize factor, should not larger than 1
+ * @param snr Channel snr
  * @param mode decode mode, 0: NMS, 1: SPA
  * @return Eigen::RowVectorXi
  */
 Eigen::RowVectorXi LDPC::decode(Eigen::RowVectorXd& r, int iter_max,
-                                double factor, int mode) const {
+                                double factor, double snr, int mode) const {
     std::vector<VNode*> VNodes_;  // size: N
     std::vector<CNode*> CNodes_;  // size: M
     int M = H_mat.rows();

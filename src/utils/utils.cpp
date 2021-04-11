@@ -88,8 +88,9 @@ int opt(int argc, char* argv[], Config& conf) {
                     "\tFrame error count,"
                     " default to be 100\n");
                 printf(
-                    "  --dec-implem <string>"
-                    "\tdecoding algorithm, choose from \"NMS\", \"SPA\""
+                    "  --dec-implem <string>\n"
+                    "\t\t\tdecoding algorithm,"
+                    " choose from \"NMS\", \"SPA\", \"QSPA\","
                     " default to be \"NMS\"\n");
                 printf(
                     "\n  --help, -h\t\tshow this help message and "

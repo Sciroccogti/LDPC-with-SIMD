@@ -95,7 +95,10 @@ short GF_plus(const short &a, const short &b, const int Q) {
                 // GF_p2v(9) = 29, GF_p2v(1) = 1
                 // 29 ^ 1 = 28
                 // GF_v2p(28) = 201
-                ret = GF_v2p(GF_p2v(abs(a), Q) ^ GF_p2v(abs(b), Q), Q);
+                // ret = GF_v2p(GF_p2v(abs(a), Q) ^ GF_p2v(abs(b), Q), Q);
+
+                // vector
+                ret = a ^ b;
             }
             break;
         default:
