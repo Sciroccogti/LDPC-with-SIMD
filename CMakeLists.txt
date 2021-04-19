@@ -44,6 +44,7 @@ set(SOURCES
     src/LDPC/NBLDPC.cpp
     src/LDPC/Tanner.cpp
     src/LDPC/NBTanner.cpp
+    src/LDPC/NBLLR.cpp
     src/Modem/Modem.cpp
     src/Channel/Channel.cpp
     src/UI/pyplot.cpp)

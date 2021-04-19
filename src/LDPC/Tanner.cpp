@@ -1,6 +1,6 @@
 #include "LDPC/Tanner.hpp"
 
-const char* Modes_[3] = {"NMS", "SPA", "QSPA"};
+const char* Modes_[4] = {"NMS", "SPA", "QNMS", "QSPA"};
 
 /**
  * @brief Construct a new Node:: Node object
@@ -41,6 +41,7 @@ void Node::setInValue(double data) {
 
 VNode::VNode(int d, double v) : Node(d) {
     value = v;
+    LLR = v;
 }
 
 void VNode::Link(Node* n) {
@@ -54,6 +55,7 @@ void VNode::Update(int mode) {
     // for (double i : inValues_) {
     //     value += i;
     // }
+    value = LLR;
     for (int i = 0; i < degree; i++) {
         value += inValues_[i];
     }

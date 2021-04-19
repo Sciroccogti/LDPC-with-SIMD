@@ -70,4 +70,5 @@
         "stop_token": "cpp",
         "alist_matrix.h": "c"
     },
+    "python.pythonPath": "/bin/python3",
 }

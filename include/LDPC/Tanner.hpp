@@ -3,7 +3,7 @@
  * @author Sciroccogti (scirocco_gti@yeah.net)
  * @brief
  * @date 2021-03-09 17:32:42
- * @modified: 2021-04-12 01:31:02
+ * @modified: 2021-04-20 01:55:48
  */
 
 #ifndef TANNER_HPP
@@ -14,12 +14,14 @@
 #include <vector>
 
 #include "MatrixMath/MatrixMath.hpp"
+#include "LDPC/NBLLR.hpp"
 
 #define BP_NMS 0
 #define BP_SPA 1
-#define BP_QSPA 2
+#define BP_QNMS 2
+#define BP_QSPA 3
 
-extern const char* Modes_[3];
+extern const char* Modes_[4];
 
 class Node {
   protected:
@@ -41,6 +43,7 @@ class Node {
 class VNode : public Node {
   private:
     double value;
+    double LLR;
 
   public:
     VNode(int d, double v);
@@ -66,8 +69,10 @@ class NBNode {
     int GF;
     int degree;
     int inCount;                // used to record No. of current inputting node
+    int n_maxCount;
     std::vector<NBNode*> NBNodes_;  // Linked Nodes
     std::vector<Eigen::RowVectorXd> inValuesQ_;
+    std::vector<std::vector<NBLLR>> n_maxValue_;
 
   public:
     NBNode(int d, int gf);
@@ -75,6 +80,7 @@ class NBNode {
     void Link(NBNode* n);
     virtual bool isVN() = 0;
     void setInValue(Eigen::RowVectorXd dataQ);
+    void setinn_maxValue(std::vector<NBLLR> vn_max);
     bool isReady();
     virtual void Update(int mode) = 0;
 };
@@ -82,6 +88,7 @@ class NBNode {
 class NBVNode : public NBNode {
   private:
     Eigen::RowVectorXd valueQ;
+    Eigen::RowVectorXd LLRQ;
 
   public:
     NBVNode(int d, Eigen::RowVectorXd vQ, const int GF);

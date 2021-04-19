@@ -54,11 +54,12 @@ Eigen::MatrixXd LLR_BinAWGN2GF(const Eigen::RowVectorXd& X, const int GF,
             for (int r = rate - 1; r >= 0; r--) {
                 // whether this bit has contribute to the q
                 if (q & (1 << r)) {
-                    ret_qj +=-X(j * rate + r);// LLR_AWGN(X(j * rate + r), snr);  // 01010000 -> 6
+                    ret_qj += LLR_AWGN(X(j * rate + r), snr);  // 01010000 -> 6
                 }
+                // ret_qj += - LLR_AWGN(X(j * rate + r) - (q & (1 << r)), snr) / 8;
             }
             ret(q - 1, j) = ret_qj;
         }
     }
-    return ret;
+    return ret / rate / 2.0;
 }
