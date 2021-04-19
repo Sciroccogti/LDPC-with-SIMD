@@ -3,7 +3,7 @@
  * @author Yifan Zhang (scirocco_gti@yeah.net)
  * @brief
  * @date 2020-10-30 22:52:43
- * @modified: 2020-10-31 12:04:23
+ * @modified: 2021-04-07 22:16:25
  */
 
 #ifndef LDPC_HPP
@@ -15,8 +15,8 @@
 
 class LDPC {
   private:
-    Eigen::SparseMatrix<int> H_mat; // rows=N-K, cols=N
-    Eigen::SparseMatrix<int> G_mat; // rows=K, cols=N
+    Eigen::SparseMatrix<int> H_mat;  // rows=N-K, cols=N
+    Eigen::SparseMatrix<int> G_mat;  // rows=K, cols=N
     int* num_mlist;
     int* num_nlist;
     int K;  // length of message
@@ -32,7 +32,7 @@ class LDPC {
 
     Eigen::RowVectorXi encode(Eigen::RowVectorXi& m) const;
     Eigen::RowVectorXi decode(Eigen::RowVectorXd& r, int iter_max,
-                              double factor, int mode) const;
+                              double factor, double snr, int mode) const;
     Eigen::RowVectorXi recoverMessage(Eigen::RowVectorXi& d) const;
     Eigen::SparseMatrix<int> getG() const;
     Eigen::SparseMatrix<int> getH() const;

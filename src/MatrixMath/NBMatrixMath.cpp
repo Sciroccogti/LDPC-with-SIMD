@@ -253,7 +253,7 @@ Eigen::MatrixXi Bin2GF(const Eigen::MatrixXi& X, const int GF) {
             int ret_ij = 0;
             for (int r = rate - 1; r >= 0; r--) {
                 ret_ij =
-                    (ret_ij << 1) + X(i, j * rate + r);  // 6 -> 01010000
+                    (ret_ij << 1) + X(i, j * rate + r);  // 01010000 -> 6
             }
             ret(i, j) = ret_ij;
         }

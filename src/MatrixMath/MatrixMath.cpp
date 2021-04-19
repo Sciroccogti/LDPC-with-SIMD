@@ -91,8 +91,6 @@ Eigen::MatrixXi transform_H_to_G(const Eigen::MatrixXi& H) {
     // DOUBLE GAUSS-JORDAN:
     Eigen::MatrixXi Href_colonnes = H.transpose();
     Eigen::MatrixXi Q = gaussjordan(Href_colonnes).transpose();
-    std::cout << "Q:\n" << Q << std::endl;
-    std::cout << "Q * H:\n" << H * Q.transpose() << std::endl;
     Eigen::MatrixXi Href_diag = Href_colonnes.transpose();
     gaussjordan(Href_diag);
 

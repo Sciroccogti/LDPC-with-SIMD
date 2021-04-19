@@ -43,6 +43,7 @@ set(SOURCES
     src/LDPC/LDPC.cpp
     src/LDPC/NBLDPC.cpp
     src/LDPC/Tanner.cpp
+    src/LDPC/NBTanner.cpp
     src/Modem/Modem.cpp
     src/Channel/Channel.cpp
     src/UI/pyplot.cpp)
