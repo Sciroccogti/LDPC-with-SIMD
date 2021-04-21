@@ -36,6 +36,7 @@ int main(int argc, char *argv[]) {
                    .threads = std::thread::hardware_concurrency() - 1,
                    .enable_MIPP = false,
                    .factor = 1.0,
+                   .n_max = 3,
                    .SNRmin = 0.0,
                    .SNRmax = 3.0,
                    .SNRstep = 0.5,
@@ -201,14 +202,14 @@ void NBdecode(const NBLDPC *NBldpc, const Config *conf, const double SNR,
         // 0 < randf < 2
         Eigen::RowVectorXf randf =
             Eigen::RowVectorXf::Random(K) + Eigen::RowVectorXf::Ones(K);
-        randf *= (GF * 0.5);  // 0 < randf < GF
+        randf *= (GF * 0.5);  // 0 < randf < GF // TODO: should be [0, GF)
         // message
         Eigen::RowVectorXi m =
             randf.unaryExpr([](const float x) { return (int)floor(x); });
         std::cout << "message  : " << m << std::endl;
 
         Eigen::RowVectorXi c = NBldpc->encode(m);  // code word encoded from m
-        std::cout << "code word: " << c << std::endl;
+        std::cout << "code word: \n" << c << std::endl << std::endl;
 
         // // Modem modem(100, 4 * 100, 0.1);
         // // Eigen::RowVectorXd y = modem.modulate(c);
@@ -252,9 +253,10 @@ void NBdecode(const NBLDPC *NBldpc, const Config *conf, const double SNR,
         Eigen::MatrixXd LLR = LLR_BinAWGN2GF(r, GF, snr);
         // std::cout << "LLR: " << LLR << std::endl;
 
-        Eigen::RowVectorXi d =
-            NBldpc->decode(LLR, conf->iter_max, conf->factor, snr, conf->mode);
+        Eigen::RowVectorXi d = NBldpc->decode(LLR, conf->iter_max, conf->factor,
+                                              snr, conf->mode, conf->n_max);
         std::cout << "decoded: " << d << std::endl;
+        std::cout << "code word: " << c << std::endl;
 
         // // Eigen::RowVectorXi m_ = NBldpc->recoverMessage(d);
         // // // std::cout << "message  : " << m_ << std::endl;

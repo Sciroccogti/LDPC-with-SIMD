@@ -28,6 +28,7 @@ int opt(int argc, char* argv[], Config& conf) {
         {"thread", required_argument, NULL, 't'},
         {"MIPP", required_argument, NULL, 'M' + 128},
         {"factor", required_argument, NULL, 'f' + 128},  // +128 to avoid ascii
+        {"n-max", required_argument, NULL, 'n'},
         {"SNRmin", required_argument, NULL, 'm'},
         {"SNRmax", required_argument, NULL, 'M'},
         {"SNRstep", required_argument, NULL, 's'},
@@ -35,7 +36,7 @@ int opt(int argc, char* argv[], Config& conf) {
         {"FE", required_argument, NULL, 'e'},
         {"dec-implem", required_argument, NULL, 'd' + 128},
         {0, 0, 0, 0}};
-    static char* const short_options = (char*)"hH:o:t:m:M:s:i:e:";
+    static char* const short_options = (char*)"hH:o:t:n:m:M:s:i:e:";
 
     while ((ret = getopt_long(argc, argv, short_options, long_options,
                               &option_index)) != -1) {
@@ -67,6 +68,11 @@ int opt(int argc, char* argv[], Config& conf) {
                     "\tthe normalize factor for NMS,"
                     " should not greater than 1,"
                     " default to be 1.0\n");
+                printf(
+                    "  --n-max, -n <int>"
+                    "\tthe n_max for EMS,"
+                    " should not greater than GF,"
+                    " default to be 3\n");
                 printf(
                     "  --SNRmin, -m <double>\n"
                     "\t\t\tthe start Eb/N0 of AWGN channel,"
@@ -125,6 +131,9 @@ int opt(int argc, char* argv[], Config& conf) {
                 break;
             case 'f' + 128:
                 conf.factor = atof(optarg);
+                break;
+            case 'n':
+                conf.n_max = atoi(optarg);
                 break;
             case 'm':
                 conf.SNRmin = atof(optarg);

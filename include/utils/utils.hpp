@@ -3,7 +3,7 @@
  * @author Sciroccogti (scirocco_gti@yeah.net)
  * @brief simple utils for main.cpp
  * @date 2020-11-24 11:25:54
- * @modified: 2021-03-16 11:30:19
+ * @modified: 2021-04-22 01:07:45
  */
 
 #ifndef UTILS_HPP
@@ -25,12 +25,14 @@ struct Config {
 
     // B-LDPC
     double factor;  // normalize factor for NMS
-    double SNRmin;     // Eb/N0 of AWGN
+    // NB-LDPC
+    int n_max;      // n_max for EMS
+    double SNRmin;  // Eb/N0 of AWGN
     double SNRmax;
     double SNRstep;
-    int iter_max;   // stop criterion
-    int FEcount;    // Frame error count
-    int mode;       // mode of decoding algorithm
+    int iter_max;  // stop criterion
+    int FEcount;   // Frame error count
+    int mode;      // mode of decoding algorithm
 };
 
 int opt(int argc, char* argv[], Config& conf);

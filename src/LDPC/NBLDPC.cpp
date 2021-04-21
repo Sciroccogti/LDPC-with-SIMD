@@ -69,35 +69,37 @@ Eigen::RowVectorXi NBLDPC::encode(Eigen::RowVectorXi& m) const {
 /**
  * @brief decode the received LLR
  *
- * @param LLR received LLR, <GF - 1, N>
+ * @param LLR received LLR, <GF, N>
  * @param iter_max stop early criterion
  * @param factor normalize factor, should not larger than 1
  * @param snr Channel snr
  * @param mode decode mode, 0: NMS, 1: SPA
+ * @param n_max
  * @return Eigen::RowVectorXi
  */
 Eigen::RowVectorXi NBLDPC::decode(Eigen::MatrixXd& LLR, int iter_max,
-                                  double factor, double snr, int mode) const {
+                                  double factor, double snr, int mode,
+                                  int n_max) const {
     std::vector<NBVNode*> VNodes_;  // size: N
     std::vector<NBCNode*> CNodes_;  // size: M
     int M = H_mat.rows();
     Eigen::MatrixXi Hdense = H_mat.toDense();
-    assert(LLR.cols() == N && LLR.rows() == GF - 1);
+    assert(LLR.cols() == N && LLR.rows() == GF);
 
     // init Nodes
     for (int i = 0; i < M; i++) {
-        NBCNode* c = new NBCNode(num_mlist[i], factor, GF);
+        NBCNode* c = new NBCNode(num_mlist[i], factor, GF, n_max);
         CNodes_.push_back(c);
     }
 
     // TODO: use feature of SparseMatrix
     for (int i = 0; i < N; i++) {
         // init LLR directly by r
-        NBVNode* v = new NBVNode(num_nlist[i], LLR.col(i), GF);
+        NBVNode* v = new NBVNode(num_nlist[i], LLR.col(i), GF, n_max);
         VNodes_.push_back(v);
         for (int j = 0; j < M; j++) {
             if (Hdense(j, i)) {
-                VNodes_[i]->Link(CNodes_[j]);
+                VNodes_[i]->Link(CNodes_[j], Hdense(j, i));
             }
         }
         assert(VNodes_[i]->isReady());
@@ -107,7 +109,7 @@ Eigen::RowVectorXi NBLDPC::decode(Eigen::MatrixXd& LLR, int iter_max,
     int count = 0;
     do {
         for (NBVNode* v : VNodes_) {
-            v->Update(mode);
+            v->Update(3);
         }
         for (NBCNode* c : CNodes_) {
             c->Update(mode);

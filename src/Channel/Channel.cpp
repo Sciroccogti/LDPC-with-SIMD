@@ -39,16 +39,16 @@ double LLR_AWGN(const double x, const double snr) {
  * @param X
  * @param GF
  * @param snr
- * @return Eigen::MatrixXd <GF - 1, X.cols() / rate>
+ * @return Eigen::MatrixXd <GF, X.cols() / rate>
  */
 Eigen::MatrixXd LLR_BinAWGN2GF(const Eigen::RowVectorXd& X, const int GF,
                                const double snr) {
-    int rate = log2(GF);  // ret will be <GF - 1, X.cols() / rate>
+    int rate = log2(GF);  // ret will be <GF, X.cols() / rate>
     assert(X.cols() % rate == 0);
 
-    Eigen::MatrixXd ret(GF - 1, X.cols() / rate);
+    Eigen::MatrixXd ret(GF, X.cols() / rate);
     for (int j = 0; j < ret.cols(); j++) {
-        // q is 1 ~ GF -1, but stored at 0~GF-2, cause no LLR for 0
+        ret(0, j) = 0;  // LLR for 0 set to 0, 'cause log(1)=0
         for (int q = 1; q < GF; q++) {
             double ret_qj = 0;
             for (int r = rate - 1; r >= 0; r--) {
@@ -58,7 +58,7 @@ Eigen::MatrixXd LLR_BinAWGN2GF(const Eigen::RowVectorXd& X, const int GF,
                 }
                 // ret_qj += - LLR_AWGN(X(j * rate + r) - (q & (1 << r)), snr) / 8;
             }
-            ret(q - 1, j) = ret_qj;
+            ret(q, j) = ret_qj;
         }
     }
     return ret / rate / 2.0;

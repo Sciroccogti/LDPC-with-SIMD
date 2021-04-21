@@ -13,7 +13,7 @@ NBLLR::NBLLR(double d, int q) {
 
 NBLLR::~NBLLR() {}
 
-double NBLLR::getData() const {
+double NBLLR::getLLR() const {
     return data;
 }
 
@@ -22,9 +22,9 @@ int NBLLR::getQ() {
 }
 
 bool operator<(const NBLLR& llr1, const NBLLR& llr2) {
-    return llr1.getData() < llr2.getData();
+    return llr1.getLLR() < llr2.getLLR();
 }
 
 bool operator>(const NBLLR& llr1, const NBLLR& llr2) {
-    return llr1.getData() > llr2.getData();
+    return llr1.getLLR() > llr2.getLLR();
 }
