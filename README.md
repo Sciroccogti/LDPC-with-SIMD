@@ -27,8 +27,8 @@ LDPC with SIMD.
 - [x] Encode
 - [x] Modulate(BPSK)
 - [x] Channel(AWGN)
-- [ ] Demodulate(BPSK)
-- [ ] Decode
+- [x] Demodulate(BPSK)
+- [x] Decode(EMS)
 
 ### Tools
 

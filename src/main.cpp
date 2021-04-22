@@ -199,13 +199,12 @@ void NBdecode(const NBLDPC *NBldpc, const Config *conf, const double SNR,
     mtx.lock();
     while (*FEcount <= conf->FEcount) {
         mtx.unlock();
-        // 0 < randf < 2
-        Eigen::RowVectorXf randf =
-            Eigen::RowVectorXf::Random(K) + Eigen::RowVectorXf::Ones(K);
-        randf *= (GF * 0.5);  // 0 < randf < GF // TODO: should be [0, GF)
+        // -1 < randf < 1
+        Eigen::RowVectorXf randf = Eigen::RowVectorXf::Random(K);
+        randf *= GF;  // -GF < randf < GF
         // message
         Eigen::RowVectorXi m =
-            randf.unaryExpr([](const float x) { return (int)floor(x); });
+            randf.unaryExpr([](const float x) { return (int)fabs(x); });
         std::cout << "message  : " << m << std::endl;
 
         Eigen::RowVectorXi c = NBldpc->encode(m);  // code word encoded from m

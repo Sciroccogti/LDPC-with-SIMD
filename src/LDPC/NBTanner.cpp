@@ -83,7 +83,6 @@ void NBVNode::Link(NBNode* n, int h) {
 }
 
 void NBVNode::Update(int mode) {
-
     valueQ = LLRQ;
     // update own value
     for (int i = 0; i < degree; i++) {
@@ -176,39 +175,10 @@ void NBCNode::Update(int mode) {
     assert(mode >= BP_EMS && mode <= BP_QSPA);
     assert(inCount == 0);  // assure all inValue is changed
 
+    // select current VN
     for (int cur_VN = 0; cur_VN < degree; cur_VN++) {
         switch (mode) {
-            case BP_EMS: { /*
-                Eigen::RowVectorXd min = Eigen::RowVectorXd::Zero(GF);
-                Eigen::RowVectorXi sgn = Eigen::RowVectorXi::Ones(GF);
-                bool isFirst = true;
-                for (int j = 0; j < degree; j++) {
-                    if (j == i) {
-                        continue;  // skip current VN
-                    }
-                    Eigen::RowVectorXd absJ(GF);
-                    for (int q = 0; q < GF; q++) {
-                        absJ[q] = fabs(inValuesQ_[j][q]);
-                        if (!isFirst) {
-                            min[q] = absJ[q] < min[q] ? absJ[q] : min[q];
-                        }
-
-                        sgn[q] *= inValuesQ_[j][q] >= 0 ? 1 : -1;
-                    }
-
-                    if (isFirst) {
-                        isFirst = false;
-                        min = absJ;
-                    }
-                }
-
-                for (int q = 0; q < GF; q++) {
-                    min[q] = sgn[q] * min[q] * factor;
-                }
-
-                NBNodes_[i]->setInValue(min);*/
-
-                // select current VN
+            case BP_EMS: {
                 // output to cur_VN
                 Eigen::RowVectorXd output = Eigen::RowVectorXd::Zero(GF);
                 Eigen::RowVectorXi confset =
@@ -234,9 +204,9 @@ void NBCNode::Update(int mode) {
                         int Qi =
                             n_maxValue_[i][confset[i - hasPassedcur_VN]].getQ();
                         // conf_q_1 should choose among all Q, no only n_max
-                        if (conf_q_1 == -1) {
+                        if (conf_q_1 == -1) {  // conf(q,1)
                             sum += inValuesQ_[i][Qi];
-                        } else {
+                        } else {  // conf(n_max, d-1)
                             sum += n_maxValue_[i][confset[i - hasPassedcur_VN]]
                                        .getLLR();
                         }
@@ -321,17 +291,35 @@ int NBCNode::getConfset(Eigen::RowVectorXi& confset) {
     if (confsetCount < nconf_q_1) {
         confset[cur] += 1;  // move confset[cur] to smaller one
 
-        if (confset[cur] >= GF && cur < degree - 2) {
-            confset[cur] = 0;   // reset confset[cur] to greatest one
-            cur++;              // start to process next VN
-            confset[cur] += 1;  // skip next 0 to avoid all zero confset
+        if (confset[cur] >= GF) {
+            confset[cur] = 0;  // reset confset[cur] to greatest one
+            if (cur < degree - 2) {
+                cur++;              // start to process next VN
+                confset[cur] += 1;  // skip next 0 to avoid all zero confset
+            } else {
+                // turn to conf(n_max, d - 1)
+                confset = Eigen::RowVectorXi::Ones(degree - 1);
+            }
+        }
+    } else {
+        // conf(n_max, d - 1)
+        for (int i = 0; i < degree - 1; i++) {
+            confset[i] += 1;  // move confset[i] to smaller one
+
+            if (i == degree - 2 && confset[i] == n_max) {  // reaches end
+                return 0;
+            } else if (confset[i] >= n_max) {
+                confset[i] = 0;
+                // continue to modify next VN
+            } else {
+                break;  // don't modify next VN
+            }
         }
     }
 
     confsetCount++;
-    // TODO
-    if (confsetCount == nconf_q_1) {
-        return 0;
+    if (confsetCount >= nconf_q_1) {
+        return 1;
     } else {
         return -1;
     }

@@ -121,7 +121,7 @@ Eigen::RowVectorXi NBLDPC::decode(Eigen::MatrixXd& LLR, int iter_max,
             ret[i] = VNodes_[i]->getValue();
             // printf("\n");
         }
-        std::cout << ret << std::endl;
+        // std::cout << ret << std::endl;
         count++;
     } while (NBproduct(H_mat.toDense(), ret.transpose(), GF).any() &&
              count < iter_max);  // stop criterion
