@@ -35,8 +35,6 @@
                 "6.1",
                 "-s",
                 "0.5",
-                "-t",
-                "1"
             ],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",

@@ -3,7 +3,7 @@
  * @author Sciroccogti (scirocco_gti@yeah.net)
  * @brief
  * @date 2021-03-09 17:32:42
- * @modified: 2021-04-22 01:04:41
+ * @modified: 2021-04-22 11:31:12
  */
 
 #ifndef TANNER_HPP
@@ -74,7 +74,7 @@ class NBNode {
     std::vector<NBNode*> NBNodes_;  // Linked Nodes
     std::vector<Eigen::RowVectorXd> inValuesQ_;
     // every element's size is n_max, number of elements is `degree`
-    std::vector<std::vector<NBLLR>> n_maxValue_; 
+    std::vector<std::vector<NBLLR>> n_maxValue_;
 
   public:
     NBNode(int d, int gf, int nmax);
@@ -109,7 +109,7 @@ class NBCNode : public NBNode {
     NBCNode(int d, double f, const int gf, const int nmax);
     void Link(NBNode* n, int h);
     void Update(int mode);
-    int getConfset(Eigen::RowVectorXi& confset);
+    int getConfset(Eigen::RowVectorXi& confset, int& confsetCount, int& cur);
     bool isVN();
 };
 

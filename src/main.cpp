@@ -205,10 +205,10 @@ void NBdecode(const NBLDPC *NBldpc, const Config *conf, const double SNR,
         // message
         Eigen::RowVectorXi m =
             randf.unaryExpr([](const float x) { return (int)fabs(x); });
-        std::cout << "message  : " << m << std::endl;
+        // std::cout << "message  : " << m << std::endl;
 
         Eigen::RowVectorXi c = NBldpc->encode(m);  // code word encoded from m
-        std::cout << "code word: \n" << c << std::endl << std::endl;
+        // std::cout << "code word: " << c << std::endl;
 
         // // Modem modem(100, 4 * 100, 0.1);
         // // Eigen::RowVectorXd y = modem.modulate(c);
@@ -254,25 +254,24 @@ void NBdecode(const NBLDPC *NBldpc, const Config *conf, const double SNR,
 
         Eigen::RowVectorXi d = NBldpc->decode(LLR, conf->iter_max, conf->factor,
                                               snr, conf->mode, conf->n_max);
-        std::cout << "decoded: " << d << std::endl;
-        std::cout << "code word: " << c << std::endl;
+        // std::cout << "decoded: " << d << std::endl;
 
-        // // Eigen::RowVectorXi m_ = NBldpc->recoverMessage(d);
-        // // // std::cout << "message  : " << m_ << std::endl;
+        Eigen::RowVectorXi m_ = NBldpc->recoverMessage(d);
+        // std::cout << "message  : " << m_ << std::endl;
         // // // std::cout << Compare(m, m_) << std::endl;
-        // // int BE = Compare(m, m_);
+        Eigen::RowVectorXi diff = m_ - m;
+        int BE = diff.unaryExpr([](const int x) { return x ? 1 : 0; }).sum();
 
-        // mtx.lock();
-        // if (*FEcount >= conf->FEcount) {
-        //     break;
-        // }
-        // // if (BE) {
-        // (*FEcount)++;
-        // //     // printf("\rFEcount = %3d", *FEcount);
-        // // }
-        // // *BEcount += BE;
-        // (*count)++;
-        break;
+        mtx.lock();
+        if (*FEcount >= conf->FEcount) {
+            break;
+        }
+        if (BE) {
+            (*FEcount)++;
+            // printf("\rFEcount = %3d", *FEcount);
+        }
+        *BEcount += BE;
+        (*count)++;
     }
     mtx.unlock();
 }

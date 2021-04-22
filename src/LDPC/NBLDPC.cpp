@@ -138,6 +138,37 @@ Eigen::RowVectorXi NBLDPC::decode(Eigen::MatrixXd& LLR, int iter_max,
     return ret;
 }
 
+/**
+ * @brief recover message from decoded sequence
+ * @param d decoded sequence
+ * @return Eigen::RowVectorXi
+ */
+Eigen::RowVectorXi NBLDPC::recoverMessage(Eigen::RowVectorXi& d) const {
+    assert(isSystematic); // TODO: #12 support nonSystematic
+    Eigen::RowVectorXi ret(K);
+
+    if (isSystematic) {
+        ret = d.rightCols(K);
+    } else {
+        // Eigen::MatrixXi tG = G_mat.toDense().transpose();
+        // Eigen::RowVectorXi d_ = d.unaryExpr([](const int x) {
+        //     assert(x == 1 || x == 0);
+        //     return 2 * x - 1;
+        // });
+        // NBgausselimination(tG, d_);
+        // ret.setZero();
+        // ret[K - 1] = d[K - 1];
+        // for (int i = K - 2; i >= 0; i--) {
+        //     ret[i] = d[i];
+        //     Eigen::RowVectorXi tmpGrow = tG.block(i, i + 1, 1, K - i - 1);
+        //     ret[i] -= tmpGrow.dot(ret.block(0, i + 1, 1, K - i - 1)) % 2;
+        // }
+        // // mod 2 and transbpsk
+        // ret = ret.unaryExpr([](const int x) { return (x % 2 + 1) / 2; });
+    }
+    return ret;
+}
+
 Eigen::SparseMatrix<int> NBLDPC::getG() const {
     return G_mat;
 }

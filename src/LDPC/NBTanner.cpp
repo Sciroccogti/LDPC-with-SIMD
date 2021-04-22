@@ -183,6 +183,8 @@ void NBCNode::Update(int mode) {
                 Eigen::RowVectorXd output = Eigen::RowVectorXd::Zero(GF);
                 Eigen::RowVectorXi confset =
                     Eigen::RowVectorXi::Zero(degree - 1);
+                int confsetCount = 0;  // current No. of confset
+                int cur = 0;           // cursur for nconf_q_1
                 // max LLR sum for 0 <= Q < GF
                 Eigen::RowVectorXd max = Eigen::RowVectorXd::Zero(GF);
 
@@ -223,7 +225,8 @@ void NBCNode::Update(int mode) {
                         max[cur_VNQ] = sum;
                         output[cur_VNQ] = sum - inValuesQ_[cur_VN][cur_VNQ];
                     }
-                } while (conf_q_1 = getConfset(confset));  // until conf_q_1 = 0
+                    // until conf_q_1 = 0
+                } while (conf_q_1 = getConfset(confset, confsetCount, cur));
                 NBNodes_[cur_VN]->setInValue(output);
 
                 int maxQ = 0;
@@ -273,12 +276,13 @@ void NBCNode::Update(int mode) {
  * `degree - 1` elements, which has already skipped the cur_VN
  *
  * @param confset should have degree - 1 elements
+ * @param confsetCount current No. of confset
+ * @param cur cursur for nconf_q_1
  * @return -1 if still in conf(q, 1), 1 if not reaches end, 0 if reaches end
  */
-int NBCNode::getConfset(Eigen::RowVectorXi& confset) {
+int NBCNode::getConfset(Eigen::RowVectorXi& confset, int& confsetCount,
+                        int& cur) {
     assert(confset.size() == degree - 1);
-    static int confsetCount = 0;  // current No. of confset
-    static int cur = 0;           // cursur for nconf_q_1
     // if confset is all zero, then reset
     if (!confset.any()) {
         confsetCount = 0;
