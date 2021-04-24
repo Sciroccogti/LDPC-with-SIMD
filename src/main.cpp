@@ -3,6 +3,7 @@
 #include <GF.hpp>
 #include <algorithm>
 #include <chrono>
+// #include <iomanip>
 #include <iostream>
 #include <mutex>
 #include <random>
@@ -190,10 +191,10 @@ void NBdecode(const NBLDPC *NBldpc, const Config *conf, const double SNR,
     // printf("%lf\n", SNR);
     double snr = pow(10, SNR / 10) * K / N;  // linear Es/N0
 
-    std::srand(time(nullptr) +
+    std::srand(time(nullptr) *
                std::hash<std::thread::id>()(std::this_thread::get_id()));
     std::default_random_engine engine(
-        time(nullptr) +
+        time(nullptr) *
         std::hash<std::thread::id>()(std::this_thread::get_id()));
 
     mtx.lock();
@@ -268,7 +269,9 @@ void NBdecode(const NBLDPC *NBldpc, const Config *conf, const double SNR,
         }
         if (BE) {
             (*FEcount)++;
-            // printf("\rFEcount = %3d", *FEcount);
+            // std::cout << "\rFE: " << std::setw(3) << *FEcount
+            //           << "\tBE: " << std::setw(6) << *BEcount;
+            // std::cout.flush();
         }
         *BEcount += BE;
         (*count)++;

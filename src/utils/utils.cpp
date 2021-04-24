@@ -231,12 +231,13 @@ void writeConf(const char* filename, Config& conf) {
     basic["enable_MIPP"] = conf.enable_MIPP;
     yaml["basic"] = basic;
 
-    YAML::Node B_LDPC;
-    B_LDPC["factor"] = conf.factor;
-    B_LDPC["iter_max"] = conf.iter_max;
-    B_LDPC["FEcount"] = conf.FEcount;
-    B_LDPC["mode"] = Modes_[conf.mode];
-    yaml["B_LDPC"] = B_LDPC;
+    YAML::Node LDPC;
+    LDPC["factor"] = conf.factor;
+    LDPC["iter_max"] = conf.iter_max;
+    LDPC["FEcount"] = conf.FEcount;
+    LDPC["mode"] = Modes_[conf.mode];
+    LDPC["n_max"] = conf.n_max;
+    yaml["B_LDPC"] = LDPC;
 
     std::ofstream fout(filename);
     fout << yaml << std::endl;
