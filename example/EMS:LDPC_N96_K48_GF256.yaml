@@ -1,0 +1,87 @@
+basic:
+  alist_path: example/LDPC_N96_K48_GF256_d1_exp.alist
+  enable_SIMD: true
+  output_path: output.yaml
+  threads: 15
+  enable_MIPP: false
+B_LDPC:
+  factor: 1
+  iter_max: 10
+  FEcount: 100
+  mode: EMS
+  n_max: 3
+0.00:
+  SNR: 0.00
+  BER: 9.82e-01
+  FER: 9.90e-01
+  sec: 2.01
+0.50:
+  SNR: 0.50
+  BER: 9.64e-01
+  FER: 9.80e-01
+  sec: 2.03
+1.00:
+  SNR: 1.00
+  BER: 9.77e-01
+  FER: 9.90e-01
+  sec: 2.01
+1.50:
+  SNR: 1.50
+  BER: 8.72e-01
+  FER: 8.85e-01
+  sec: 2.04
+2.00:
+  SNR: 2.00
+  BER: 8.85e-01
+  FER: 8.93e-01
+  sec: 2.04
+2.50:
+  SNR: 2.50
+  BER: 8.48e-01
+  FER: 8.55e-01
+  sec: 2.09
+3.00:
+  SNR: 3.00
+  BER: 7.08e-01
+  FER: 7.14e-01
+  sec: 2.22
+3.50:
+  SNR: 3.50
+  BER: 3.10e-01
+  FER: 3.11e-01
+  sec: 2.99
+4.00:
+  SNR: 4.00
+  BER: 2.98e-01
+  FER: 2.99e-01
+  sec: 3.01
+4.50:
+  SNR: 4.50
+  BER: 1.38e-01
+  FER: 1.39e-01
+  sec: 4.64
+5.00:
+  SNR: 5.00
+  BER: 7.70e-02
+  FER: 7.76e-02
+  sec: 6.67
+5.50:
+  SNR: 5.50
+  BER: 2.15e-02
+  FER: 2.20e-02
+  sec: 18.58
+6.00:
+  SNR: 6.00
+  BER: 9.96e-03
+  FER: 9.99e-03
+  sec: 36.32
+6.50:
+  SNR: 6.50
+  BER: 4.86e-03
+  FER: 4.93e-03
+  sec: 65.72
+7.00:
+  SNR: 7.00
+  BER: 4.97e-04
+  FER: 5.07e-04
+  sec: 570.74
