@@ -117,11 +117,12 @@ short GF_mul(const short &a, const short &b, const int Q) {
     short ret;
     switch (Q) {
         case 256: {
-            short tmpa = a > 0 ? 1 : -1;   // store sign of a
-            tmpa *= GF256_log_[a * tmpa - 1];  // ensure logged value is positive
-            short tmpb = b > 0 ? 1 : -1;
-            tmpb *= GF256_log_[b * tmpb - 1];
-            ret = GF256_pow_[tmpa + tmpb];
+            // short tmpa = a > 0 ? 1 : -1;   // store sign of a
+            // tmpa *= GF256_log_[a * tmpa - 1];  // ensure logged value is positive
+            // short tmpb = b > 0 ? 1 : -1;
+            // tmpb *= GF256_log_[b * tmpb - 1];
+            // ret = GF256_pow_[tmpa + tmpb];
+            ret = GF256_pow_[GF256_log_[a - 1] + GF256_log_[b - 1]];
         } break;
 
         default:
