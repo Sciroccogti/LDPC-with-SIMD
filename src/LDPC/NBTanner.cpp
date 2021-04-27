@@ -22,7 +22,8 @@ NBNode::NBNode(int d, int gf, int nmax) {
     inCount = 0;
     // init inValues
     for (int i = 0; i < degree; i++) {
-        inValuesQ_.push_back(Eigen::RowVectorXd::Zero(GF));
+        std::vector<double> dataQ(GF);
+        inValuesQ_.push_back(dataQ);
     }
 
     n_maxCount = 0;
@@ -39,7 +40,7 @@ bool NBNode::isReady() {
     return NBNodes_.size() == degree;
 }
 
-void NBNode::setInValue(Eigen::RowVectorXd dataQ) {
+void NBNode::setInValue(std::vector<double> dataQ) {
     inValuesQ_[inCount] = dataQ;
     inCount++;
     if (inCount >= degree) {
@@ -64,8 +65,9 @@ void NBNode::setinn_maxValue(std::vector<NBLLR> vn_max) {
  */
 NBVNode::NBVNode(int d, Eigen::RowVectorXd vQ, const int gf, const int nmax)
     : NBNode(d, gf, nmax) {
-    valueQ = vQ;
-    LLRQ = vQ;
+    vector<double> stdvQ(vQ.data(), vQ.data() + vQ.size());
+    valueQ = stdvQ;
+    LLRQ = stdvQ;
     assert(valueQ.size() == GF);
 }
 
@@ -86,7 +88,9 @@ void NBVNode::Update(int mode) {
     valueQ = LLRQ;
     // update own value
     for (int i = 0; i < degree; i++) {
-        valueQ = inValuesQ_[i] + valueQ;
+        for (int q = 0; q < GF; q++) {
+            valueQ[q] += inValuesQ_[i][q];
+        }
     }
 
     // update outputs
@@ -156,7 +160,7 @@ NBCNode::NBCNode(int d, double f, const int gf, const int nmax)
     : NBNode(d, gf, nmax) {
     assert(f <= 1);
     factor = f;
-    Hrow_ = Eigen::RowVectorXi::Zero(degree);
+    Hrow_ = vector<int>(degree);
 }
 
 /**
@@ -180,19 +184,21 @@ void NBCNode::Update(int mode) {
         switch (mode) {
             case BP_EMS: {
                 // output to cur_VN
-                Eigen::RowVectorXd output = Eigen::RowVectorXd::Zero(GF);
-                Eigen::RowVectorXi confset =
-                    Eigen::RowVectorXi::Zero(degree - 1);
+                vector<double> output(GF);
+                vector<int> confset(degree - 1);
                 int confsetCount = 0;  // current No. of confset
                 int cur = 0;           // cursur for nconf_q_1
                 // max LLR sum for 0 <= Q < GF
-                Eigen::RowVectorXd max = Eigen::RowVectorXd::Zero(GF);
+                vector<double> max(GF);
 
                 // -1 if still in conf(q, 1), 1 if not reaches end, 0 if
                 // reaches end
                 int conf_q_1 = -1;
                 do {
-                    // cout << confset << endl;
+                    // for (auto&& i : confset) {
+                    //     printf("%3d ", i);
+                    // }
+                    // printf("\n");
                     int prodsum = 0;  // calculate the Q of cur_VN
                     double sum = 0;   // sum of the LLR
                     int hasPassedcur_VN = 0;
@@ -241,26 +247,26 @@ void NBCNode::Update(int mode) {
 
             } break;
             case BP_QSPA: {
-                Eigen::RowVectorXd prod = Eigen::RowVectorXd::Ones(GF);
-                Eigen::RowVectorXi sgn = Eigen::RowVectorXi::Ones(GF);
-                for (int j = 0; j < degree; j++) {
-                    if (j == cur_VN) {
-                        continue;  // skip current VN
-                    }
-                    for (int q = 0; q < GF; q++) {
-                        prod[q] *= tanh(fabs(inValuesQ_[j][q]) / 2);
-                        sgn[q] *= inValuesQ_[j][q] >= 0 ? 1 : -1;
-                    }
-                }
+                // Eigen::RowVectorXd prod = Eigen::RowVectorXd::Ones(GF);
+                // Eigen::RowVectorXi sgn = Eigen::RowVectorXi::Ones(GF);
+                // for (int j = 0; j < degree; j++) {
+                //     if (j == cur_VN) {
+                //         continue;  // skip current VN
+                //     }
+                //     for (int q = 0; q < GF; q++) {
+                //         prod[q] *= tanh(fabs(inValuesQ_[j][q]) / 2);
+                //         sgn[q] *= inValuesQ_[j][q] >= 0 ? 1 : -1;
+                //     }
+                // }
 
-                for (int q = 0; q < GF; q++) {
-                    prod[q] = prod[q] < 1
-                                  ? prod[q]
-                                  : 1.0 - numeric_limits<double>::epsilon();
-                    prod[q] = sgn[q] * 2 * fabs(atanh(prod[q]));
-                }
+                // for (int q = 0; q < GF; q++) {
+                //     prod[q] = prod[q] < 1
+                //                   ? prod[q]
+                //                   : 1.0 - numeric_limits<double>::epsilon();
+                //     prod[q] = sgn[q] * 2 * fabs(atanh(prod[q]));
+                // }
 
-                NBNodes_[cur_VN]->setInValue(prod);
+                // NBNodes_[cur_VN]->setInValue(prod);
             } break;
             default:
                 break;
@@ -280,14 +286,21 @@ void NBCNode::Update(int mode) {
  * @param cur cursur for nconf_q_1
  * @return -1 if still in conf(q, 1), 1 if not reaches end, 0 if reaches end
  */
-int NBCNode::getConfset(Eigen::RowVectorXi& confset, int& confsetCount,
-                        int& cur) {
+int NBCNode::getConfset(vector<int>& confset, int& confsetCount, int& cur) {
     assert(confset.size() == degree - 1);
     // if confset is all zero, then reset
-    if (!confset.any()) {
+    bool isAllZero = true;
+    for (int i : confset) {
+        if (i) {
+            isAllZero = false;
+            break;
+        }
+    }
+    if (isAllZero) {
         confsetCount = 0;
         cur = 0;
     }
+
     // number of conf(q, 1)
     const int nconf_q_1 = (degree - 1) * (GF - 1) + 1;
 
@@ -302,7 +315,9 @@ int NBCNode::getConfset(Eigen::RowVectorXi& confset, int& confsetCount,
                 confset[cur] += 1;  // skip next 0 to avoid all zero confset
             } else {
                 // turn to conf(n_max, d - 1)
-                confset = Eigen::RowVectorXi::Ones(degree - 1);
+                for (size_t i = 0; i < confset.size(); i++) {
+                    confset[i] = 1;
+                }
             }
         }
     } else {
