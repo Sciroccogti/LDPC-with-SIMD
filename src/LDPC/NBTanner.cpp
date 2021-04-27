@@ -106,7 +106,7 @@ void NBVNode::Update(int mode) {
         }
 
         std::vector<NBLLR> LLR_;  // size should be GF
-        for (int j = 0; j < GF; j++) {
+        for (int j = 0; j < n_max; j++) {
             LLR_.push_back(pqLLR.top());
             pqLLR.pop();
         }
@@ -200,7 +200,7 @@ void NBCNode::Update(int mode) {
                     // }
                     // printf("\n");
                     int prodsum = 0;  // calculate the Q of cur_VN
-                    float sum = 0;   // sum of the LLR
+                    float sum = 0;    // sum of the LLR
                     int hasPassedcur_VN = 0;
                     // cursor among other VNs
                     for (size_t i = 0; i < degree; i++) {
@@ -209,12 +209,21 @@ void NBCNode::Update(int mode) {
                             continue;
                         }
 
-                        int Qi =
-                            n_maxValue_[i][confset[i - hasPassedcur_VN]].getQ();
+                        int Qi;
+
                         // conf_q_1 should choose among all Q, no only n_max
-                        if (conf_q_1 == -1) {  // conf(q,1)
+                        if (conf_q_1 == -1) {
+                            // 0 should be the maxLLR
+                            if (confset[i - hasPassedcur_VN] == 0) {
+                                Qi = n_maxValue_[i][0].getQ();
+                            } else {
+                                Qi = confset[i - hasPassedcur_VN];
+                            }
+
                             sum += inValuesQ_[i][Qi];
                         } else {  // conf(n_max, d-1)
+                            Qi = n_maxValue_[i][confset[i - hasPassedcur_VN]]
+                                     .getQ();
                             sum += n_maxValue_[i][confset[i - hasPassedcur_VN]]
                                        .getLLR();
                         }
@@ -280,6 +289,8 @@ void NBCNode::Update(int mode) {
  * to choose from, `b` means b VNs can have LLRs other than the top n_max LLR.
  * This version doesn't care about which is the cur_VN, 'cause confset has only
  * `degree - 1` elements, which has already skipped the cur_VN
+ * 
+ * CAUTION: Q=0 means the maxLLR, not really Q = 0
  *
  * @param confset should have degree - 1 elements
  * @param confsetCount current No. of confset

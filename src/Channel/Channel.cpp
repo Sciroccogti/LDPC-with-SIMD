@@ -61,5 +61,5 @@ Eigen::MatrixXf LLR_BinAWGN2GF(const Eigen::RowVectorXf& X, const int GF,
             ret(q, j) = ret_qj;
         }
     }
-    return ret / rate / 2.0;
+    return ret / (float)rate / 2.0;
 }
