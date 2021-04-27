@@ -6,7 +6,7 @@
  * @param d data
  * @param q Q, should in [1, GF]
  */
-NBLLR::NBLLR(float d, int q) {
+NBLLR::NBLLR(float d, uint8_t q) {
     data = d;
     Q = q;
 }
@@ -17,7 +17,7 @@ float NBLLR::getLLR() const {
     return data;
 }
 
-int NBLLR::getQ() {
+uint8_t NBLLR::getQ() {
     return Q;
 }
 

@@ -23,7 +23,7 @@ int NBargmax(const Eigen::MatrixXi a) {
     return 0;
 }
 
-Eigen::MatrixXi NBcoefdot(const Eigen::MatrixXi& M, const short c,
+Eigen::MatrixXi NBcoefdot(const Eigen::MatrixXi& M, const uint8_t c,
                           const int GF) {
     Eigen::MatrixXi ret = M;
     for (size_t i = 0; i < ret.rows(); i++) {

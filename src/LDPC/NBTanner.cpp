@@ -160,7 +160,7 @@ NBCNode::NBCNode(int d, float f, const int gf, const int nmax)
     : NBNode(d, gf, nmax) {
     assert(f <= 1);
     factor = f;
-    Hrow_ = vector<int>(degree);
+    Hrow_ = vector<uint8_t>(degree);
 }
 
 /**
@@ -185,7 +185,7 @@ void NBCNode::Update(int mode) {
             case BP_EMS: {
                 // output to cur_VN
                 vector<float> output(GF);
-                vector<int> confset(degree - 1);
+                vector<uint8_t> confset(degree - 1);
                 int confsetCount = 0;  // current No. of confset
                 int cur = 0;           // cursur for nconf_q_1
                 // max LLR sum for 0 <= Q < GF
@@ -199,7 +199,7 @@ void NBCNode::Update(int mode) {
                     //     printf("%3d ", i);
                     // }
                     // printf("\n");
-                    int prodsum = 0;  // calculate the Q of cur_VN
+                    uint8_t prodsum = 0;  // calculate the Q of cur_VN
                     float sum = 0;    // sum of the LLR
                     int hasPassedcur_VN = 0;
                     // cursor among other VNs
@@ -209,7 +209,7 @@ void NBCNode::Update(int mode) {
                             continue;
                         }
 
-                        int Qi;
+                        uint8_t Qi;
 
                         // conf_q_1 should choose among all Q, no only n_max
                         if (conf_q_1 == -1) {
@@ -228,12 +228,12 @@ void NBCNode::Update(int mode) {
                                        .getLLR();
                         }
 
-                        int Hi = Hrow_[i];
+                        uint8_t Hi = Hrow_[i];
                         // sum(Qi * Hi)
                         prodsum = GF_plus(GF_mul(Qi, Hi, GF), prodsum, GF);
                     }
 
-                    int cur_VNQ = GF_div(prodsum, Hrow_[cur_VN], GF);
+                    uint8_t cur_VNQ = GF_div(prodsum, Hrow_[cur_VN], GF);
 
                     sum += inValuesQ_[cur_VN][cur_VNQ];
                     if (max[cur_VNQ] < sum) {
@@ -297,11 +297,11 @@ void NBCNode::Update(int mode) {
  * @param cur cursur for nconf_q_1
  * @return -1 if still in conf(q, 1), 1 if not reaches end, 0 if reaches end
  */
-int NBCNode::getConfset(vector<int>& confset, int& confsetCount, int& cur) {
+int NBCNode::getConfset(vector<uint8_t>& confset, int& confsetCount, int& cur) {
     assert(confset.size() == degree - 1);
     // if confset is all zero, then reset
     bool isAllZero = true;
-    for (int i : confset) {
+    for (uint8_t i : confset) {
         if (i) {
             isAllZero = false;
             break;
@@ -317,9 +317,7 @@ int NBCNode::getConfset(vector<int>& confset, int& confsetCount, int& cur) {
 
     // if still in conf(q, 1)
     if (confsetCount < nconf_q_1) {
-        confset[cur] += 1;  // move confset[cur] to smaller one
-
-        if (confset[cur] >= GF) {
+        if (confset[cur] >= GF - 1) {
             confset[cur] = 0;  // reset confset[cur] to greatest one
             if (cur < degree - 2) {
                 cur++;              // start to process next VN
@@ -330,7 +328,10 @@ int NBCNode::getConfset(vector<int>& confset, int& confsetCount, int& cur) {
                     confset[i] = 1;
                 }
             }
+        } else {
+            confset[cur] += 1;  // move confset[cur] to smaller one
         }
+
     } else {
         // conf(n_max, d - 1)
         for (int i = 0; i < degree - 1; i++) {

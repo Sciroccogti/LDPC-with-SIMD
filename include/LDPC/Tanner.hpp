@@ -3,7 +3,7 @@
  * @author Sciroccogti (scirocco_gti@yeah.net)
  * @brief
  * @date 2021-03-09 17:32:42
- * @modified: 2021-04-27 13:13:37
+ * @modified: 2021-04-27 15:13:46
  */
 
 #ifndef TANNER_HPP
@@ -103,13 +103,13 @@ class NBVNode : public NBNode {
 class NBCNode : public NBNode {
   private:
     float factor;
-    std::vector<int> Hrow_;
+    std::vector<uint8_t> Hrow_;
 
   public:
     NBCNode(int d, float f, const int gf, const int nmax);
     void Link(NBNode* n, int h);
     void Update(int mode);
-    int getConfset(std::vector<int>& confset, int& confsetCount, int& cur);
+    int getConfset(std::vector<uint8_t>& confset, int& confsetCount, int& cur);
     bool isVN();
 };
 
