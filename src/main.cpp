@@ -109,11 +109,9 @@ void decode(const LDPC *ldpc, const Config *conf, const double SNR, int *count,
     // printf("%lf\n", SNR);
     double snr = pow(10, SNR / 10) * K / N;  // linear Es/N0
 
-    std::srand(time(nullptr) +
-               std::hash<std::thread::id>()(std::this_thread::get_id()));
-    std::default_random_engine engine(
-        time(nullptr) +
-        std::hash<std::thread::id>()(std::this_thread::get_id()));
+    int id = std::hash<std::thread::id>()(std::this_thread::get_id());
+    std::srand(time(nullptr) + id);
+    std::default_random_engine engine(time(nullptr) + id);
 
     mtx.lock();
     while (*FEcount <= conf->FEcount) {
@@ -191,11 +189,9 @@ void NBdecode(const NBLDPC *NBldpc, const Config *conf, const double SNR,
     // printf("%lf\n", SNR);
     double snr = pow(10, SNR / 10) * K / N;  // linear Es/N0
 
-    std::srand(time(nullptr) *
-               std::hash<std::thread::id>()(std::this_thread::get_id()));
-    std::default_random_engine engine(
-        time(nullptr) *
-        std::hash<std::thread::id>()(std::this_thread::get_id()));
+    int id = std::hash<std::thread::id>()(std::this_thread::get_id());
+    std::srand(time(nullptr) * id);
+    std::default_random_engine engine(time(nullptr) * id);
 
     mtx.lock();
     while (*FEcount <= conf->FEcount) {
