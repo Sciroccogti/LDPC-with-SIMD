@@ -77,8 +77,8 @@ Eigen::RowVectorXi NBLDPC::encode(Eigen::RowVectorXi& m) const {
  * @param n_max
  * @return Eigen::RowVectorXi
  */
-Eigen::RowVectorXi NBLDPC::decode(Eigen::MatrixXd& LLR, int iter_max,
-                                  double factor, double snr, int mode,
+Eigen::RowVectorXi NBLDPC::decode(Eigen::MatrixXf& LLR, int iter_max,
+                                  float factor, float snr, int mode,
                                   int n_max) const {
     std::vector<NBVNode*> VNodes_;  // size: N
     std::vector<NBCNode*> CNodes_;  // size: M

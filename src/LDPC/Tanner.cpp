@@ -31,7 +31,7 @@ bool Node::isReady() {
     return Nodes_.size() == degree;
 }
 
-void Node::setInValue(double data) {
+void Node::setInValue(float data) {
     inValues_[inCount] = data;
     inCount++;
     if (inCount >= degree) {
@@ -39,7 +39,7 @@ void Node::setInValue(double data) {
     }
 }
 
-VNode::VNode(int d, double v) : Node(d) {
+VNode::VNode(int d, float v) : Node(d) {
     value = v;
     LLR = v;
 }
@@ -52,7 +52,7 @@ void VNode::Link(Node* n) {
 
 void VNode::Update(int mode) {
     // update own value
-    // for (double i : inValues_) {
+    // for (float i : inValues_) {
     //     value += i;
     // }
     value = LLR;
@@ -66,7 +66,7 @@ void VNode::Update(int mode) {
     }
 }
 
-double VNode::getValue() {
+float VNode::getValue() {
     return value;
 }
 
@@ -80,7 +80,7 @@ bool VNode::isVN() {
  * @param d degree
  * @param f normalize factor
  */
-CNode::CNode(int d, double f) : Node(d) {
+CNode::CNode(int d, float f) : Node(d) {
     assert(f <= 1);
     factor = f;
 }
@@ -97,11 +97,11 @@ void CNode::Update(int mode) {
     for (int i = 0; i < degree; i++) {
         switch (mode) {
             case BP_NMS: {
-                double min = 0;
+                float min = 0;
                 int sgn = 1;
                 bool isFirst = true;
                 for (int j = 0; j < degree; j++) {
-                    double absJ = fabs(inValues_[j]);
+                    float absJ = fabs(inValues_[j]);
                     if (j == i) {
                         continue;  // skip current VN
                     }
@@ -117,7 +117,7 @@ void CNode::Update(int mode) {
                 Nodes_[i]->setInValue(sgn * min * factor);
             } break;
             case BP_SPA: {
-                double prod = 1;
+                float prod = 1;
                 int sgn = 1;
                 for (int j = 0; j < degree; j++) {
                     if (j == i) {
@@ -128,7 +128,7 @@ void CNode::Update(int mode) {
                 }
 
                 prod = prod < 1 ? prod
-                                : 1.0 - std::numeric_limits<double>::epsilon();
+                                : 1.0 - std::numeric_limits<float>::epsilon();
                 Nodes_[i]->setInValue(sgn * 2 * atanh(prod));
             } break;
             default:

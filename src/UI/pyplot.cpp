@@ -8,7 +8,7 @@
  * @param length
  * @return int
  */
-int pyplot(double* x, double* y, size_t length, const char* label) {
+int pyplot(float* x, float* y, size_t length, const char* label) {
     Py_Initialize();
     if (!Py_IsInitialized()) {
         return -1;

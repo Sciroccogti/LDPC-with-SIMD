@@ -3,7 +3,7 @@
  * @author Yifan Zhang (scirocco_gti@yeah.net)
  * @brief
  * @date 2020-10-31 10:57:44
- * @modified: 2021-04-07 00:50:25
+ * @modified: 2021-04-27 13:13:38
  */
 
 #ifndef MATRIXMATH_HPP
@@ -24,13 +24,13 @@ Eigen::MatrixXi gaussjordan(Eigen::MatrixXi& X);
 void gausselimination(Eigen::MatrixXi& X, Eigen::RowVectorXi& b);
 Eigen::MatrixXi binaryproduct(const Eigen::MatrixXi& X,
                               const Eigen::MatrixXi& Y);
-Eigen::MatrixXd cos(const Eigen::MatrixXd& X);
+Eigen::MatrixXf cos(const Eigen::MatrixXf& X);
 Eigen::MatrixXi abs(const Eigen::MatrixXi& X);
 Eigen::RowVectorXi repeat(const Eigen::RowVectorXi& X, const int n);
-Eigen::MatrixXd multiplyd(const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y);
+Eigen::MatrixXf multiplyd(const Eigen::MatrixXf& X, const Eigen::MatrixXf& Y);
 Eigen::MatrixXi multiplyi(const Eigen::MatrixXi& X, const Eigen::MatrixXi& Y);
-Eigen::RowVectorXd convolve(const Eigen::RowVectorXd& X,
-                            const Eigen::RowVectorXd& Y);
+Eigen::RowVectorXf convolve(const Eigen::RowVectorXf& X,
+                            const Eigen::RowVectorXf& Y);
 Eigen::MatrixXi xori(const Eigen::MatrixXi& X, const Eigen::MatrixXi& Y);
 
 Eigen::MatrixXi NBtransform_H_to_G(const Eigen::MatrixXi& H, const int GF);

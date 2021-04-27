@@ -3,7 +3,7 @@
  * @author Yifan Zhang (scirocco_gti@yeah.net)
  * @brief
  * @date 2021-04-20 00:30:58
- * @modified: 2021-04-21 13:02:45
+ * @modified: 2021-04-27 13:09:59
  */
 
 #ifndef NBLLR_HPP
@@ -15,12 +15,12 @@
  */
 class NBLLR {
   private:
-    double data;
+    float data;
     int Q;  // should in [1, GF]
   public:
-    NBLLR(double d, int q);
+    NBLLR(float d, int q);
     ~NBLLR();
-    double getLLR() const;
+    float getLLR() const;
     int getQ();
 };
 

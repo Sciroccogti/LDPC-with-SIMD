@@ -3,7 +3,7 @@
  * @author Sciroccogti (scirocco_gti@yeah.net)
  * @brief simple utils for main.cpp
  * @date 2020-11-24 11:25:54
- * @modified: 2021-04-22 01:07:45
+ * @modified: 2021-04-27 13:11:00
  */
 
 #ifndef UTILS_HPP
@@ -24,12 +24,12 @@ struct Config {
     bool enable_MIPP;      // whether to enable MIPP for SIMD
 
     // B-LDPC
-    double factor;  // normalize factor for NMS
+    float factor;  // normalize factor for NMS
     // NB-LDPC
     int n_max;      // n_max for EMS
-    double SNRmin;  // Eb/N0 of AWGN
-    double SNRmax;
-    double SNRstep;
+    float SNRmin;  // Eb/N0 of AWGN
+    float SNRmax;
+    float SNRstep;
     int iter_max;  // stop criterion
     int FEcount;   // Frame error count
     int mode;      // mode of decoding algorithm
@@ -40,7 +40,7 @@ int opt(int argc, char* argv[], Config& conf);
 void readOutput(const char* filename, int* count);
 void writeConf(const char* filename, Config& conf);
 
-void writeResult(const char* filename, double SNR, double BER, double FER,
-                 double duration);
+void writeResult(const char* filename, float SNR, float BER, float FER,
+                 float duration);
 
 #endif

@@ -244,10 +244,10 @@ Eigen::MatrixXi binaryproduct(const Eigen::MatrixXi& X,
     return ret.unaryExpr([](const int x) { return x % 2; });
 }
 
-Eigen::MatrixXd cos(const Eigen::MatrixXd& X) {
-    Eigen::MatrixXd ret = X;
+Eigen::MatrixXf cos(const Eigen::MatrixXf& X) {
+    Eigen::MatrixXf ret = X;
 
-    return ret.unaryExpr([](const double x) { return cos(x); });
+    return ret.unaryExpr([](const float x) { return cosf32(x); });
 }
 
 Eigen::MatrixXi abs(const Eigen::MatrixXi& X) {
@@ -275,10 +275,10 @@ Eigen::RowVectorXi repeat(const Eigen::RowVectorXi& X, const int n) {
     return ret;
 }
 
-Eigen::MatrixXd multiplyd(const Eigen::MatrixXd& X, const Eigen::MatrixXd& Y) {
+Eigen::MatrixXf multiplyd(const Eigen::MatrixXf& X, const Eigen::MatrixXf& Y) {
     assert(X.cols() == Y.cols() && X.rows() == Y.rows());
 
-    Eigen::MatrixXd ret(X.rows(), X.cols());
+    Eigen::MatrixXf ret(X.rows(), X.cols());
     for (size_t i = 0; i < X.rows(); i++) {
         for (size_t j = 0; j < X.cols(); j++) {
             ret(i, j) = X(i, j) * Y(i, j);
@@ -304,16 +304,16 @@ Eigen::MatrixXi multiplyi(const Eigen::MatrixXi& X, const Eigen::MatrixXi& Y) {
  *
  * @param X
  * @param Y
- * @return Eigen::RowVectorXd
+ * @return Eigen::RowVectorXf
  */
-Eigen::RowVectorXd convolve(const Eigen::RowVectorXd& X,
-                            const Eigen::RowVectorXd& Y) {
+Eigen::RowVectorXf convolve(const Eigen::RowVectorXf& X,
+                            const Eigen::RowVectorXf& Y) {
     int nconv = X.size() + Y.size() - 1;
-    Eigen::RowVectorXd ret = Eigen::RowVectorXd::Ones(nconv);
+    Eigen::RowVectorXf ret = Eigen::RowVectorXf::Ones(nconv);
 
     for (size_t i = 0; i < nconv; i++) {
         size_t current_i = i;
-        double tmp = 0;
+        float tmp = 0;
         for (size_t j = 0; j < Y.size(); j++) {
             if (current_i >= 0 && current_i < X.size()) {
                 tmp += (X(current_i) * Y(j));

@@ -3,7 +3,7 @@
  * @author Yifan Zhang (scirocco_gti@yeah.net)
  * @brief
  * @date 2021-03-27 10:36:37
- * @modified: 2021-04-22 11:10:14
+ * @modified: 2021-04-27 13:09:49
  */
 
 #ifndef NBLDPC_HPP
@@ -30,8 +30,8 @@ class NBLDPC {
     ~NBLDPC();
 
     Eigen::RowVectorXi encode(Eigen::RowVectorXi& m) const;
-    Eigen::RowVectorXi decode(Eigen::MatrixXd& LLR, int iter_max, double factor,
-                              double snr, int mode, int n_max) const;
+    Eigen::RowVectorXi decode(Eigen::MatrixXf& LLR, int iter_max, float factor,
+                              float snr, int mode, int n_max) const;
     Eigen::RowVectorXi recoverMessage(Eigen::RowVectorXi& d) const;
     Eigen::SparseMatrix<int> getG() const;
     Eigen::SparseMatrix<int> getH() const;

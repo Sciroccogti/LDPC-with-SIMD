@@ -64,7 +64,7 @@ int opt(int argc, char* argv[], Config& conf) {
                     "\t\t\twhether to enable MIPP for SIMD,"
                     " default to be OFF\n");
                 printf(
-                    "  --factor <double>"
+                    "  --factor <float>"
                     "\tthe normalize factor for NMS,"
                     " should not greater than 1,"
                     " default to be 1.0\n");
@@ -74,15 +74,15 @@ int opt(int argc, char* argv[], Config& conf) {
                     " should not greater than GF,"
                     " default to be 3\n");
                 printf(
-                    "  --SNRmin, -m <double>\n"
+                    "  --SNRmin, -m <float>\n"
                     "\t\t\tthe start Eb/N0 of AWGN channel,"
                     " default to be 0.0\n");
                 printf(
-                    "  --SNRmax, -M <double>\n"
+                    "  --SNRmax, -M <float>\n"
                     "\t\t\tthe stop Eb/N0 of AWGN channel,"
                     " default to be 3.0\n");
                 printf(
-                    "  --SNRstep, -s <double>\n"
+                    "  --SNRstep, -s <float>\n"
                     "\t\t\tthe step of Eb/N0 increment of AWGN channel,"
                     " default to be 0.5\n");
                 printf(
@@ -244,8 +244,8 @@ void writeConf(const char* filename, Config& conf) {
     fout.close();
 }
 
-void writeResult(const char* filename, double SNR, double BER, double FER,
-                 double duration) {
+void writeResult(const char* filename, float SNR, float BER, float FER,
+                 float duration) {
     YAML::Node yaml;
     YAML::Node result;
     char tmp[20], snr[20];
