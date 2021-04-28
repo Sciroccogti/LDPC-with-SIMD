@@ -190,8 +190,8 @@ void NBdecode(const NBLDPC *NBldpc, const Config *conf, const float SNR,
     float snr = pow(10, SNR / 10) * K / N;  // linear Es/N0
 
     int id = std::hash<std::thread::id>()(std::this_thread::get_id());
-    std::srand(time(nullptr) * id);
-    std::default_random_engine engine(time(nullptr) * id);
+    std::srand(time(nullptr) + id);
+    std::default_random_engine engine(time(nullptr) + id);
 
     mtx.lock();
     while (*FEcount <= conf->FEcount) {

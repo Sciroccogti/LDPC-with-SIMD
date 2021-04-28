@@ -99,15 +99,26 @@ void NBVNode::Update(int mode) {
 
         // https://docs.microsoft.com/zh-cn/troubleshoot/cpp/stl-priority-queue-class-custom-type
         // less: top is maximum
-        priority_queue<NBLLR, vector<NBLLR>, less<vector<NBLLR>::value_type>>
+        // greater: top is minimum
+        priority_queue<NBLLR, vector<NBLLR>, greater<vector<NBLLR>::value_type>>
             pqLLR;  // size should be GF
         for (int q = 0; q < GF; q++) {
-            pqLLR.push(NBLLR(valueQ[q] - inValuesQ_[i][q], q));
+            float cur_LLR = valueQ[q] - inValuesQ_[i][q];
+
+            if (pqLLR.size() < n_max) {
+                // havn't get enough
+                pqLLR.push(NBLLR(cur_LLR, q));
+            } else if (cur_LLR > pqLLR.top().getLLR()) {
+                // wont push unless cur_LLR is large enough
+                pqLLR.pop(); // remove the minimum
+                pqLLR.push(NBLLR(cur_LLR, q));
+            }
         }
 
-        std::vector<NBLLR> LLR_;  // size should be GF
-        for (int j = 0; j < n_max; j++) {
-            LLR_.push_back(pqLLR.top());
+        std::vector<NBLLR> LLR_(n_max);  // size should be n_max
+        // pqLLR is min first, so should be reversed
+        for (int j = n_max - 1; j >= 0; j--) {
+            LLR_[j] = pqLLR.top();
             pqLLR.pop();
         }
 
@@ -200,7 +211,7 @@ void NBCNode::Update(int mode) {
                     // }
                     // printf("\n");
                     uint8_t prodsum = 0;  // calculate the Q of cur_VN
-                    float sum = 0;    // sum of the LLR
+                    float sum = 0;        // sum of the LLR
                     int hasPassedcur_VN = 0;
                     // cursor among other VNs
                     for (size_t i = 0; i < degree; i++) {
@@ -289,7 +300,7 @@ void NBCNode::Update(int mode) {
  * to choose from, `b` means b VNs can have LLRs other than the top n_max LLR.
  * This version doesn't care about which is the cur_VN, 'cause confset has only
  * `degree - 1` elements, which has already skipped the cur_VN
- * 
+ *
  * CAUTION: Q=0 means the maxLLR, not really Q = 0
  *
  * @param confset should have degree - 1 elements

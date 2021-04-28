@@ -1,5 +1,10 @@
 #include "LDPC/NBLLR.hpp"
 
+NBLLR::NBLLR() {
+    data = 0;
+    Q = 0;
+}
+
 /**
  * @brief Construct a new NBLLR::NBLLR object
  *
