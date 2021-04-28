@@ -110,7 +110,7 @@ void NBVNode::Update(int mode) {
                 pqLLR.push(NBLLR(cur_LLR, q));
             } else if (cur_LLR > pqLLR.top().getLLR()) {
                 // wont push unless cur_LLR is large enough
-                pqLLR.pop(); // remove the minimum
+                pqLLR.pop();  // remove the minimum
                 pqLLR.push(NBLLR(cur_LLR, q));
             }
         }
@@ -254,18 +254,8 @@ void NBCNode::Update(int mode) {
                     // until conf_q_1 = 0
                 } while (conf_q_1 = getConfset(confset, confsetCount, cur));
                 NBNodes_[cur_VN]->setInValue(output);
-
-                int maxQ = 0;
-                float maxoutput = output[0];
-                for (size_t i = 1; i < output.size(); i++) {
-                    if (output[i] > maxoutput) {
-                        maxoutput = output[i];
-                        maxQ = i;
-                    }
-                }
-                // printf("%d: %d\n", cur_VN, maxQ);
-
             } break;
+
             case BP_QSPA: {
                 // Eigen::RowVectorXf prod = Eigen::RowVectorXf::Ones(GF);
                 // Eigen::RowVectorXi sgn = Eigen::RowVectorXi::Ones(GF);
