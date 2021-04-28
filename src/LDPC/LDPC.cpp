@@ -64,8 +64,8 @@ Eigen::RowVectorXi LDPC::encode(Eigen::RowVectorXi& m) const {
  * @param mode decode mode, 0: NMS, 1: SPA
  * @return Eigen::RowVectorXi
  */
-Eigen::RowVectorXi LDPC::decode(Eigen::RowVectorXd& r, int iter_max,
-                                double factor, double snr, int mode) const {
+Eigen::RowVectorXi LDPC::decode(Eigen::RowVectorXf& r, int iter_max,
+                                float factor, float snr, int mode) const {
     std::vector<VNode*> VNodes_;  // size: N
     std::vector<CNode*> CNodes_;  // size: M
     int M = H_mat.rows();

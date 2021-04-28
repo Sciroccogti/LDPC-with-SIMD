@@ -3,7 +3,7 @@
  * @author Yifan Zhang (scirocco_gti@yeah.net)
  * @brief
  * @date 2020-10-30 22:52:43
- * @modified: 2021-04-07 22:16:25
+ * @modified: 2021-04-27 13:13:34
  */
 
 #ifndef LDPC_HPP
@@ -31,8 +31,8 @@ class LDPC {
     ~LDPC();
 
     Eigen::RowVectorXi encode(Eigen::RowVectorXi& m) const;
-    Eigen::RowVectorXi decode(Eigen::RowVectorXd& r, int iter_max,
-                              double factor, double snr, int mode) const;
+    Eigen::RowVectorXi decode(Eigen::RowVectorXf& r, int iter_max,
+                              float factor, float snr, int mode) const;
     Eigen::RowVectorXi recoverMessage(Eigen::RowVectorXi& d) const;
     Eigen::SparseMatrix<int> getG() const;
     Eigen::SparseMatrix<int> getH() const;

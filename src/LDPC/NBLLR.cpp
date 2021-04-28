@@ -1,23 +1,28 @@
 #include "LDPC/NBLLR.hpp"
 
+NBLLR::NBLLR() {
+    data = 0;
+    Q = 0;
+}
+
 /**
  * @brief Construct a new NBLLR::NBLLR object
  *
  * @param d data
  * @param q Q, should in [1, GF]
  */
-NBLLR::NBLLR(double d, int q) {
+NBLLR::NBLLR(float d, uint8_t q) {
     data = d;
     Q = q;
 }
 
 NBLLR::~NBLLR() {}
 
-double NBLLR::getLLR() const {
+float NBLLR::getLLR() const {
     return data;
 }
 
-int NBLLR::getQ() {
+uint8_t NBLLR::getQ() {
     return Q;
 }
 

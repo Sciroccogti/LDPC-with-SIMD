@@ -8,7 +8,7 @@
  * @param Timeb secs of each symbol
  * @param t type of Modem, choose from MODEM_BPSK, default to be MODEM_BPSK
  */
-Modem::Modem(int freqc, int freqs, double Timeb, int t) {
+Modem::Modem(int freqc, int freqs, float Timeb, int t) {
     fc = freqc;
     fs = freqs;
     Tb = Timeb;
@@ -22,24 +22,24 @@ Modem::~Modem() {}
  * @brief https://github.com/DenisMedeiros/BPSKModDemod
  *
  * @param c : encoded code word
- * @return Eigen::RowVectorXd
+ * @return Eigen::RowVectorXf
  */
-Eigen::RowVectorXd Modem::modulate(const Eigen::RowVectorXi &c) {
+Eigen::RowVectorXf Modem::modulate(const Eigen::RowVectorXi &c) {
     // turn 0 1 sequence into 1 -1 sequence
     Eigen::RowVectorXi c_symbol = RetransBPSK(c);
     int length = L * c.size();
-    Eigen::RowVectorXd ret;
+    Eigen::RowVectorXf ret;
 
     switch (type) {
         case MODEM_BPSK:
 
             // Generate the square wave where each Tb lasts L samples
-            Eigen::RowVectorXd wave = repeat(c_symbol, L).cast<double>();
+            Eigen::RowVectorXf wave = repeat(c_symbol, L).cast<float>();
 
             // Generate the carrier
-            Eigen::RowVectorXd t =
-                Eigen::RowVectorXd::LinSpaced(length, 0, length);
-            Eigen::RowVectorXd carrier = cos(2 * M_PI * fc * t);
+            Eigen::RowVectorXf t =
+                Eigen::RowVectorXf::LinSpaced(length, 0, length);
+            Eigen::RowVectorXf carrier = cos(2 * M_PI * fc * t);
 
             ret = multiplyd(carrier, wave);
             break;
@@ -49,29 +49,29 @@ Eigen::RowVectorXd Modem::modulate(const Eigen::RowVectorXi &c) {
 }
 
 // TODO: #8 Real BPSK will introduce error
-Eigen::RowVectorXd Modem::demodulate(const Eigen::RowVectorXd &x) {
-    Eigen::RowVectorXd ret;
+Eigen::RowVectorXf Modem::demodulate(const Eigen::RowVectorXf &x) {
+    Eigen::RowVectorXf ret;
     switch (type) {
         case MODEM_BPSK:
 
             // // Generate the square wave where each Tb lasts L samples
-            // Eigen::RowVectorXd wave = repeat(c_symbol, L).cast<double>();
+            // Eigen::RowVectorXf wave = repeat(c_symbol, L).cast<float>();
 
             // Generate the carrier
-            Eigen::RowVectorXd t =
-                Eigen::RowVectorXd::LinSpaced(x.size(), 0, x.size());
-            Eigen::RowVectorXd carrier = cos(2 * M_PI * fc * t);
+            Eigen::RowVectorXf t =
+                Eigen::RowVectorXf::LinSpaced(x.size(), 0, x.size());
+            Eigen::RowVectorXf carrier = cos(2 * M_PI * fc * t);
 
-            Eigen::RowVectorXd signald = multiplyd(carrier, x);
+            Eigen::RowVectorXf signald = multiplyd(carrier, x);
 
-            signald = convolve(signald, Eigen::RowVectorXd::Ones(L));
+            signald = convolve(signald, Eigen::RowVectorXf::Ones(L));
             signald = signald.block(0, L - 1, 1, signald.size() - L);
 
             // Eigen::RowVectorXi signali = signald.unaryExpr(
-            //     [](const double x) { return x > 0 ? 1 : -1; });
+            //     [](const float x) { return x > 0 ? 1 : -1; });
 
             // take one in every L values
-            Eigen::RowVectorXd tmpRet((int)ceil(signald.size() / (double)L));
+            Eigen::RowVectorXf tmpRet((int)ceil(signald.size() / (float)L));
             for (size_t i = 0; i < signald.size(); i += L) {
                 tmpRet(i / L) = signald(i + int(L / 2));
             }
@@ -115,11 +115,11 @@ int Compare(const Eigen::MatrixXi &X, const Eigen::MatrixXi &Y) {
  * @param Y
  * @return int : error count
  */
-int Compare(const Eigen::MatrixXd &X, const Eigen::MatrixXd &Y) {
+int Compare(const Eigen::MatrixXf &X, const Eigen::MatrixXf &Y) {
     assert(X.size() == Y.size());
     int diffCount = 0;
     for (size_t i = 0; i < X.size(); i++) {
-        double Xi = X(i), Yi = Y(i);
+        float Xi = X(i), Yi = Y(i);
 
         if (Xi != Yi) {
             diffCount++;

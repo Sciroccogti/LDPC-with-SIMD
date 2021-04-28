@@ -22,7 +22,8 @@ NBNode::NBNode(int d, int gf, int nmax) {
     inCount = 0;
     // init inValues
     for (int i = 0; i < degree; i++) {
-        inValuesQ_.push_back(Eigen::RowVectorXd::Zero(GF));
+        std::vector<float> dataQ(GF);
+        inValuesQ_.push_back(dataQ);
     }
 
     n_maxCount = 0;
@@ -39,7 +40,7 @@ bool NBNode::isReady() {
     return NBNodes_.size() == degree;
 }
 
-void NBNode::setInValue(Eigen::RowVectorXd dataQ) {
+void NBNode::setInValue(std::vector<float> dataQ) {
     inValuesQ_[inCount] = dataQ;
     inCount++;
     if (inCount >= degree) {
@@ -62,10 +63,11 @@ void NBNode::setinn_maxValue(std::vector<NBLLR> vn_max) {
  * @param v_ GF initial values
  * @param gf
  */
-NBVNode::NBVNode(int d, Eigen::RowVectorXd vQ, const int gf, const int nmax)
+NBVNode::NBVNode(int d, Eigen::RowVectorXf vQ, const int gf, const int nmax)
     : NBNode(d, gf, nmax) {
-    valueQ = vQ;
-    LLRQ = vQ;
+    vector<float> stdvQ(vQ.data(), vQ.data() + vQ.size());
+    valueQ = stdvQ;
+    LLRQ = stdvQ;
     assert(valueQ.size() == GF);
 }
 
@@ -86,7 +88,9 @@ void NBVNode::Update(int mode) {
     valueQ = LLRQ;
     // update own value
     for (int i = 0; i < degree; i++) {
-        valueQ = inValuesQ_[i] + valueQ;
+        for (int q = 0; q < GF; q++) {
+            valueQ[q] += inValuesQ_[i][q];
+        }
     }
 
     // update outputs
@@ -95,15 +99,26 @@ void NBVNode::Update(int mode) {
 
         // https://docs.microsoft.com/zh-cn/troubleshoot/cpp/stl-priority-queue-class-custom-type
         // less: top is maximum
-        priority_queue<NBLLR, vector<NBLLR>, less<vector<NBLLR>::value_type>>
+        // greater: top is minimum
+        priority_queue<NBLLR, vector<NBLLR>, greater<vector<NBLLR>::value_type>>
             pqLLR;  // size should be GF
         for (int q = 0; q < GF; q++) {
-            pqLLR.push(NBLLR(valueQ[q] - inValuesQ_[i][q], q));
+            float cur_LLR = valueQ[q] - inValuesQ_[i][q];
+
+            if (pqLLR.size() < n_max) {
+                // havn't get enough
+                pqLLR.push(NBLLR(cur_LLR, q));
+            } else if (cur_LLR > pqLLR.top().getLLR()) {
+                // wont push unless cur_LLR is large enough
+                pqLLR.pop(); // remove the minimum
+                pqLLR.push(NBLLR(cur_LLR, q));
+            }
         }
 
-        std::vector<NBLLR> LLR_;  // size should be GF
-        for (int j = 0; j < GF; j++) {
-            LLR_.push_back(pqLLR.top());
+        std::vector<NBLLR> LLR_(n_max);  // size should be n_max
+        // pqLLR is min first, so should be reversed
+        for (int j = n_max - 1; j >= 0; j--) {
+            LLR_[j] = pqLLR.top();
             pqLLR.pop();
         }
 
@@ -125,7 +140,7 @@ void NBVNode::Update(int mode) {
  * @return int
  */
 int NBVNode::getValue() {
-    double max = valueQ[0];
+    float max = valueQ[0];
     int ret = 0;
     for (int i = 1; i < GF; i++) {
         // printf("%.2lf ", valueQ[i]);
@@ -152,11 +167,11 @@ bool NBVNode::isVN() {
  * @param f normalize factor
  * @param gf
  */
-NBCNode::NBCNode(int d, double f, const int gf, const int nmax)
+NBCNode::NBCNode(int d, float f, const int gf, const int nmax)
     : NBNode(d, gf, nmax) {
     assert(f <= 1);
     factor = f;
-    Hrow_ = Eigen::RowVectorXi::Zero(degree);
+    Hrow_ = vector<uint8_t>(degree);
 }
 
 /**
@@ -180,21 +195,23 @@ void NBCNode::Update(int mode) {
         switch (mode) {
             case BP_EMS: {
                 // output to cur_VN
-                Eigen::RowVectorXd output = Eigen::RowVectorXd::Zero(GF);
-                Eigen::RowVectorXi confset =
-                    Eigen::RowVectorXi::Zero(degree - 1);
+                vector<float> output(GF);
+                vector<uint8_t> confset(degree - 1);
                 int confsetCount = 0;  // current No. of confset
                 int cur = 0;           // cursur for nconf_q_1
                 // max LLR sum for 0 <= Q < GF
-                Eigen::RowVectorXd max = Eigen::RowVectorXd::Zero(GF);
+                vector<float> max(GF);
 
                 // -1 if still in conf(q, 1), 1 if not reaches end, 0 if
                 // reaches end
                 int conf_q_1 = -1;
                 do {
-                    // cout << confset << endl;
-                    int prodsum = 0;  // calculate the Q of cur_VN
-                    double sum = 0;   // sum of the LLR
+                    // for (auto&& i : confset) {
+                    //     printf("%3d ", i);
+                    // }
+                    // printf("\n");
+                    uint8_t prodsum = 0;  // calculate the Q of cur_VN
+                    float sum = 0;        // sum of the LLR
                     int hasPassedcur_VN = 0;
                     // cursor among other VNs
                     for (size_t i = 0; i < degree; i++) {
@@ -203,22 +220,31 @@ void NBCNode::Update(int mode) {
                             continue;
                         }
 
-                        int Qi =
-                            n_maxValue_[i][confset[i - hasPassedcur_VN]].getQ();
+                        uint8_t Qi;
+
                         // conf_q_1 should choose among all Q, no only n_max
-                        if (conf_q_1 == -1) {  // conf(q,1)
+                        if (conf_q_1 == -1) {
+                            // 0 should be the maxLLR
+                            if (confset[i - hasPassedcur_VN] == 0) {
+                                Qi = n_maxValue_[i][0].getQ();
+                            } else {
+                                Qi = confset[i - hasPassedcur_VN];
+                            }
+
                             sum += inValuesQ_[i][Qi];
                         } else {  // conf(n_max, d-1)
+                            Qi = n_maxValue_[i][confset[i - hasPassedcur_VN]]
+                                     .getQ();
                             sum += n_maxValue_[i][confset[i - hasPassedcur_VN]]
                                        .getLLR();
                         }
 
-                        int Hi = Hrow_[i];
+                        uint8_t Hi = Hrow_[i];
                         // sum(Qi * Hi)
                         prodsum = GF_plus(GF_mul(Qi, Hi, GF), prodsum, GF);
                     }
 
-                    int cur_VNQ = GF_div(prodsum, Hrow_[cur_VN], GF);
+                    uint8_t cur_VNQ = GF_div(prodsum, Hrow_[cur_VN], GF);
 
                     sum += inValuesQ_[cur_VN][cur_VNQ];
                     if (max[cur_VNQ] < sum) {
@@ -230,7 +256,7 @@ void NBCNode::Update(int mode) {
                 NBNodes_[cur_VN]->setInValue(output);
 
                 int maxQ = 0;
-                double maxoutput = output[0];
+                float maxoutput = output[0];
                 for (size_t i = 1; i < output.size(); i++) {
                     if (output[i] > maxoutput) {
                         maxoutput = output[i];
@@ -241,26 +267,26 @@ void NBCNode::Update(int mode) {
 
             } break;
             case BP_QSPA: {
-                Eigen::RowVectorXd prod = Eigen::RowVectorXd::Ones(GF);
-                Eigen::RowVectorXi sgn = Eigen::RowVectorXi::Ones(GF);
-                for (int j = 0; j < degree; j++) {
-                    if (j == cur_VN) {
-                        continue;  // skip current VN
-                    }
-                    for (int q = 0; q < GF; q++) {
-                        prod[q] *= tanh(fabs(inValuesQ_[j][q]) / 2);
-                        sgn[q] *= inValuesQ_[j][q] >= 0 ? 1 : -1;
-                    }
-                }
+                // Eigen::RowVectorXf prod = Eigen::RowVectorXf::Ones(GF);
+                // Eigen::RowVectorXi sgn = Eigen::RowVectorXi::Ones(GF);
+                // for (int j = 0; j < degree; j++) {
+                //     if (j == cur_VN) {
+                //         continue;  // skip current VN
+                //     }
+                //     for (int q = 0; q < GF; q++) {
+                //         prod[q] *= tanh(fabs(inValuesQ_[j][q]) / 2);
+                //         sgn[q] *= inValuesQ_[j][q] >= 0 ? 1 : -1;
+                //     }
+                // }
 
-                for (int q = 0; q < GF; q++) {
-                    prod[q] = prod[q] < 1
-                                  ? prod[q]
-                                  : 1.0 - numeric_limits<double>::epsilon();
-                    prod[q] = sgn[q] * 2 * fabs(atanh(prod[q]));
-                }
+                // for (int q = 0; q < GF; q++) {
+                //     prod[q] = prod[q] < 1
+                //                   ? prod[q]
+                //                   : 1.0 - numeric_limits<float>::epsilon();
+                //     prod[q] = sgn[q] * 2 * fabs(atanh(prod[q]));
+                // }
 
-                NBNodes_[cur_VN]->setInValue(prod);
+                // NBNodes_[cur_VN]->setInValue(prod);
             } break;
             default:
                 break;
@@ -275,36 +301,48 @@ void NBCNode::Update(int mode) {
  * This version doesn't care about which is the cur_VN, 'cause confset has only
  * `degree - 1` elements, which has already skipped the cur_VN
  *
+ * CAUTION: Q=0 means the maxLLR, not really Q = 0
+ *
  * @param confset should have degree - 1 elements
  * @param confsetCount current No. of confset
  * @param cur cursur for nconf_q_1
  * @return -1 if still in conf(q, 1), 1 if not reaches end, 0 if reaches end
  */
-int NBCNode::getConfset(Eigen::RowVectorXi& confset, int& confsetCount,
-                        int& cur) {
+int NBCNode::getConfset(vector<uint8_t>& confset, int& confsetCount, int& cur) {
     assert(confset.size() == degree - 1);
     // if confset is all zero, then reset
-    if (!confset.any()) {
+    bool isAllZero = true;
+    for (uint8_t i : confset) {
+        if (i) {
+            isAllZero = false;
+            break;
+        }
+    }
+    if (isAllZero) {
         confsetCount = 0;
         cur = 0;
     }
+
     // number of conf(q, 1)
     const int nconf_q_1 = (degree - 1) * (GF - 1) + 1;
 
     // if still in conf(q, 1)
     if (confsetCount < nconf_q_1) {
-        confset[cur] += 1;  // move confset[cur] to smaller one
-
-        if (confset[cur] >= GF) {
+        if (confset[cur] >= GF - 1) {
             confset[cur] = 0;  // reset confset[cur] to greatest one
             if (cur < degree - 2) {
                 cur++;              // start to process next VN
                 confset[cur] += 1;  // skip next 0 to avoid all zero confset
             } else {
                 // turn to conf(n_max, d - 1)
-                confset = Eigen::RowVectorXi::Ones(degree - 1);
+                for (size_t i = 0; i < confset.size(); i++) {
+                    confset[i] = 1;
+                }
             }
+        } else {
+            confset[cur] += 1;  // move confset[cur] to smaller one
         }
+
     } else {
         // conf(n_max, d - 1)
         for (int i = 0; i < degree - 1; i++) {

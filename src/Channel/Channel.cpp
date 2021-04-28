@@ -6,15 +6,15 @@
  * @param origin original signal
  * @param snr
  * @param Q Q of QPSK // TODO:?
- * @return Eigen::RowVectorXd noised signal
+ * @return Eigen::RowVectorXf noised signal
  */
-Eigen::RowVectorXd AWGN(const Eigen::RowVectorXd& origin, const double snr,
+Eigen::RowVectorXf AWGN(const Eigen::RowVectorXf& origin, const float snr,
                         const int Q, std::default_random_engine engine) {
     // https://github.com/aff3ct/aff3ct/blob/master/src/Factory/Tools/Noise/Noise.cpp#L150
-    double sigma = sqrt(1 / (2 * snr * log2(Q)));
+    float sigma = sqrt(1 / (2 * snr * log2(Q)));
     // https://github.com/aff3ct/aff3ct/blob/master/src/Tools/Algo/Draw_generator/Gaussian_noise_generator/Standard/Gaussian_noise_generator_std.cpp#L28
-    std::normal_distribution<double> normal(0, sigma);
-    Eigen::RowVectorXd ret = origin;
+    std::normal_distribution<float> normal(0, sigma);
+    Eigen::RowVectorXf ret = origin;
     for (int i = 0; i < ret.size(); i++) {
         ret[i] += normal(engine);
     }
@@ -26,9 +26,9 @@ Eigen::RowVectorXd AWGN(const Eigen::RowVectorXd& origin, const double snr,
  *
  * @param x
  * @param snr
- * @return double
+ * @return float
  */
-double LLR_AWGN(const double x, const double snr) {
+float LLR_AWGN(const float x, const float snr) {
     // 4 * snr = 2 / sigma^2
     return -4 * snr * x;
 }
@@ -39,18 +39,18 @@ double LLR_AWGN(const double x, const double snr) {
  * @param X
  * @param GF
  * @param snr
- * @return Eigen::MatrixXd <GF, X.cols() / rate>
+ * @return Eigen::MatrixXf <GF, X.cols() / rate>
  */
-Eigen::MatrixXd LLR_BinAWGN2GF(const Eigen::RowVectorXd& X, const int GF,
-                               const double snr) {
+Eigen::MatrixXf LLR_BinAWGN2GF(const Eigen::RowVectorXf& X, const int GF,
+                               const float snr) {
     int rate = log2(GF);  // ret will be <GF, X.cols() / rate>
     assert(X.cols() % rate == 0);
 
-    Eigen::MatrixXd ret(GF, X.cols() / rate);
+    Eigen::MatrixXf ret(GF, X.cols() / rate);
     for (int j = 0; j < ret.cols(); j++) {
         ret(0, j) = 0;  // LLR for 0 set to 0, 'cause log(1)=0
         for (int q = 1; q < GF; q++) {
-            double ret_qj = 0;
+            float ret_qj = 0;
             for (int r = rate - 1; r >= 0; r--) {
                 // whether this bit has contribute to the q
                 if (q & (1 << r)) {
@@ -61,5 +61,5 @@ Eigen::MatrixXd LLR_BinAWGN2GF(const Eigen::RowVectorXd& X, const int GF,
             ret(q, j) = ret_qj;
         }
     }
-    return ret / rate / 2.0;
+    return ret / (float)rate / 2.0;
 }

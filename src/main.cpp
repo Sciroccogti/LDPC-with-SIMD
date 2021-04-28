@@ -24,10 +24,10 @@
 
 std::mutex mtx;
 
-void decode(const LDPC *ldpc, const Config *conf, const double SNR, int *count,
+void decode(const LDPC *ldpc, const Config *conf, const float SNR, int *count,
             int *BEcount, int *FEcount);
 
-void NBdecode(const NBLDPC *NBldpc, const Config *conf, const double SNR,
+void NBdecode(const NBLDPC *NBldpc, const Config *conf, const float SNR,
               int *count, int *BEcount, int *FEcount);
 
 int main(int argc, char *argv[]) {
@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
     // int count = 0;
     // NBdecode(&NBldpc, &conf, 0, &count, &BEcount, &FEcount);
 
-    for (double SNR = conf.SNRmin; SNR <= conf.SNRmax; SNR += conf.SNRstep) {
+    for (float SNR = conf.SNRmin; SNR <= conf.SNRmax; SNR += conf.SNRstep) {
         int FEcount = 0;
         int BEcount = 0;
         int count = 0;
@@ -86,10 +86,10 @@ int main(int argc, char *argv[]) {
             threads_[i].join();
         }
         auto end = std::chrono::steady_clock::now();
-        double BER = (double)BEcount / (count * K);
-        double FER = (double)FEcount / count;
+        float BER = (float)BEcount / (count * K);
+        float FER = (float)FEcount / count;
         // count is ns
-        double duration = (end - start).count() / 1000000000.0;
+        float duration = (end - start).count() / 1000000000.0;
         printf("\nBER: %.2e\n", BER);
         printf("FER: %.2e\n", FER);
         printf("Time: %.2f sec\n", duration);
@@ -101,19 +101,17 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
-void decode(const LDPC *ldpc, const Config *conf, const double SNR, int *count,
+void decode(const LDPC *ldpc, const Config *conf, const float SNR, int *count,
             int *BEcount, int *FEcount) {
     int K = ldpc->getK();  // length of message
     int N = ldpc->getN();  // length of message
 
     // printf("%lf\n", SNR);
-    double snr = pow(10, SNR / 10) * K / N;  // linear Es/N0
+    float snr = pow(10, SNR / 10) * K / N;  // linear Es/N0
 
-    std::srand(time(nullptr) +
-               std::hash<std::thread::id>()(std::this_thread::get_id()));
-    std::default_random_engine engine(
-        time(nullptr) +
-        std::hash<std::thread::id>()(std::this_thread::get_id()));
+    int id = std::hash<std::thread::id>()(std::this_thread::get_id());
+    std::srand(time(nullptr) + id);
+    std::default_random_engine engine(time(nullptr) + id);
 
     mtx.lock();
     while (*FEcount <= conf->FEcount) {
@@ -126,26 +124,26 @@ void decode(const LDPC *ldpc, const Config *conf, const double SNR, int *count,
         // std::cout << "code word: " << c << std::endl;
 
         // Modem modem(100, 4 * 100, 0.1);
-        // Eigen::RowVectorXd y = modem.modulate(c);
+        // Eigen::RowVectorXf y = modem.modulate(c);
         // Real BPSK will introduce error
-        Eigen::RowVectorXd y = RetransBPSK(c).cast<double>();
+        Eigen::RowVectorXf y = RetransBPSK(c).cast<float>();
 
-        Eigen::RowVectorXd y_noised = AWGN(y, snr, 2, engine);
+        Eigen::RowVectorXf y_noised = AWGN(y, snr, 2, engine);
         // std::cout << y - y_noised << std::endl;
 
         // std::stringstream ss;
         // ss << c;
         // int length = modem.getL() * c.size();
-        // Eigen::RowVectorXd x = Eigen::RowVectorXd::LinSpaced(length, 0,
-        // length); double *x_array = (double *)malloc(length * sizeof(double)),
-        //        *y_array = (double *)malloc(length * sizeof(double));
-        // Eigen::RowVectorXd::Map(x_array, x.cols()) = x;
-        // // Eigen::RowVectorXd::Map(y_array, y.cols()) = y;
+        // Eigen::RowVectorXf x = Eigen::RowVectorXf::LinSpaced(length, 0,
+        // length); float *x_array = (float *)malloc(length * sizeof(float)),
+        //        *y_array = (float *)malloc(length * sizeof(float));
+        // Eigen::RowVectorXf::Map(x_array, x.cols()) = x;
+        // // Eigen::RowVectorXf::Map(y_array, y.cols()) = y;
         // // if (pyplot(x_array, y_array, length, ss.str().c_str())) {
         // //     printf("ERROR during pyplot!\n");
         // // }
 
-        // Eigen::RowVectorXd::Map(y_array, y_noised.cols()) = y_noised;
+        // Eigen::RowVectorXf::Map(y_array, y_noised.cols()) = y_noised;
         // if (pyplot(x_array, y_array, length, ss.str().c_str())) {
         //     printf("ERROR during pyplot!\n");
         // }
@@ -155,8 +153,8 @@ void decode(const LDPC *ldpc, const Config *conf, const double SNR, int *count,
 
         // std::cout << y << std::endl;
 
-        // Eigen::RowVectorXd r = modem.demodulate(y);
-        Eigen::RowVectorXd r = y_noised;
+        // Eigen::RowVectorXf r = modem.demodulate(y);
+        Eigen::RowVectorXf r = y_noised;
         // std::cout << "received: " << r << std::endl;
 
         Eigen::RowVectorXi d =
@@ -182,20 +180,18 @@ void decode(const LDPC *ldpc, const Config *conf, const double SNR, int *count,
     mtx.unlock();
 }
 
-void NBdecode(const NBLDPC *NBldpc, const Config *conf, const double SNR,
+void NBdecode(const NBLDPC *NBldpc, const Config *conf, const float SNR,
               int *count, int *BEcount, int *FEcount) {
     int K = NBldpc->getK();  // length of message
     int N = NBldpc->getN();  // length of message
     int GF = NBldpc->getGF();
 
     // printf("%lf\n", SNR);
-    double snr = pow(10, SNR / 10) * K / N;  // linear Es/N0
+    float snr = pow(10, SNR / 10) * K / N;  // linear Es/N0
 
-    std::srand(time(nullptr) *
-               std::hash<std::thread::id>()(std::this_thread::get_id()));
-    std::default_random_engine engine(
-        time(nullptr) *
-        std::hash<std::thread::id>()(std::this_thread::get_id()));
+    int id = std::hash<std::thread::id>()(std::this_thread::get_id());
+    std::srand(time(nullptr) + id);
+    std::default_random_engine engine(time(nullptr) + id);
 
     mtx.lock();
     while (*FEcount <= conf->FEcount) {
@@ -212,31 +208,31 @@ void NBdecode(const NBLDPC *NBldpc, const Config *conf, const double SNR,
         // std::cout << "code word: " << c << std::endl;
 
         // // Modem modem(100, 4 * 100, 0.1);
-        // // Eigen::RowVectorXd y = modem.modulate(c);
+        // // Eigen::RowVectorXf y = modem.modulate(c);
         // // Real BPSK will introduce error
-        // Eigen::RowVectorXd y = RetransBPSK(c).cast<double>();
-        Eigen::RowVectorXd y = RetransBPSK(NB2Bin(c, GF)).cast<double>();
+        // Eigen::RowVectorXf y = RetransBPSK(c).cast<float>();
+        Eigen::RowVectorXf y = RetransBPSK(NB2Bin(c, GF)).cast<float>();
         // std::cout << y << std::endl;
         // Eigen::RowVectorXi test = Bin2GF(TransBPSK(y.cast<int>()), GF);
         // std::cout << test << std::endl;
 
-        Eigen::RowVectorXd y_noised = AWGN(y, snr, 2, engine);
+        Eigen::RowVectorXf y_noised = AWGN(y, snr, 2, engine);
         // std::cout << y - y_noised << std::endl;
 
         // // std::stringstream ss;
         // // ss << c;
         // // int length = modem.getL() * c.size();
-        // // Eigen::RowVectorXd x = Eigen::RowVectorXd::LinSpaced(length, 0,
-        // // length); double *x_array = (double *)malloc(length *
-        // sizeof(double)),
-        // //        *y_array = (double *)malloc(length * sizeof(double));
-        // // Eigen::RowVectorXd::Map(x_array, x.cols()) = x;
-        // // // Eigen::RowVectorXd::Map(y_array, y.cols()) = y;
+        // // Eigen::RowVectorXf x = Eigen::RowVectorXf::LinSpaced(length, 0,
+        // // length); float *x_array = (float *)malloc(length *
+        // sizeof(float)),
+        // //        *y_array = (float *)malloc(length * sizeof(float));
+        // // Eigen::RowVectorXf::Map(x_array, x.cols()) = x;
+        // // // Eigen::RowVectorXf::Map(y_array, y.cols()) = y;
         // // // if (pyplot(x_array, y_array, length, ss.str().c_str())) {
         // // //     printf("ERROR during pyplot!\n");
         // // // }
 
-        // // Eigen::RowVectorXd::Map(y_array, y_noised.cols()) = y_noised;
+        // // Eigen::RowVectorXf::Map(y_array, y_noised.cols()) = y_noised;
         // // if (pyplot(x_array, y_array, length, ss.str().c_str())) {
         // //     printf("ERROR during pyplot!\n");
         // // }
@@ -246,11 +242,11 @@ void NBdecode(const NBLDPC *NBldpc, const Config *conf, const double SNR,
 
         // // std::cout << y << std::endl;
 
-        // // Eigen::RowVectorXd r = modem.demodulate(y);
-        Eigen::RowVectorXd r = y_noised;
+        // // Eigen::RowVectorXf r = modem.demodulate(y);
+        Eigen::RowVectorXf r = y_noised;
         // std::cout << "received: " << r << std::endl;
 
-        Eigen::MatrixXd LLR = LLR_BinAWGN2GF(r, GF, snr);
+        Eigen::MatrixXf LLR = LLR_BinAWGN2GF(r, GF, snr);
         // std::cout << "LLR: " << LLR << std::endl;
 
         Eigen::RowVectorXi d = NBldpc->decode(LLR, conf->iter_max, conf->factor,

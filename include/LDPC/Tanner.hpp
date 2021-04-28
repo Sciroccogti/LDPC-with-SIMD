@@ -3,7 +3,7 @@
  * @author Sciroccogti (scirocco_gti@yeah.net)
  * @brief
  * @date 2021-03-09 17:32:42
- * @modified: 2021-04-22 11:31:12
+ * @modified: 2021-04-27 15:13:46
  */
 
 #ifndef TANNER_HPP
@@ -28,37 +28,37 @@ class Node {
     int degree;
     int inCount;                // used to record No. of current inputting node
     std::vector<Node*> Nodes_;  // Linked Nodes
-    std::vector<double> inValues_;
+    std::vector<float> inValues_;
 
   public:
     Node(int d);
     ~Node();
     void Link(Node* n);
     virtual bool isVN() = 0;
-    void setInValue(double data);
+    void setInValue(float data);
     bool isReady();
     virtual void Update(int mode) = 0;
 };
 
 class VNode : public Node {
   private:
-    double value;
-    double LLR;
+    float value;
+    float LLR;
 
   public:
-    VNode(int d, double v);
+    VNode(int d, float v);
     void Link(Node* n);
     void Update(int mode);
-    double getValue();
+    float getValue();
     bool isVN();
 };
 
 class CNode : public Node {
   private:
-    double factor;
+    float factor;
 
   public:
-    CNode(int d, double f);
+    CNode(int d, float f);
     void Link(Node* n);
     void Update(int mode);
     bool isVN();
@@ -72,7 +72,7 @@ class NBNode {
     int inCount;  // used to record No. of current inputting node
     int n_maxCount;
     std::vector<NBNode*> NBNodes_;  // Linked Nodes
-    std::vector<Eigen::RowVectorXd> inValuesQ_;
+    std::vector<std::vector<float>> inValuesQ_;
     // every element's size is n_max, number of elements is `degree`
     std::vector<std::vector<NBLLR>> n_maxValue_;
 
@@ -81,7 +81,7 @@ class NBNode {
     ~NBNode();
     virtual void Link(NBNode* n, int h) = 0;
     virtual bool isVN() = 0;
-    void setInValue(Eigen::RowVectorXd dataQ);
+    void setInValue(std::vector<float> dataQ);
     void setinn_maxValue(std::vector<NBLLR> vn_max);
     bool isReady();
     virtual void Update(int mode) = 0;
@@ -89,11 +89,11 @@ class NBNode {
 
 class NBVNode : public NBNode {
   private:
-    Eigen::RowVectorXd valueQ;
-    Eigen::RowVectorXd LLRQ;
+    std::vector<float> valueQ;
+    std::vector<float> LLRQ;
 
   public:
-    NBVNode(int d, Eigen::RowVectorXd vQ, const int GF, const int nmax);
+    NBVNode(int d, Eigen::RowVectorXf vQ, const int GF, const int nmax);
     void Link(NBNode* n, int h);
     void Update(int n_max);
     int getValue();
@@ -102,14 +102,14 @@ class NBVNode : public NBNode {
 
 class NBCNode : public NBNode {
   private:
-    double factor;
-    Eigen::RowVectorXi Hrow_;
+    float factor;
+    std::vector<uint8_t> Hrow_;
 
   public:
-    NBCNode(int d, double f, const int gf, const int nmax);
+    NBCNode(int d, float f, const int gf, const int nmax);
     void Link(NBNode* n, int h);
     void Update(int mode);
-    int getConfset(Eigen::RowVectorXi& confset, int& confsetCount, int& cur);
+    int getConfset(std::vector<uint8_t>& confset, int& confsetCount, int& cur);
     bool isVN();
 };
 

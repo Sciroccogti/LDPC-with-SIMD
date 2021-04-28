@@ -3,13 +3,13 @@
  * @author Yifan Zhang (scirocco_gti@yeah.net)
  * @brief
  * @date 2020-11-28 15:46:41
- * @modified: 2020-11-28 15:47:10
+ * @modified: 2021-04-27 15:11:16
  */
 
 #include <bitset>
 #include <vector>
 
-std::bitset<64> flip_bit(std::bitset<64> I, short bit) {
+std::bitset<64> flip_bit(std::bitset<64> I, uint8_t bit) {
     I[bit] = 1 - I[bit];
     std::bitset<64> ret(I);
     return ret;
