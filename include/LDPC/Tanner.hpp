@@ -3,7 +3,7 @@
  * @author Sciroccogti (scirocco_gti@yeah.net)
  * @brief
  * @date 2021-03-09 17:32:42
- * @modified: 2021-04-27 15:13:46
+ * @modified: 2021-04-29 09:57:07
  */
 
 #ifndef TANNER_HPP
@@ -20,8 +20,9 @@
 #define BP_SPA 1
 #define BP_EMS 2
 #define BP_QSPA 3
+#define BP_TEMS 4
 
-extern const char* Modes_[4];
+extern const char* Modes_[5];
 
 class Node {
   protected:

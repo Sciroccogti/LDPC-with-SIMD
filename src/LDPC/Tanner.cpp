@@ -1,6 +1,6 @@
 #include "LDPC/Tanner.hpp"
 
-const char* Modes_[4] = {"NMS", "SPA", "EMS", "QSPA"};
+const char* Modes_[5] = {"NMS", "SPA", "EMS", "QSPA", "TEMS"};
 
 /**
  * @brief Construct a new Node:: Node object

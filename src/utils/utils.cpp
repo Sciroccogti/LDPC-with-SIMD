@@ -96,7 +96,8 @@ int opt(int argc, char* argv[], Config& conf) {
                 printf(
                     "  --dec-implem <string>\n"
                     "\t\t\tdecoding algorithm,"
-                    " choose from \"NMS\", \"SPA\", \"QSPA\","
+                    " choose from \"NMS\", \"SPA\", \"EMS\", \"QSPA\", "
+                    "\"TESM\","
                     " default to be \"NMS\"\n");
                 printf(
                     "\n  --help, -h\t\tshow this help message and "

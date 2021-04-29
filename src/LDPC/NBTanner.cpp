@@ -224,9 +224,14 @@ void NBCNode::Update(int mode) {
 
                         // conf_q_1 should choose among all Q, no only n_max
                         if (conf_q_1 == -1) {
-                            // 0 should be the maxLLR
                             if (confset[i - hasPassedcur_VN] == 0) {
+                                // 0 should be the maxLLR
                                 Qi = n_maxValue_[i][0].getQ();
+                            } else if (confset[i - hasPassedcur_VN] ==
+                                       n_maxValue_[i][0].getQ()) {
+                                // maxLLR has been visited at 0, so this time we
+                                // fetch 0
+                                Qi = 0;
                             } else {
                                 Qi = confset[i - hasPassedcur_VN];
                             }
@@ -278,6 +283,10 @@ void NBCNode::Update(int mode) {
 
                 // NBNodes_[cur_VN]->setInValue(prod);
             } break;
+
+            case BP_TEMS: {
+            }
+
             default:
                 break;
         }
