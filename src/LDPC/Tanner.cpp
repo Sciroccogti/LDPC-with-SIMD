@@ -67,7 +67,11 @@ void VNode::Update(int mode) {
 }
 
 float VNode::getValue() {
-    return value;
+    float ret = LLR;
+    for (int i = 0; i < degree; i++) {
+        ret += inValues_[i];
+    }
+    return ret;
 }
 
 bool VNode::isVN() {
@@ -94,46 +98,48 @@ void CNode::Update(int mode) {
     assert(mode >= 0 && mode <= BP_SPA);
     assert(inCount == 0);  // assure all inValue is changed
 
-    for (int i = 0; i < degree; i++) {
-        switch (mode) {
-            case BP_NMS: {
-                float min = 0;
-                int sgn = 1;
-                bool isFirst = true;
-                for (int j = 0; j < degree; j++) {
-                    float absJ = fabs(inValues_[j]);
-                    if (j == i) {
-                        continue;  // skip current VN
-                    }
-                    if (isFirst) {
-                        isFirst = false;
-                        min = absJ;
-                    } else {
-                        min = absJ < min ? absJ : min;
-                    }
-                    sgn *= inValues_[j] >= 0 ? 1 : -1;
+    switch (mode) {
+        case BP_NMS: {
+            float min = MAXFLOAT, min2 = MAXFLOAT;  // min2 store the second min
+            int sgn = 1;
+            for (int i = 0; i < degree; i++) {
+                float absJ = fabs(inValues_[i]);
+                if (absJ < min) {
+                    min2 = min;
+                    min = absJ;
+                } else if (absJ < min2) {
+                    min2 = absJ;
                 }
+                sgn *= inValues_[i] >= 0 ? 1 : -1;
+            }
 
-                Nodes_[i]->setInValue(sgn * min * factor);
-            } break;
-            case BP_SPA: {
-                float prod = 1;
-                int sgn = 1;
-                for (int j = 0; j < degree; j++) {
-                    if (j == i) {
-                        continue;  // skip current VN
-                    }
-                    prod *= tanh(fabs(inValues_[j]) / 2);
-                    sgn *= inValues_[j] >= 0 ? 1 : -1;
+            for (int i = 0; i < degree; i++) {
+                int sgnTmp = sgn / (inValues_[i] >= 0 ? 1 : -1);
+                if (fabs(inValues_[i]) - min <= 0) {
+                    Nodes_[i]->setInValue(sgnTmp * min2 * factor);
+                } else {
+                    Nodes_[i]->setInValue(sgnTmp * min * factor);
                 }
+            }
+        } break;
+        case BP_SPA: {
+            float prod = 1;
+            int sgn = 1;
+            for (int i = 0; i < degree; i++) {
+                prod *= tanh(fabs(inValues_[i]) / 2);
+                sgn *= inValues_[i] >= 0 ? 1 : -1;
+            }
 
-                prod = prod < 1 ? prod
-                                : 1.0 - std::numeric_limits<float>::epsilon();
-                Nodes_[i]->setInValue(sgn * 2 * atanh(prod));
-            } break;
-            default:
-                break;
-        }
+            prod =
+                prod < 1 ? prod : 1.0 - std::numeric_limits<float>::epsilon();
+            for (int i = 0; i < degree; i++) {
+                int sgnTmp = sgn / (inValues_[i] >= 0 ? 1 : -1);
+                Nodes_[i]->setInValue(
+                    sgnTmp * 2 * atanh(prod / tanh(fabs(inValues_[i]) / 2)));
+            }
+        } break;
+        default:
+            break;
     }
 }
 

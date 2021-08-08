@@ -115,7 +115,7 @@ int Compare(const Eigen::MatrixXi &X, const Eigen::MatrixXi &Y) {
  * @param Y
  * @return int : error count
  */
-int Compare(const Eigen::MatrixXf &X, const Eigen::MatrixXf &Y) {
+int Comparef(const Eigen::MatrixXf &X, const Eigen::MatrixXf &Y) {
     assert(X.size() == Y.size());
     int diffCount = 0;
     for (size_t i = 0; i < X.size(); i++) {

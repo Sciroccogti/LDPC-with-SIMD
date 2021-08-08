@@ -3,7 +3,7 @@
  * @author Yifan Zhang (scirocco_gti@yeah.net)
  * @brief
  * @date 2020-12-11 13:52:36
- * @modified: 2021-04-27 13:13:38
+ * @modified: 2021-08-08 22:00:48
  */
 
 #ifndef MODEM_HPP
@@ -30,7 +30,7 @@ class Modem {
 };
 
 int Compare(const Eigen::MatrixXi &X, const Eigen::MatrixXi &Y);
-// int Compare(const Eigen::MatrixXf &X, const Eigen::MatrixXf &Y);
+int Comparef(const Eigen::MatrixXf &X, const Eigen::MatrixXf &Y);
 int CompareBPSK(const Eigen::RowVectorXi &X, const Eigen::RowVectorXi &Y);
 Eigen::MatrixXi TransBPSK(const Eigen::MatrixXi& X);
 Eigen::MatrixXi RetransBPSK(const Eigen::MatrixXi &X);

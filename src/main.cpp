@@ -52,15 +52,15 @@ int main(int argc, char *argv[]) {
     printf("aligned!\n");
 #endif
 
-    // Alist<nbalist_matrix> A = Alist<nbalist_matrix>(conf.alist_path);
+    Alist<alist_matrix> A = Alist<alist_matrix>(conf.alist_path);
     // std::cout << A.getMat() << std::endl;
 
-    // LDPC ldpc(conf.alist_path);
-    NBLDPC NBldpc(conf.alist_path);
+    LDPC ldpc(conf.alist_path);
+    // NBLDPC NBldpc(conf.alist_path);
     // std::cout << "G:\n" << NBldpc.getG() << std::endl;
     // std::cout << "H:\n" << NBldpc.getH() << std::endl;
     printf("%s read in successfully.\n", conf.alist_path);
-    int K = NBldpc.getK();  // length of message
+    int K = ldpc.getK();  // length of message
     // printf("K = %d\n", K);
     // int N = NBldpc.getN();  // length of message
     // printf("N = %d\n", N);
@@ -77,7 +77,7 @@ int main(int argc, char *argv[]) {
 
         std::vector<std::thread> threads_(conf.threads);
         for (int i = 0; i < conf.threads; i++) {
-            threads_[i] = std::thread(NBdecode, &NBldpc, &conf, SNR, &count,
+            threads_[i] = std::thread(decode, &ldpc, &conf, SNR, &count,
                                       &BEcount, &FEcount);
         }
 
@@ -117,7 +117,8 @@ void decode(const LDPC *ldpc, const Config *conf, const float SNR, int *count,
     while (*FEcount <= conf->FEcount) {
         mtx.unlock();
         Eigen::RowVectorXi m = Eigen::RowVectorXf::Random(K).unaryExpr(
-            [](const float x) { return (int)ceil(x); });  // message
+            [](const float x) { return abs((int)ceil(x)); });  // message
+        // chance is there for (int)ceil(x) to be -1
         // std::cout << "message  : " << m << std::endl;
 
         Eigen::RowVectorXi c = ldpc->encode(m);  // code word encoded from m
@@ -129,6 +130,7 @@ void decode(const LDPC *ldpc, const Config *conf, const float SNR, int *count,
         Eigen::RowVectorXf y = RetransBPSK(c).cast<float>();
 
         Eigen::RowVectorXf y_noised = AWGN(y, snr, 2, engine);
+        // std::cout << "sended: " << y << std::endl;
         // std::cout << y - y_noised << std::endl;
 
         // std::stringstream ss;
@@ -163,8 +165,8 @@ void decode(const LDPC *ldpc, const Config *conf, const float SNR, int *count,
 
         Eigen::RowVectorXi m_ = ldpc->recoverMessage(d);
         // std::cout << "message  : " << m_ << std::endl;
-        // std::cout << Compare(m, m_) << std::endl;
-        int BE = Compare(m, m_);
+        // std::cout << Compare(d, c) << std::endl;
+        int BE = Compare(d, c);
 
         mtx.lock();
         if (*FEcount >= conf->FEcount) {
