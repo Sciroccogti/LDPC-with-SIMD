@@ -68,6 +68,8 @@ Eigen::RowVectorXi LDPC::decode(Eigen::RowVectorXf& r, int iter_max,
                                 float factor, float snr, int mode) const {
     std::vector<VNode*> VNodes_;  // size: N
     std::vector<CNode*> CNodes_;  // size: M
+    const int Q = 2; // TODO: this is only for BPSK
+    float sigma2 = 1 / (2 * snr * log2(Q));
     int M = H_mat.rows();
     Eigen::MatrixXi Hdense = H_mat.toDense();
     assert(r.size() == N);
@@ -80,8 +82,13 @@ Eigen::RowVectorXi LDPC::decode(Eigen::RowVectorXf& r, int iter_max,
 
     // TODO: use feature of SparseMatrix
     for (int i = 0; i < N; i++) {
-        // init LLR directly by r
-        VNode* v = new VNode(num_nlist[i], r[i]);
+        VNode *v;
+        if (mode == 0) {
+            // init LLR directly by r
+            v = new VNode(num_nlist[i], r[i]);
+        } else {
+            v = new VNode(num_nlist[i], 2 * r[i] / sigma2);
+        }
         VNodes_.push_back(v);
         for (int j = 0; j < M; j++) {
             if (Hdense(j, i) == 1) {
