@@ -55,9 +55,9 @@ sudo apt install python3-dev
 ```Bash
 mkdir build
 cd build
-conan install ..
+conan install .. --build=yaml-cpp
 conan profile update settings.compiler.libcxx=libstdc++11 default
-cmake ..
+cmake -DBUILD_SHARED_LIBS=ON ..
 cmake --build .
 ../bin/LDPC-with-SIMD --dec-h-path ../example/H.alist
 ```

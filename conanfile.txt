@@ -1,6 +1,6 @@
 [requires]
 eigen/3.3.9
-yaml-cpp/0.6.3
+yaml-cpp/0.7.0
 
 [generators]
 cmake_find_package
