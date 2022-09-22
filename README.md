@@ -2,6 +2,8 @@
 
 LDPC with SIMD.
 
+⚠️ Just a experiment project, currently it's not using SIMD, and may not work properly.
+
 ## Environment
 
 - OS: Ubuntu 20.04.1 or 18.04.4
